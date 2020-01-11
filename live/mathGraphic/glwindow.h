@@ -16,6 +16,7 @@ public:
 	void DoInit();
 	virtual void SetInternVisible(bool bVisible = true);
 	virtual void SetPos(RECT rc, bool bNeedInvalidate);
+	void SetGLViewport();
 protected:
 	void CreateGLWindow();
 	void DestoryGLWindow();

@@ -112,6 +112,14 @@ void CGLUI::SetPos(RECT rc, bool bNeedInvalidate)
 	//::SetWindowPos(m_hWnd, NULL, rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top, SWP_NOZORDER | SWP_NOACTIVATE);
 }
 
+void CGLUI::SetGLViewport()
+{
+	if (m_pGLWindow)
+	{
+		glViewport(0, 0, m_rcItem.right - m_rcItem.left, m_rcItem.bottom - m_rcItem.top);
+	}
+}
+
 CGLShowWnd::CGLShowWnd()
 {
 	m_pGLUI = NULL;
@@ -226,6 +234,23 @@ void CGLShowWnd::InitVBO()
 	}
 }
 
+//着色器代码---------------------------------------------------------------------
+//点着色器
+const char *vertexShaderSource = "#version 330 core\n"
+"layout (location = 0) in vec3 aPos;\n"
+"void main()\n"
+"{\n"
+"   gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
+"}\0";
+//片段着色器
+const char *fragmentShaderSource = "#version 330 core\n"
+"out vec4 FragColor;\n"
+"void main()\n"
+"{\n"
+"   FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
+"}\n\0";
+
+
 void CGLShowWnd::OnBtnTriangle()
 {
 	GLFWwindow* pWindow = GetGLWindow();
@@ -234,33 +259,104 @@ void CGLShowWnd::OnBtnTriangle()
 		return;
 	}
 
-	float rectVertices[] = {
-	0.5f, 0.5f, 0.0f,   //右上角
-	0.5f, -0.5f, 0.0f,  //右下角
-	-0.5f, -0.5f, 0.0f, //左下角
-	-0.5f, 0.5f, 0.0f   //左上角
-	};
-	unsigned int indices[] = {
-	0, 1, 3,    //第一个三角形
-	1, 2, 3 //第二个三角形
-	};
 	glfwMakeContextCurrent(pWindow);
 	glfwSetFramebufferSizeCallback(pWindow, framebuffer_size_callback);
 
-	static bool s_init = false;
-	if (!s_init)
+
+	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
 	{
-		s_init = true;
-		gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
+		return;
 	}
 
-	GLuint vbo = 0;
-	glGenBuffers(1, &vbo);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vbo);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+	if (m_pGLUI)
+	{
+		m_pGLUI->SetGLViewport();
+	}
 
-	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+	// 建立并编译着色器--------------------------------------------------------------
+	// 点着色器
+	int vertexShader = glCreateShader(GL_VERTEX_SHADER);
+	glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
+	glCompileShader(vertexShader);
+	// 检查点着色器是否有错误
+	int success;
+	char infoLog[512];
+	glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
+	if (!success)
+	{
+		glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
+	}
+	// 片段着色器
+	int fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+	glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
+	glCompileShader(fragmentShader);
+	// 检查片段着色器是否有错误
+	glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
+	if (!success)
+	{
+		glGetShaderInfoLog(fragmentShader, 512, NULL, infoLog);
+	}
+	// 链接着色器 shaders
+	int shaderProgram = glCreateProgram();
+	glAttachShader(shaderProgram, vertexShader);
+	glAttachShader(shaderProgram, fragmentShader);
+	glLinkProgram(shaderProgram);
+	// 检查着色器错误
+	glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
+	if (!success) {
+		glGetProgramInfoLog(shaderProgram, 512, NULL, infoLog);
+	}
+	glDeleteShader(vertexShader);
+	glDeleteShader(fragmentShader);
 
-	glfwSwapBuffers(pWindow);
-	glfwPollEvents();
+	// 设置点数据 (还有缓冲) 配置点的属性（包含点坐标等）
+	float vertices[] = {
+		-0.5f, -0.5f, 0.0f, // left  
+		0.5f, -0.5f, 0.0f, // right 
+		0.0f,  0.5f, 0.0f  // top   
+	};
+	//顶点数组对象、顶点缓冲对象的绑定
+	unsigned int VBO, VAO;
+	glGenVertexArrays(1, &VAO);
+	glGenBuffers(1, &VBO);
+	// 绑定顶点数组, 然后绑定并设置缓冲, 最后配置顶点属性.
+	glBindVertexArray(VAO);
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(0);
+
+	//注意这是允许的，对glVertexAttribPointer的调用将VBO注册为顶点属性的绑定顶点缓冲区对象，所以之后我们可以安全地解除绑定
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	// 您可以在之后取消绑定VAO，以便其他VAO调用不会意外地修改此VAO，但这种情况很少发生。无论如何， 
+	// 修改其他VAO需要调用glBindVertexArray，因此我们通常不会在不直接需要时解除VAO（VBO同样）的绑定。
+	glBindVertexArray(0);
+
+	// 取消注释此调用会绘制线框多边形。
+	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
+	//while (!glfwWindowShouldClose(window))
+	//{
+		// 输入
+	//	processInput(window);
+
+		// 清除屏幕
+		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT);
+
+		// 画第一个三角形
+		glUseProgram(shaderProgram);
+		glBindVertexArray(VAO); //可以知道我们只有一个三角形VAO，没必要每次都绑定它，但是我们这么做会让代码有一点组织性
+		glDrawArrays(GL_TRIANGLES, 0, 3);
+		// glBindVertexArray(0); //没必要每次都解绑 
+
+		// glfw: 交换buffers和poll的IO事件 (按键按下/释放，鼠标移动等.)
+		glfwSwapBuffers(pWindow);
+		glfwPollEvents();
+	//}
+
+	// 一旦他们超出已有的资源，就取消所有资源的分配：
+	glDeleteVertexArrays(1, &VAO);
+	glDeleteBuffers(1, &VBO);
+
 }
