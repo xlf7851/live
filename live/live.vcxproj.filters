@@ -1,0 +1,292 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="源文件">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="头文件">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="资源文件">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="ImageLive">
+      <UniqueIdentifier>{dc876197-5657-4738-82e8-d72b23ca85be}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="stock">
+      <UniqueIdentifier>{b8971d4c-d0fe-4de2-b241-a56a32c75926}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="base">
+      <UniqueIdentifier>{0992281f-be11-4e0f-b60d-a1dee77318bb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="control">
+      <UniqueIdentifier>{1a81337a-d900-4f6f-b14a-2ce2222085d1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="login">
+      <UniqueIdentifier>{9e2ff658-d372-488e-a732-ea708a90f82c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="frame">
+      <UniqueIdentifier>{72a620de-3b11-48f3-98af-e395ef16ee9d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="skin">
+      <UniqueIdentifier>{684fdf60-d00c-497a-9c90-d2e82cf890e1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="global">
+      <UniqueIdentifier>{eea285cf-1855-4e0c-a892-5cfca0262969}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="page">
+      <UniqueIdentifier>{d10b8dea-b843-4071-8392-310889c1f17f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="screenShot">
+      <UniqueIdentifier>{95dbfde7-2da9-45ea-9f77-467adbe98a88}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="glad">
+      <UniqueIdentifier>{90d23411-0b3e-41bc-8da5-4af71098d17a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="mathGraphic">
+      <UniqueIdentifier>{d8b9fe9f-d21c-407b-8fe8-51c1e5171309}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="ReadMe.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="stdafx.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="targetver.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Resource.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="base\buffer.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="base\types.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="base\defines.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="base\file.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="base\fmtStringArray.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="base\iniParse.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="base\jsonutl.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="base\utl.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="control\controlGlobalFunc.h">
+      <Filter>control</Filter>
+    </ClInclude>
+    <ClInclude Include="control\popupSliderWnd.h">
+      <Filter>control</Filter>
+    </ClInclude>
+    <ClInclude Include="frame\caption.h">
+      <Filter>frame</Filter>
+    </ClInclude>
+    <ClInclude Include="frame\MainWnd.h">
+      <Filter>frame</Filter>
+    </ClInclude>
+    <ClInclude Include="frame\toolbar.h">
+      <Filter>frame</Filter>
+    </ClInclude>
+    <ClInclude Include="skin\skinSetWnd.h">
+      <Filter>skin</Filter>
+    </ClInclude>
+    <ClInclude Include="ImageLive\imageShowPage.h">
+      <Filter>ImageLive</Filter>
+    </ClInclude>
+    <ClInclude Include="login\login.h">
+      <Filter>login</Filter>
+    </ClInclude>
+    <ClInclude Include="global\GlobalFuncton.h">
+      <Filter>global</Filter>
+    </ClInclude>
+    <ClInclude Include="global\profile.h">
+      <Filter>global</Filter>
+    </ClInclude>
+    <ClInclude Include="stock\block.h">
+      <Filter>stock</Filter>
+    </ClInclude>
+    <ClInclude Include="stock\blockcalc.h">
+      <Filter>stock</Filter>
+    </ClInclude>
+    <ClInclude Include="stock\market.h">
+      <Filter>stock</Filter>
+    </ClInclude>
+    <ClInclude Include="stock\stockArray.h">
+      <Filter>stock</Filter>
+    </ClInclude>
+    <ClInclude Include="page\base64Page.h">
+      <Filter>page</Filter>
+    </ClInclude>
+    <ClInclude Include="page\basePage.h">
+      <Filter>page</Filter>
+    </ClInclude>
+    <ClInclude Include="page\PageCreater.h">
+      <Filter>page</Filter>
+    </ClInclude>
+    <ClInclude Include="page\blockcalcPage.h">
+      <Filter>page</Filter>
+    </ClInclude>
+    <ClInclude Include="base\httpHandler.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="stock\blockAsk.h">
+      <Filter>stock</Filter>
+    </ClInclude>
+    <ClInclude Include="stock\stockdata.h">
+      <Filter>stock</Filter>
+    </ClInclude>
+    <ClInclude Include="base\fmtobj.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="global\customControlFactory.h">
+      <Filter>global</Filter>
+    </ClInclude>
+    <ClInclude Include="page\testControlPage.h">
+      <Filter>page</Filter>
+    </ClInclude>
+    <ClInclude Include="screenShot\screenShot.h">
+      <Filter>screenShot</Filter>
+    </ClInclude>
+    <ClInclude Include="mathGraphic\glwindow.h">
+      <Filter>mathGraphic</Filter>
+    </ClInclude>
+    <ClInclude Include="mathGraphic\mathBase.h">
+      <Filter>mathGraphic</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="base\buffer.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="base\file.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="base\fmtStringArray.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="base\iniParse.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="base\jsonutl.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="base\utl.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="control\controlGlobalFunc.cpp">
+      <Filter>control</Filter>
+    </ClCompile>
+    <ClCompile Include="control\popupSliderWnd.cpp">
+      <Filter>control</Filter>
+    </ClCompile>
+    <ClCompile Include="frame\caption.cpp">
+      <Filter>frame</Filter>
+    </ClCompile>
+    <ClCompile Include="frame\MainWnd.cpp">
+      <Filter>frame</Filter>
+    </ClCompile>
+    <ClCompile Include="frame\toolbar.cpp">
+      <Filter>frame</Filter>
+    </ClCompile>
+    <ClCompile Include="skin\skinSetWnd.cpp">
+      <Filter>skin</Filter>
+    </ClCompile>
+    <ClCompile Include="ImageLive\imageShowPage.cpp">
+      <Filter>ImageLive</Filter>
+    </ClCompile>
+    <ClCompile Include="login\login.cpp">
+      <Filter>login</Filter>
+    </ClCompile>
+    <ClCompile Include="global\GlobalFuncton.cpp">
+      <Filter>global</Filter>
+    </ClCompile>
+    <ClCompile Include="global\profile.cpp">
+      <Filter>global</Filter>
+    </ClCompile>
+    <ClCompile Include="stock\block.cpp">
+      <Filter>stock</Filter>
+    </ClCompile>
+    <ClCompile Include="stock\blockcalc.cpp">
+      <Filter>stock</Filter>
+    </ClCompile>
+    <ClCompile Include="stock\market.cpp">
+      <Filter>stock</Filter>
+    </ClCompile>
+    <ClCompile Include="stock\stockArray.cpp">
+      <Filter>stock</Filter>
+    </ClCompile>
+    <ClCompile Include="page\base64Page.cpp">
+      <Filter>page</Filter>
+    </ClCompile>
+    <ClCompile Include="page\basePage.cpp">
+      <Filter>page</Filter>
+    </ClCompile>
+    <ClCompile Include="page\PageCreater.cpp">
+      <Filter>page</Filter>
+    </ClCompile>
+    <ClCompile Include="page\blockcalcPage.cpp">
+      <Filter>page</Filter>
+    </ClCompile>
+    <ClCompile Include="base\httpHandler.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="stock\blockAsk.cpp">
+      <Filter>stock</Filter>
+    </ClCompile>
+    <ClCompile Include="stock\stockdata.cpp">
+      <Filter>stock</Filter>
+    </ClCompile>
+    <ClCompile Include="base\fmtobj.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="global\customControlFactory.cpp">
+      <Filter>global</Filter>
+    </ClCompile>
+    <ClCompile Include="page\testControlPage.cpp">
+      <Filter>page</Filter>
+    </ClCompile>
+    <ClCompile Include="screenShot\screenShot.cpp">
+      <Filter>screenShot</Filter>
+    </ClCompile>
+    <ClCompile Include="glad\src\glad.cpp">
+      <Filter>glad</Filter>
+    </ClCompile>
+    <ClCompile Include="mathGraphic\glwindow.cpp">
+      <Filter>mathGraphic</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="live.rc">
+      <Filter>资源文件</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="small.ico">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="live.ico">
+      <Filter>资源文件</Filter>
+    </Image>
+  </ItemGroup>
+</Project>
