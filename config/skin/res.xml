@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Res>
+	<!-- 登录框-->
+	<Xml id="XML_LOGIN" path="frame/login.xml"/>
+	<!-- 主界面-->
+	<Xml id="XML_MAIN" path="frame/main.xml"/>
+	<!-- 主界面标题栏-->
+	<Xml id="XML_CAPTION" path="frame/caption.xml" />
+	<!-- 主界面工具栏-->
+	<Xml id="XML_TOOLBAR" path="frame/toolbar.xml" />
+	<!-- 通用消息框-->
+	<Xml id="XML_MSG" path="msg.xml"/>
+	<!-- 皮肤设置-->
+	<Xml id="XML_SKIN_SET" path="skinset/index.xml"/>
+	<Xml id="XML_SKIN_TRANS_SET_POP" path="skinset/transSetPop.xml"/>
+	<Xml id="XML_show_gl" path="gl/index.xml"/>
+	
+	<!-- 一些是页面-->
+	<!-- 板块-->
+	<Xml id="xml_block" path="block/index.xml"/>
+	<Xml id="xml_block_modify" path="block/modify.xml"/>
+	<!-- base64-->
+	<Xml id="xml_base64" path="base64/index.xml"/>
+	<Xml id="xml_test_control" path="page/testControl.xml"/>
+	
+	<Xml id="xml_empty_common" path="other/empty.xml"/>
+	
+	
+</Res>

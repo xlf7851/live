@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Window size="1024,670" sizebox="4,4,4,4" caption="0,0,0,32" mininfo="960,670" bktrans="false" >
+	<Font id="0" name="宋体" size="14" />
+	<Font id="1" name="SYSTEM" size="24" bold="true" />
+	<Font id="2" name="宋体" size="12" />
+	
+	<Default name="Button" value="normalimage=&quot;file='image\comm\button_normal.png' corner='5,5,5,5'&quot; hotimage=&quot;file='image\comm\button_hover.png' corner='5,5,5,5'&quot; pushedimage=&quot;file='image\comm\button_down.png' corner='5,5,5,5'&quot; " />
+	<Default name="VScrollBar" value="width=&quot;17&quot; button1normalimage=&quot;file='image\comm\scroll1_normal.png'&quot; button1hotimage=&quot;file='image\comm\scroll1_normal.png'&quot; button1pushedimage=&quot;file='image\comm\scroll1_down.png'&quot; button2normalimage=&quot;file='image\comm\scroll2_normal.png'&quot; button2hotimage=&quot;file='image\comm\scroll2_normal.png'&quot; button2pushedimage=&quot;file='image\comm\scroll2_down.png'&quot; thumbnormalimage=&quot;file='image\comm\scroll.png' corner='3,3,3,3'&quot; thumbhotimage=&quot;file='image\comm\scroll.png' corner='3,3,3,3'&quot;" />    
+    
+	<VerticalLayout name="root" bkimage="image\bkImage\2.jpg" bkcolor="#FF01ECFD" bordercolor="#FF47484B" bordersize="1" inset="1,1,1,1">
+   
+
+	</VerticalLayout>     
+</Window>

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Window >
+	<TestControlPage bkcolor="#FFFFFFFF">
+		<HorizontalLayout height="200" childvalign="vcenter">
+			<VerticalLayout width="200" childvalign="vcenter">
+				<PieChart name="pieChar" width="150" height="150" piefont="2" textcolor="#ffffffff" piebordercolor="#ffff0000" radius="70" innerradius="40" piebkcolor="#ffffffff" mindrawpercent="3" startangle="0" />
+				<CompareValueButton height="30" datavalue="123" align="center" width="140" height="16" padding="10,0,0,0" comparecolorup="#ffff00ff" textcolor="#ffff0000" valueprefix="第" valuesuffix="名" datafmttext="1234" />
+			</VerticalLayout>
+			
+			<Button name="btnTestPageScreenshots" text="截屏" width="60" height="24" />
+			<Button name="btnTestPageShowGL" text="opengl" width="60" height="24" />
+		</HorizontalLayout>
+	</TestControlPage>
+</Window>

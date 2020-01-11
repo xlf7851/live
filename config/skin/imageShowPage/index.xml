@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Window >
+  <ImageShowPage height="30"  childvalign="vcenter"  childpadding="1" bkcolor="#FFFFFFFF">
+    <Button name="openFile" text="打开图片" width="100" height="20"/>
+   
+  </ImageShowPage>
+</Window>

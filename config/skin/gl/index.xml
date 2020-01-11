@@ -1,0 +1,22 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Window size="632,402" caption="0,0,0,30" mininfo="632,402" bktrans="false" >
+	<Font name="微软雅黑" size="13" id="0" default="true"/>
+    <Font name="微软雅黑" size="13" id="1" bold="true" />
+	<Default name="VScrollBar" value="width=&quot;17&quot; button1normalimage=&quot;file='image\comm\scroll1_normal.png'&quot; button1hotimage=&quot;file='image\comm\scroll1_normal.png'&quot; button1pushedimage=&quot;file='image\comm\scroll1_down.png'&quot; button2normalimage=&quot;file='image\comm\scroll2_normal.png'&quot; button2hotimage=&quot;file='image\comm\scroll2_normal.png'&quot; button2pushedimage=&quot;file='image\comm\scroll2_down.png'&quot; thumbnormalimage=&quot;file='image\comm\scroll.png' corner='3,3,3,3'&quot; thumbhotimage=&quot;file='image\comm\scroll.png' corner='3,3,3,3'&quot;" />    
+   
+	
+	<VerticalLayout name="root" bordercolor="#FF47484B" bordersize="1" inset="1,1,1,1">
+		<HorizontalLayout name="background" height="30" bkimage="file='image\bkImage\4.jpg' source='0,0,1000,30'" >
+            <Label text="glwindow" textcolor="#FFFFFFFF" textpadding="5,0,0,0" font="1" autocalcwidth="false" width="300"/>
+			<Control />
+			<Button name="closebtn" width="23" height="18" padding="0,6,0,0" normalimage="image\sys\close_normal.png" hotimage="image\sys\close_hover.png" pushedimage="image\sys\close_down.png" />                     
+        </HorizontalLayout>
+		<HorizontalLayout height="30" bkcolor="#FFFFFFFF" childvalign="vcenter" childpadding="8" bordersize="0,0,0,1" bordercolor="#ff666666">
+			<Button name="btnTest" text="opengl" width="60" height="24" /> 
+			<Button name="btnTriangle" text="三角形" width="60" height="24" /> 
+		</HorizontalLayout>
+		<VerticalLayout name="body" bkcolor="#FFFFFFFF">
+			<GL name="glWnd"/>
+		</VerticalLayout> 	
+	</VerticalLayout>     
+</Window>

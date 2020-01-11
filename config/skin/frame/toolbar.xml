@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Window >
+  <Style name="toolbarOptionStyle" value="width=&quot;60&quot; group=&quot;toolbarGroup&quot; textcolor=&quot;#FFCCCCCC&quot; selectedtextcolor=&quot;#FFFFFFFF&quot; pushedtextcolor=&quot;#FFFFFFFF&quot; "/>
+  <ToolbarPage height="30">
+	  <HorizontalLayout name="tools" childvalign="vcenter" childpadding="1" inset="1,1,1,0" bordersize="0,0,0,1" bordercolor="#ff999999">
+		<Control />
+		<Option name="toolbarBlock" text="板块计算" style="toolbarOptionStyle" />
+		<Option name="toolbarBase64" text="base64" style="toolbarOptionStyle" />
+		<Option name="toolbarTestControl" text="test" style="toolbarOptionStyle" />
+		<Control />
+	  </HorizontalLayout>
+  </ToolbarPage>
+</Window>
