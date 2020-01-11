@@ -342,8 +342,8 @@
     <IntDir Condition="'$(Configuration)|$(Platform)'=='SReleaseA|x64'">$(SolutionDir)Temp\$(Configuration)\</IntDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='ReleaseA|Win32'">$(SolutionDir)Temp\$(Configuration)\</IntDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='ReleaseA|x64'">$(SolutionDir)Temp\$(Configuration)\</IntDir>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)Bin\</OutDir>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)Bin\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)$(Configuration)\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)$(Configuration)\</OutDir>
     <OutDir Condition="'$(Configuration)|$(Platform)'=='SRelease|Win32'">$(SolutionDir)Lib\</OutDir>
     <OutDir Condition="'$(Configuration)|$(Platform)'=='SRelease|x64'">$(SolutionDir)Lib\</OutDir>
     <OutDir Condition="'$(Configuration)|$(Platform)'=='SReleaseA|Win32'">$(SolutionDir)Lib\</OutDir>
@@ -351,7 +351,7 @@
     <OutDir Condition="'$(Configuration)|$(Platform)'=='ReleaseA|Win32'">$(SolutionDir)Bin\</OutDir>
     <OutDir Condition="'$(Configuration)|$(Platform)'=='ReleaseA|x64'">$(SolutionDir)Bin\</OutDir>
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)$(Configuration)\</OutDir>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)Bin\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)$(Configuration)\</OutDir>
     <OutDir Condition="'$(Configuration)|$(Platform)'=='SDebug|Win32'">$(SolutionDir)Lib\</OutDir>
     <OutDir Condition="'$(Configuration)|$(Platform)'=='SDebug|x64'">$(SolutionDir)Lib\</OutDir>
     <OutDir Condition="'$(Configuration)|$(Platform)'=='SDebugA|Win32'">$(SolutionDir)Lib\</OutDir>
