@@ -3,6 +3,7 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include "mathBase.h"
+#include "shader.h"
 
 
 // process all input: query GLFW whether relevant keys are pressed/released this frame and react accordingly
@@ -247,32 +248,64 @@ const char *fragmentShaderSource = "#version 330 core\n"
 "out vec4 FragColor;\n"
 "void main()\n"
 "{\n"
-"   FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
+"   FragColor = vec4(0.9f, 0.2f, 0.1f, 1.0f);\n"
 "}\n\0";
 
-
-void CGLShowWnd::OnBtnTriangle()
+static void _Triangle2(GLFWwindow* pWindow)
 {
-	GLFWwindow* pWindow = GetGLWindow();
-	if (NULL == pWindow)
+	ns_opengl::CShader shader;
+	shader.LoadFromData(vertexShaderSource, fragmentShaderSource);
+	if (shader.GetProgram() == 0)
 	{
 		return;
 	}
 
-	glfwMakeContextCurrent(pWindow);
-	glfwSetFramebufferSizeCallback(pWindow, framebuffer_size_callback);
+	// 设置点数据 (还有缓冲) 配置点的属性（包含点坐标等）
+	float vertices[] = {
+		-0.5f, -0.5f, 0.0f, // left  
+		0.5f, -0.5f, 0.0f, // right 
+		0.0f,  0.5f, 0.0f  // top   
+	};
+	//顶点数组对象、顶点缓冲对象的绑定
+	unsigned int VBO, VAO;
+	glGenVertexArrays(1, &VAO);
+	glGenBuffers(1, &VBO);
+	// 绑定顶点数组, 然后绑定并设置缓冲, 最后配置顶点属性.
+	glBindVertexArray(VAO);
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(0);
+
+	//注意这是允许的，对glVertexAttribPointer的调用将VBO注册为顶点属性的绑定顶点缓冲区对象，所以之后我们可以安全地解除绑定
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	// 您可以在之后取消绑定VAO，以便其他VAO调用不会意外地修改此VAO，但这种情况很少发生。无论如何， 
+	// 修改其他VAO需要调用glBindVertexArray，因此我们通常不会在不直接需要时解除VAO（VBO同样）的绑定。
+	glBindVertexArray(0);
 
 
-	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
-	{
-		return;
-	}
+		// 清除屏幕
+	glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT);
 
-	if (m_pGLUI)
-	{
-		m_pGLUI->SetGLViewport();
-	}
+	// 画第一个三角形
+	shader.Use();
+	glBindVertexArray(VAO); //可以知道我们只有一个三角形VAO，没必要每次都绑定它，但是我们这么做会让代码有一点组织性
+	glDrawArrays(GL_TRIANGLES, 0, 3);
+	// glBindVertexArray(0); //没必要每次都解绑 
 
+	// glfw: 交换buffers和poll的IO事件 (按键按下/释放，鼠标移动等.)
+	glfwSwapBuffers(pWindow);
+	glfwPollEvents();
+	//}
+
+	// 一旦他们超出已有的资源，就取消所有资源的分配：
+	glDeleteVertexArrays(1, &VAO);
+	glDeleteBuffers(1, &VBO);
+
+}
+static void _Triangle(GLFWwindow* pWindow)
+{
 	// 建立并编译着色器--------------------------------------------------------------
 	// 点着色器
 	int vertexShader = glCreateShader(GL_VERTEX_SHADER);
@@ -341,22 +374,71 @@ void CGLShowWnd::OnBtnTriangle()
 	//	processInput(window);
 
 		// 清除屏幕
-		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT);
+	glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT);
 
-		// 画第一个三角形
-		glUseProgram(shaderProgram);
-		glBindVertexArray(VAO); //可以知道我们只有一个三角形VAO，没必要每次都绑定它，但是我们这么做会让代码有一点组织性
-		glDrawArrays(GL_TRIANGLES, 0, 3);
-		// glBindVertexArray(0); //没必要每次都解绑 
+	// 画第一个三角形
+	glUseProgram(shaderProgram);
+	glBindVertexArray(VAO); //可以知道我们只有一个三角形VAO，没必要每次都绑定它，但是我们这么做会让代码有一点组织性
+	glDrawArrays(GL_TRIANGLES, 0, 3);
+	// glBindVertexArray(0); //没必要每次都解绑 
 
-		// glfw: 交换buffers和poll的IO事件 (按键按下/释放，鼠标移动等.)
-		glfwSwapBuffers(pWindow);
-		glfwPollEvents();
+	// glfw: 交换buffers和poll的IO事件 (按键按下/释放，鼠标移动等.)
+	glfwSwapBuffers(pWindow);
+	glfwPollEvents();
 	//}
 
 	// 一旦他们超出已有的资源，就取消所有资源的分配：
 	glDeleteVertexArrays(1, &VAO);
 	glDeleteBuffers(1, &VBO);
+}
+
+// 老版本画三角
+static void _TriangleOld(GLFWwindow* pWindow)
+{
+	//glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT);
+	glBegin(GL_TRIANGLES);
+	glColor3f(0.0, 1.0, 0.0);  //绿色  
+	glVertex3f(-0.5f, -0.5f, 0.0f);
+	glColor3f(1.0, 0.0, 0.0); 
+	glVertex3f(0.5f, -0.5f, 0.0f);
+	glColor3f(0.0, 0.0, 1.0);
+	glVertex3f(0.0f, 0.5f, 0.0f);
+	glEnd();
+
+	glFlush();
+	glfwSwapBuffers(pWindow);
+}
+
+void CGLShowWnd::OnBtnTriangle()
+{
+	GLFWwindow* pWindow = GetGLWindow();
+	if (NULL == pWindow)
+	{
+		return;
+	}
+
+	glfwMakeContextCurrent(pWindow);
+	glfwSetFramebufferSizeCallback(pWindow, framebuffer_size_callback);
+	//glfwSetWindowRefreshCallback(pWindow, _flush);
+
+
+	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
+	{
+		return;
+	}
+
+	if (m_pGLUI)
+	{
+		m_pGLUI->SetGLViewport();
+	}
+
+	_Triangle2(pWindow);
+	
+	//_TriangleOld(pWindow);
+	
+	//_Triangle(pWindow);
+	
 
 }

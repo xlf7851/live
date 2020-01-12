@@ -168,6 +168,9 @@
     <ClInclude Include="mathGraphic\mathBase.h">
       <Filter>mathGraphic</Filter>
     </ClInclude>
+    <ClInclude Include="mathGraphic\shader.h">
+      <Filter>mathGraphic</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -273,6 +276,9 @@
       <Filter>glad</Filter>
     </ClCompile>
     <ClCompile Include="mathGraphic\glwindow.cpp">
+      <Filter>mathGraphic</Filter>
+    </ClCompile>
+    <ClCompile Include="mathGraphic\shader.cpp">
       <Filter>mathGraphic</Filter>
     </ClCompile>
   </ItemGroup>

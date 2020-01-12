@@ -178,6 +178,7 @@
     <ClInclude Include="login\login.h" />
     <ClInclude Include="mathGraphic\glwindow.h" />
     <ClInclude Include="mathGraphic\mathBase.h" />
+    <ClInclude Include="mathGraphic\shader.h" />
     <ClInclude Include="page\base64Page.h" />
     <ClInclude Include="page\basePage.h" />
     <ClInclude Include="page\blockcalcPage.h" />
@@ -219,6 +220,7 @@
     <ClCompile Include="login\login.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="mathGraphic\glwindow.cpp" />
+    <ClCompile Include="mathGraphic\shader.cpp" />
     <ClCompile Include="page\base64Page.cpp" />
     <ClCompile Include="page\basePage.cpp" />
     <ClCompile Include="page\blockcalcPage.cpp" />

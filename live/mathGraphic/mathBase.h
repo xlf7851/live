@@ -2,7 +2,7 @@
 
 // ÈıÎ¬µã
 
-namespace ns_math
+namespace ns_opengl
 {
 	struct Point3
 	{
