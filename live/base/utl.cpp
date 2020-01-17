@@ -434,4 +434,14 @@ namespace xlf
 
 		return file.Write(buf.GetBuffer(), buf.GetSize());
 	}
+
+	bool HuffmanEncode(const char* data, int nLen, CBuffer& buffer)
+	{
+		return false;
+	}
+
+	bool HuffmanDecode(const char* data, int nLen, CBuffer& buffer)
+	{
+		return false;
+	}
 }

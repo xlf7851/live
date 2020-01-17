@@ -97,8 +97,6 @@ namespace ns_opengl
 			{
 				glDeleteProgram(m_ID);
 				m_ID = 0;
-				//glGetProgramInfoLog(ID, 512, NULL, infoLog);
-				//std::cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" << infoLog << std::endl;
 			}
 		}
 		
@@ -125,9 +123,9 @@ namespace ns_opengl
 		glGetShaderiv(id, GL_COMPILE_STATUS, &success);
 		if (!success)
 		{
+			char infoLog[513] = { 0 };
+			glGetShaderInfoLog(id, 512, NULL, infoLog);
 			glDeleteShader(id);
-			//glGetShaderInfoLog(vertex, 512, NULL, infoLog);
-			//std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << std::endl;
 			id = 0;
 		}
 

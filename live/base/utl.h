@@ -40,4 +40,8 @@ namespace xlf
 	DWORD ReadBufferFromFile(CBuffer& buf, LPCTSTR lpszFile);
 	DWORD WriteBufferToFile(const CBuffer& buf, LPCTSTR lpszFile);
 
+	// huffman 
+	bool HuffmanEncode(const char* data, int nLen, CBuffer& buffer);
+	bool HuffmanDecode(const char* data, int nLen, CBuffer& buffer);
+
 }
