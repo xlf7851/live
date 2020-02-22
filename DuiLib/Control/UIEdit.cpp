@@ -149,6 +149,15 @@ namespace DuiLib
 
 	LRESULT CEditWnd::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 	{
+		if (m_pOwner)
+		{
+			bool bPreHandle = false;
+			LRESULT l = m_pOwner->PreHandleMessage(uMsg, wParam, lParam, bPreHandle);
+			if (bPreHandle)
+			{
+				return l;
+			}
+		}
 		LRESULT lRes = 0;
 		BOOL bHandled = TRUE;
 		if( uMsg == WM_CREATE ) {
@@ -269,7 +278,7 @@ namespace DuiLib
 
 	CEditUI::CEditUI() : m_pWindow(NULL), m_uMaxChar(255), m_bReadOnly(false), 
 		m_bPasswordMode(false), m_cPasswordChar(_T('*')), m_bAutoSelAll(false), m_uButtonState(0), 
-		m_dwEditbkColor(0xFFFFFFFF), m_dwEditTextColor(0x00000000), m_iWindowStyls(0),m_dwTipValueColor(0xFFBAC0C5)
+		m_dwEditbkColor(0xFFFFFFFF), m_dwEditTextColor(0x00000000), m_iWindowStyls(0),m_dwTipValueColor(0xFFBAC0C5), m_pPreMessageHandler(NULL)
 	{
 		SetTextPadding(CDuiRect(4, 3, 4, 3));
 		SetBkColor(0xFFFFFFFF);
@@ -745,6 +754,578 @@ namespace DuiLib
 		else {
 			CRenderEngine::DrawText(hDC, m_pManager, rc, sDrawText, m_dwDisabledTextColor, \
 				m_iFont, DT_SINGLELINE | m_uTextStyle);
+		}
+	}
+
+	LRESULT CEditUI::PreHandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, bool& bHandled)
+	{
+		if (m_pPreMessageHandler)
+		{
+			return m_pPreMessageHandler->EditMessageHandler(uMsg, wParam, lParam, bHandled);
+		}
+		return 0;
+	}
+
+	void CEditUI::SetPreMessageHandler(IEditPreMessageHandler* pHandler)
+	{
+		m_pPreMessageHandler = pHandler;
+	}
+
+
+	IMPLEMENT_DUICONTROL(CEditConinerItemLabelUI)
+	CEditConinerItemLabelUI::CEditConinerItemLabelUI()
+	{
+		
+	}
+
+	CEditConinerItemLabelUI::~CEditConinerItemLabelUI()
+	{
+
+	}
+
+	LPCTSTR CEditConinerItemLabelUI::GetClass() const
+	{
+		return _T("EditConinerItemLabelUI");
+	}
+
+	LPVOID CEditConinerItemLabelUI::GetInterface(LPCTSTR pstrName)
+	{
+		if (_tcsicmp(pstrName, _T("EditConinerItemLabel")) == 0) return static_cast<CEditConinerItemLabelUI*>(this);
+		return CLabelUI::GetInterface(pstrName);
+	}
+
+
+
+	void CEditConinerItemLabelUI::DoEvent(TEventUI& event)
+	{
+		if (m_pParent)
+		{
+			m_pParent->DoEvent(event);
+		}
+	}
+
+
+	IMPLEMENT_DUICONTROL(CEditConinerItemUI)
+	CEditConinerItemUI::CEditConinerItemUI()
+	{
+		m_bEditMode = false;
+		m_pEditContainer = NULL;
+		m_nBackEditWidth = 10;
+		m_pEdit = new CEditUI;
+		m_pEdit->SetPreMessageHandler(this);
+		m_pEdit->SetReadOnly(true);
+		m_pEdit->SetFixedWidth(m_nBackEditWidth);
+		Add(m_pEdit);
+	}
+
+	void CEditConinerItemUI::SetEditWidth(int nWidth)
+	{
+		m_nBackEditWidth = nWidth;
+		if (m_pEdit)
+		{
+			m_pEdit->SetFixedWidth(nWidth);
+		}
+	}
+
+	void CEditConinerItemUI::EnableEdit(bool bEnable)
+	{
+		if (m_pEdit)
+		{
+			m_pEdit->SetReadOnly(!bEnable);
+		}
+	}
+
+	void CEditConinerItemUI::SetEditFocus()
+	{
+		if (m_pEdit)
+		{
+			m_pEdit->SetFocus();
+		}
+	}
+
+	CEditUI* CEditConinerItemUI::GetEdit()
+	{
+		return m_pEdit;
+	}
+
+	void CEditConinerItemUI::SetEditContainer(IEditContainerUI* pContainer)
+	{
+		m_pEditContainer = pContainer;
+	}
+	
+	LRESULT CEditConinerItemUI::EditMessageHandler(UINT uMsg, WPARAM wParam, LPARAM lParam, bool& bHandled)
+	{
+		if (uMsg == WM_KILLFOCUS || (uMsg == WM_KEYDOWN && TCHAR(wParam) == VK_RETURN))
+		{
+			EndEditMode();
+		}
+		if (m_pEditContainer)
+		{
+			return m_pEditContainer->EditMessageHandler(this, uMsg, wParam, lParam, bHandled);
+		}
+
+		return 0;
+	}
+
+	CEditConinerItemUI::~CEditConinerItemUI()
+	{
+
+	}
+
+	LPCTSTR CEditConinerItemUI::GetClass() const
+	{
+		return _T("EditConinerItemUI");
+	}
+
+	LPVOID CEditConinerItemUI::GetInterface(LPCTSTR pstrName)
+	{
+		if (_tcsicmp(pstrName, _T("EditConinerItem")) == 0) return static_cast<CEditConinerItemUI*>(this);
+		return CHorizontalLayoutUI::GetInterface(pstrName);
+	}
+
+	void CEditConinerItemUI::SetControl(CLabelUI* pControl)
+	{
+		if (GetCount() > 1)
+		{
+			RemoveAt(0);
+		}
+
+		AddAt(pControl, 0);
+	}
+
+	void CEditConinerItemUI::DoEvent(TEventUI& event)
+	{
+		if (event.Type == UIEVENT_DBLCLICK)
+		{
+			StartEditMode();
+		}
+		else
+		{
+			CHorizontalLayoutUI::DoEvent(event);
+		}
+	}
+
+	void CEditConinerItemUI::StartEditMode()
+	{
+		if (m_bEditMode)
+		{
+			return;
+		}
+
+		CLabelUI* pLabel = GetLabel();
+		if (NULL == pLabel || NULL == m_pEdit)
+		{
+			return;
+		}
+
+		
+		m_bEditMode = true;
+		
+
+		SIZE szV = { m_rcItem.right - m_rcItem.left - m_rcInset.left - m_rcInset.right, m_rcItem.bottom - m_rcItem.top - m_rcInset.top - m_rcInset.bottom };
+		if (szV.cx < 0)
+		{
+			szV.cx = 0;
+		}
+
+		if (szV.cy < 0)
+		{
+			szV.cy = 0;
+		}
+		SIZE sz = EstimateSize(szV);
+		CDuiString strText = pLabel->GetText();
+		pLabel->SetVisible(false);
+		m_pEdit->SetFixedWidth(sz.cx);
+		m_pEdit->SetReadOnly(false);
+		m_pEdit->SetFocus();
+
+		RECT rc = m_rcItem;
+		rc.left += m_rcInset.left;
+		rc.right = rc.left + szV.cx;
+		rc.top += m_rcInset.top;
+		rc.bottom = rc.top + szV.cy;
+
+		m_pEdit->SetPos(rc, false);
+		m_pEdit->SetText(strText);
+		m_pEdit->SetSelAll();
+		
+		if (m_pManager)
+		{
+			m_pManager->SendNotify(this, _T("EditConinerItemStartEdit"));
+		}
+	}
+
+	void CEditConinerItemUI::ClearEditMode()
+	{
+		m_bEditMode = false;
+	}
+
+	void CEditConinerItemUI::EndEditMode()
+	{
+		if (!m_bEditMode)
+		{
+			return;
+		}
+		m_bEditMode = false;
+
+		CLabelUI* pLabel = GetLabel();
+		if (NULL == pLabel || NULL == m_pEdit)
+		{
+			return;
+		}
+
+		
+		pLabel->SetVisible(true);
+		m_pEdit->SetFixedWidth(m_nBackEditWidth);
+		m_pEdit->SetReadOnly(true);
+		CDuiString strText = m_pEdit->GetText();
+		m_pEdit->SetText(_T(""));
+		pLabel->SetText(strText);
+
+		if (m_pManager)
+		{
+			m_pManager->SendNotify(this, _T("EditConinerItemEndEdit"));
+		}
+	}
+
+	bool CEditConinerItemUI::IsEditMode()
+	{
+		return m_bEditMode;
+	}
+
+	SIZE CEditConinerItemUI::EstimateSize(SIZE szAvailable)
+	{
+		CControlUI* pFirst = NULL;
+		if (GetCount() > 1)
+		{
+			pFirst = GetItemAt(0);
+		}
+
+		SIZE sz = {0, 0};
+
+		if (pFirst && pFirst->IsVisible())
+		{
+			sz = pFirst->EstimateSize(szAvailable);
+		}
+
+		
+		if (m_pEdit)
+		{
+			SIZE  szEdit = m_pEdit->EstimateSize(szAvailable);
+			sz.cx += szEdit.cx;
+		}
+
+		if (sz.cx == 0)
+		{
+			sz.cx = m_cxyFixed.cx;
+		}
+		sz.cy = m_cxyFixed.cy;
+
+		if (m_pManager != NULL)
+			return m_pManager->GetDPIObj()->Scale(sz);
+		
+		return sz;
+	}
+
+	CLabelUI* CEditConinerItemUI::GetLabel()
+	{
+		CControlUI* pControl = NULL;
+		if (GetCount() > 1)
+		{
+			pControl = GetItemAt(0);
+		}
+
+		return pControl ? static_cast<CLabelUI*>(pControl->GetInterface(DUI_CTR_LABEL)) : NULL;
+	}
+
+	LPCTSTR CEditConinerItemUI::GetItemText()
+	{
+		CLabelUI* pLabel = GetLabel();
+		if (pLabel)
+		{
+			return pLabel->GetText();
+		}
+
+		return _T("");
+	}
+
+	void CEditConinerItemUI::SetItemText(LPCTSTR lpszText)
+	{
+		CLabelUI* pLabel = GetLabel();
+		if (pLabel)
+		{
+			pLabel->SetText(lpszText);
+		}
+	}
+
+	IMPLEMENT_DUICONTROL(CEditContainerUI)
+		CEditContainerUI::CEditContainerUI()
+	{
+		m_nMinLastEditWidth = 36;
+	}
+
+	CEditContainerUI::~CEditContainerUI()
+	{
+
+	}
+
+	LPCTSTR CEditContainerUI::GetClass() const
+	{
+		return _T("EditContainerUI");
+	}
+
+	LPVOID CEditContainerUI::GetInterface(LPCTSTR pstrName)
+	{
+		if (_tcsicmp(pstrName, _T("EditContainer")) == 0) return static_cast<CEditContainerUI*>(this);
+		return CHorizontalLayoutUI::GetInterface(pstrName);
+	}
+
+	void CEditContainerUI::DoEvent(TEventUI& event)
+	{
+		CHorizontalLayoutUI::DoEvent(event);
+	}
+
+	LRESULT CEditContainerUI::EditMessageHandler(CEditConinerItemUI* pItem, UINT uMsg, WPARAM wParam, LPARAM lParam, bool& bHandled)
+	{
+		int nIndex = GetEditContainerItemIndex(pItem);
+		if (nIndex < 0)
+		{
+			return 0;
+		}
+
+		CEditUI* pEdit = pItem->GetEdit();
+		if (NULL == pEdit)
+		{
+			return 0;
+		}
+
+		int nCount = GetCount();
+		LRESULT lRes = 0;
+
+		if (uMsg == WM_KEYDOWN)
+		{
+			TCHAR cVK = TCHAR(wParam);
+			CDuiString strText = pEdit->GetText();
+			if (strText.IsEmpty() && nCount > 1)
+			{
+				if (cVK == VK_LEFT)
+				{
+					bHandled = true;
+					if (nIndex > 0)
+					{
+						CEditConinerItemUI* pItem = GetEditContainerItemAt(nIndex - 1);
+						if (pItem)
+						{
+							pItem->SetEditFocus();
+						}
+					}
+				}
+				else if (cVK == VK_RIGHT)
+				{
+					bHandled = true;
+					if (nIndex < nCount - 1)
+					{
+						CEditConinerItemUI* pItem = GetEditContainerItemAt(nIndex + 1);
+						if (pItem)
+						{
+							pItem->SetEditFocus();
+						}
+					}
+				}
+				else if (cVK == VK_BACK)
+				{
+					bHandled = true;
+					if (nIndex > 0)
+					{
+						RemoveEditContainerItemAt(nIndex - 1);
+					}
+				}
+			}
+		}
+
+		return lRes;
+	}
+
+	CEditConinerItemUI* CEditContainerUI::GetEditContainerItemAt(int index)
+	{
+		CControlUI* pControl = GetItemAt(index);
+		if (pControl)
+		{
+			return static_cast<CEditConinerItemUI*>(pControl->GetInterface(_T("EditConinerItem")));
+		}
+
+		return NULL;
+	}
+
+	bool CEditContainerUI::AddEditContainerItem(CEditConinerItemUI* pControl)
+	{
+		pControl->SetEditContainer(this);
+		return Add(pControl);
+	}
+
+	bool CEditContainerUI::AddEditContainerItemAt(CEditConinerItemUI* pControl, int iIndex)
+	{
+		pControl->SetEditContainer(this);
+		return AddAt(pControl, iIndex);
+	}
+
+	bool CEditContainerUI::RemoveEditContainerItem(CEditConinerItemUI* pControl)
+	{
+		pControl->SetEditContainer(NULL);
+		return Remove(pControl);
+	}
+
+	bool CEditContainerUI::RemoveEditContainerItemAt(int iIndex)
+	{
+		CEditConinerItemUI* pFind = GetEditContainerItemAt(iIndex);
+		if (pFind)
+		{
+			pFind->SetEditContainer(NULL);
+		}
+		return RemoveAt(iIndex);
+	}
+
+	void CEditContainerUI::RemoveAllEditContainerItem()
+	{
+		int nCount = GetCount();
+		for (int i = 0; i < nCount; i++)
+		{
+			CEditConinerItemUI* pFind = GetEditContainerItemAt(i);
+			if (pFind)
+			{
+				pFind->SetEditContainer(NULL);
+			}
+		}
+		RemoveAll();
+	}
+
+	int CEditContainerUI::GetEditContainerItemIndex(CControlUI* pItem)
+	{
+		CEditConinerItemUI* pControl = pItem ? static_cast<CEditConinerItemUI*>(pItem->GetInterface(_T("EditConinerItem"))) : NULL;
+		if (pControl)
+		{
+			return GetItemIndex(pControl);
+		}
+
+		return -1;
+	}
+
+	void CEditContainerUI::SetMinLastEditWidth(int width)
+	{
+		m_nMinLastEditWidth = width;
+	}
+
+	void CEditContainerUI::SetPos(RECT rc, bool bNeedInvalidate)
+	{
+		CControlUI::SetPos(rc, bNeedInvalidate);
+		rc = m_rcItem;
+
+		// Adjust for inset
+		RECT m_rcInset = CHorizontalLayoutUI::m_rcInset;
+		GetManager()->GetDPIObj()->Scale(&m_rcInset);
+		rc.left += m_rcInset.left;
+		rc.top += m_rcInset.top;
+		rc.right -= m_rcInset.right;
+		rc.bottom -= m_rcInset.bottom;
+
+		int nCount = GetCount();
+		if (nCount == 0) {
+			return;
+		}
+		SIZE szAvailable = { rc.right - rc.left, rc.bottom - rc.top };
+		// last once
+		CEditConinerItemUI* pLast = GetEditContainerItemAt(nCount - 1);
+		pLast->EnableEdit(true);
+		pLast->GetEdit()->SetFixedWidth(0);
+		SIZE szLast = pLast->EstimateSize(szAvailable);
+		int minLastMinWidth = szLast.cx + m_nMinLastEditWidth;
+
+		int nChildPadding = GetChildPadding();
+		int i = 0;
+		// check is all visible
+		int nWidth = szAvailable.cx - minLastMinWidth;
+		int nLastUnVisible = -1;
+		if (nWidth < 0)
+		{
+			nLastUnVisible = nCount - 1;
+		}
+		else
+		{
+			for (i = nCount - 2; i >= 0; i--)
+			{
+				CEditConinerItemUI* pItem = GetEditContainerItemAt(i);
+				SIZE sz = pItem->EstimateSize(szAvailable);
+				RECT rcItem = pItem->GetPadding();
+				sz.cx += rcItem.left + rcItem.right;
+				if (i != 0)
+				{
+					sz.cx += nChildPadding;
+				}
+				nWidth -= sz.cx;
+				if (nWidth < 0)
+				{
+					nLastUnVisible = i;
+					break;
+				}
+			}
+		}
+
+		if (nLastUnVisible == nCount - 1) // last is un visible
+		{
+			nLastUnVisible = nCount - 2;
+		}
+
+		// set visible
+		for (i = 0; i < nLastUnVisible + 1; i++)
+		{
+			GetItemAt(i)->SetVisible(false);
+		}
+
+
+		int iPosX = rc.left;
+		SIZE szRemaining = szAvailable;
+		SIZE szControlAvailable = { 0 };
+		for (i = nLastUnVisible + 1; i < nCount; i++)
+		{
+			CEditConinerItemUI* pItem = GetEditContainerItemAt(i);
+			pItem->SetVisible(true);
+
+			RECT rcPadding = pItem->GetPadding();
+			szRemaining.cx -= rcPadding.left;
+
+			szControlAvailable = szRemaining;
+			szControlAvailable.cy -= rcPadding.top + rcPadding.bottom;
+			SIZE sz = pItem->EstimateSize(szControlAvailable);
+			if (i == nCount-1)
+			{
+				sz.cx = szControlAvailable.cx - rcPadding.right;
+			}
+			//sz.cy = pItem->GetFixedHeight();
+			if (sz.cy == 0) sz.cy = szAvailable.cy - rcPadding.top - rcPadding.bottom;
+			if (sz.cy < 0) sz.cy = 0;
+			if (sz.cy > szControlAvailable.cy) sz.cy = szControlAvailable.cy;
+			
+
+			UINT iChildAlign = GetChildVAlign();
+			if (iChildAlign == DT_VCENTER) {
+				int iPosY = (rc.bottom + rc.top) / 2;
+				RECT rcCtrl = { iPosX + rcPadding.left, iPosY - sz.cy / 2, iPosX + sz.cx + rcPadding.left, iPosY + sz.cy - sz.cy / 2 };
+				pItem->SetPos(rcCtrl, false);
+			}
+			else if (iChildAlign == DT_BOTTOM) {
+				int iPosY = rc.bottom;
+				RECT rcCtrl = { iPosX + rcPadding.left, iPosY - rcPadding.bottom - sz.cy, iPosX + sz.cx + rcPadding.left, iPosY - rcPadding.bottom };
+				pItem->SetPos(rcCtrl, false);
+			}
+			else {
+				int iPosY = rc.top;
+				RECT rcCtrl = { iPosX + rcPadding.left, iPosY + rcPadding.top, iPosX + sz.cx + rcPadding.left, iPosY + sz.cy + rcPadding.top };
+				pItem->SetPos(rcCtrl, false);
+			}
+
+			iPosX += sz.cx + nChildPadding  + rcPadding.left + rcPadding.right;
+			szRemaining.cx -= sz.cx + nChildPadding + rcPadding.right;
+
 		}
 	}
 }

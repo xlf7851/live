@@ -5,6 +5,12 @@
 
 namespace DuiLib
 {
+	class IEditPreMessageHandler
+	{
+	public:
+		virtual LRESULT EditMessageHandler(UINT uMsg, WPARAM wParam, LPARAM lParam, bool& bHandled) = 0;
+	};
+
 	class CEditWnd;
 
 	class UILIB_API CEditUI : public CLabelUI
@@ -67,6 +73,9 @@ namespace DuiLib
 		void PaintStatusImage(HDC hDC);
 		void PaintText(HDC hDC);
 
+		LRESULT PreHandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, bool& bHandled);
+		void SetPreMessageHandler(IEditPreMessageHandler* pHandler);
+
 	protected:
 		CEditWnd* m_pWindow;
 
@@ -85,6 +94,98 @@ namespace DuiLib
 		DWORD m_dwEditbkColor;
 		DWORD m_dwEditTextColor;
 		int m_iWindowStyls;
+
+		IEditPreMessageHandler* m_pPreMessageHandler;
+	};
+
+	class CEditConinerItemUI;
+	class IEditContainerUI
+	{
+	public:
+		virtual LRESULT EditMessageHandler(CEditConinerItemUI* pItem, UINT uMsg, WPARAM wParam, LPARAM lParam, bool& bHandled) = 0;
+	};
+
+
+	class UILIB_API CEditConinerItemLabelUI : public CLabelUI
+	{
+		DECLARE_DUICONTROL(CEditConinerItemLabelUI)
+	public:
+		CEditConinerItemLabelUI();
+		~CEditConinerItemLabelUI();
+
+		LPCTSTR GetClass() const;
+		LPVOID GetInterface(LPCTSTR pstrName);
+
+		void DoEvent(TEventUI& event);
+	};
+
+	class UILIB_API CEditConinerItemUI : public CHorizontalLayoutUI, public IEditPreMessageHandler
+	{
+		DECLARE_DUICONTROL(CEditConinerItemUI)
+	public:
+		CEditConinerItemUI();
+		~CEditConinerItemUI();
+
+		LPCTSTR GetClass() const;
+		LPVOID GetInterface(LPCTSTR pstrName);
+
+		void SetControl(CLabelUI* pControl);
+		void DoEvent(TEventUI& event);
+		SIZE EstimateSize(SIZE szAvailable);
+
+		void SetEditWidth(int nWidth);
+		CEditUI* GetEdit();
+		void EnableEdit(bool bEnable);
+		void SetEditFocus();
+
+		void SetEditContainer(IEditContainerUI* pContainer);
+		LRESULT EditMessageHandler(UINT uMsg, WPARAM wParam, LPARAM lParam, bool& bHandled);
+
+		void StartEditMode();
+		void EndEditMode();
+		bool IsEditMode();
+		void ClearEditMode();
+
+		CLabelUI* GetLabel();
+		LPCTSTR GetItemText();
+		void SetItemText(LPCTSTR lpszText);
+	protected:
+		CEditUI* m_pEdit;
+		int m_nBackEditWidth;
+		bool m_bEditMode;
+		IEditContainerUI* m_pEditContainer;
+	};
+
+	class UILIB_API CEditContainerUI : public CHorizontalLayoutUI, public IEditContainerUI
+	{
+	public:
+		DECLARE_DUICONTROL(CEditContainerUI)
+		CEditContainerUI();
+		~CEditContainerUI();
+
+		LPCTSTR GetClass() const;
+		LPVOID GetInterface(LPCTSTR pstrName);
+
+		LRESULT EditMessageHandler(CEditConinerItemUI* pItem, UINT uMsg, WPARAM wParam, LPARAM lParam, bool& bHandled);
+
+		CEditConinerItemUI* GetEditContainerItemAt(int index);
+
+		bool AddEditContainerItem(CEditConinerItemUI* pControl);
+		bool AddEditContainerItemAt(CEditConinerItemUI* pControl, int iIndex);
+		bool RemoveEditContainerItem(CEditConinerItemUI* pControl);
+		bool RemoveEditContainerItemAt(int iIndex);
+		void RemoveAllEditContainerItem();
+		int GetEditContainerItemIndex(CControlUI* pItem);
+
+		void SetPos(RECT rc, bool bNeedInvalidate /* = true */);
+
+		void SetMinLastEditWidth(int width);
+
+	protected:
+		void DoEvent(TEventUI& event);
+
+	protected:
+		int m_nMinLastEditWidth;
 	};
 }
 #endif // __UIEDIT_H__
