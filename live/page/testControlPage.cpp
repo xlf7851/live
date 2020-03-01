@@ -40,6 +40,32 @@ void CTestControlPageUI::InitPage()
 		}
 		pPie->CalcData();
 	}
+
+ 	CEditContainerUI* pContainer = (CEditContainerUI*)control_utl::FindChildByName(this, _T("editTest"));
+ 	if (pContainer && pContainer->GetInterface(_T("EditContainer")) == pContainer)
+ 	{
+//  		for (int i = 0; i < 5; i++)
+// 		{
+//  			CEditConinerItemUI* pItem = new CEditConinerItemUI;
+// 			//pItem->SetFixedHeight(30);
+// 			//pItem->SetFixedWidth(100);
+// 			CDuiString strData;
+// 			strData.Format(_T("²âÊÔ%d"), i);
+// 			CEditConinerItemLabelUI* pButton = new CEditConinerItemLabelUI;
+// 			pButton->SetText(strData);
+// 			pButton->SetAutoCalcWidth(true);
+// 			pItem->SetControl(pButton);
+// // 			if (i == 4)
+// // 			{
+// // 				//pItem->SetEditWidth(200);
+// // 				//pItem->EnableEdit(true);
+// // 			}
+//  			pContainer->AddEditContainerItem(pItem);
+// 		}
+
+	
+
+ 	}
 }
 
 void CTestControlPageUI::OnNotify(TNotifyUI& msg)

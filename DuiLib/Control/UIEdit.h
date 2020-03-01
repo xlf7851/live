@@ -54,6 +54,7 @@ namespace DuiLib
 		bool IsAutoSelAll();
 		void SetAutoSelAll(bool bAutoSelAll);
 		void SetSel(long nStartChar, long nEndChar);
+		void GetSel(long &nStartChar, long& nEndChar);
 		void SetSelAll();
 		void SetReplaceSel(LPCTSTR lpszReplace);
 
@@ -98,20 +99,21 @@ namespace DuiLib
 		IEditPreMessageHandler* m_pPreMessageHandler;
 	};
 
-	class CEditConinerItemUI;
+	class CEditContainerItemUI;
 	class IEditContainerUI
 	{
 	public:
-		virtual LRESULT EditMessageHandler(CEditConinerItemUI* pItem, UINT uMsg, WPARAM wParam, LPARAM lParam, bool& bHandled) = 0;
+		virtual LRESULT EditMessageHandler(CEditContainerItemUI* pItem, UINT uMsg, WPARAM wParam, LPARAM lParam, bool& bHandled) = 0;
+		virtual void OnDbClickItem(CEditContainerItemUI* pItem) = 0;
 	};
 
 
-	class UILIB_API CEditConinerItemLabelUI : public CLabelUI
+	class UILIB_API CEditContainerItemLabelUI : public CLabelUI
 	{
-		DECLARE_DUICONTROL(CEditConinerItemLabelUI)
+		DECLARE_DUICONTROL(CEditContainerItemLabelUI)
 	public:
-		CEditConinerItemLabelUI();
-		~CEditConinerItemLabelUI();
+		CEditContainerItemLabelUI();
+		~CEditContainerItemLabelUI();
 
 		LPCTSTR GetClass() const;
 		LPVOID GetInterface(LPCTSTR pstrName);
@@ -119,17 +121,18 @@ namespace DuiLib
 		void DoEvent(TEventUI& event);
 	};
 
-	class UILIB_API CEditConinerItemUI : public CHorizontalLayoutUI, public IEditPreMessageHandler
+	class UILIB_API CEditContainerItemUI : public CHorizontalLayoutUI, public IEditPreMessageHandler
 	{
-		DECLARE_DUICONTROL(CEditConinerItemUI)
+		DECLARE_DUICONTROL(CEditContainerItemUI)
 	public:
-		CEditConinerItemUI();
-		~CEditConinerItemUI();
+		CEditContainerItemUI();
+		~CEditContainerItemUI();
 
 		LPCTSTR GetClass() const;
 		LPVOID GetInterface(LPCTSTR pstrName);
 
 		void SetControl(CLabelUI* pControl);
+		void ClearControl(bool bCopyTextToEdit = false);
 		void DoEvent(TEventUI& event);
 		SIZE EstimateSize(SIZE szAvailable);
 
@@ -141,14 +144,24 @@ namespace DuiLib
 		void SetEditContainer(IEditContainerUI* pContainer);
 		LRESULT EditMessageHandler(UINT uMsg, WPARAM wParam, LPARAM lParam, bool& bHandled);
 
-		void StartEditMode();
+		void SetEditMode();
 		void EndEditMode();
 		bool IsEditMode();
 		void ClearEditMode();
 
+		bool IsOnlyEdit();
+		void SetLabelMode();
+		void AutoEditWidth();
+
 		CLabelUI* GetLabel();
-		LPCTSTR GetItemText();
+		CDuiString GetItemText();
 		void SetItemText(LPCTSTR lpszText);
+
+		void SetEditStyle(LPCTSTR lpszStyle);
+		void SetControlStyle(LPCTSTR lpszStyle);
+
+		void SetAttribute(LPCTSTR pstrName, LPCTSTR pstrValue);
+
 	protected:
 		CEditUI* m_pEdit;
 		int m_nBackEditWidth;
@@ -156,7 +169,26 @@ namespace DuiLib
 		IEditContainerUI* m_pEditContainer;
 	};
 
-	class UILIB_API CEditContainerUI : public CHorizontalLayoutUI, public IEditContainerUI
+	class CEditContainerUI;
+	class IEditContainerEditMessageHandler
+	{
+	public:
+		virtual bool OnEditUpKeydown(CEditContainerUI* pContainer, int index, CEditContainerItemUI* pItem, CEditUI* pEdit) = 0;
+		virtual bool OnEditDownKeydown(CEditContainerUI* pContainer, int index, CEditContainerItemUI* pItem, CEditUI* pEdit) = 0;
+		virtual bool OnEditLeftKeydown(CEditContainerUI* pContainer, int index, CEditContainerItemUI* pItem, CEditUI* pEdit) = 0;
+		virtual bool OnEditRightKeydown(CEditContainerUI* pContainer, int index, CEditContainerItemUI* pItem, CEditUI* pEdit) = 0;
+		virtual bool OnEditReturnKeydown(CEditContainerUI* pContainer, int index, CEditContainerItemUI* pItem, CEditUI* pEdit) = 0;
+		virtual bool OnEditBackKeydown(CEditContainerUI* pContainer, int index, CEditContainerItemUI* pItem, CEditUI* pEdit) = 0;
+		virtual bool OnEditKillFocus(CEditContainerUI* pContainer, int index, CEditContainerItemUI* pItem, CEditUI* pEdit) = 0;
+	};
+
+	class IEditContainerItemCreater
+	{
+	public:
+		virtual CLabelUI* CreateItemControl() = 0;
+	};
+
+	class UILIB_API CEditContainerUI : public CHorizontalLayoutUI, public IEditContainerUI, public INotifyUI
 	{
 	public:
 		DECLARE_DUICONTROL(CEditContainerUI)
@@ -166,26 +198,85 @@ namespace DuiLib
 		LPCTSTR GetClass() const;
 		LPVOID GetInterface(LPCTSTR pstrName);
 
-		LRESULT EditMessageHandler(CEditConinerItemUI* pItem, UINT uMsg, WPARAM wParam, LPARAM lParam, bool& bHandled);
+		virtual void DoInit();
 
-		CEditConinerItemUI* GetEditContainerItemAt(int index);
+		LRESULT EditMessageHandler(CEditContainerItemUI* pItem, UINT uMsg, WPARAM wParam, LPARAM lParam, bool& bHandled);
+		virtual void OnDbClickItem(CEditContainerItemUI* pItem);
 
-		bool AddEditContainerItem(CEditConinerItemUI* pControl);
-		bool AddEditContainerItemAt(CEditConinerItemUI* pControl, int iIndex);
-		bool RemoveEditContainerItem(CEditConinerItemUI* pControl);
+		CEditContainerItemUI* GetEditContainerItemAt(int index);
+
+		bool AddEditContainerItem(CEditContainerItemUI* pControl);
+		bool AddEditContainerItemAt(CEditContainerItemUI* pControl, int iIndex);
+		bool RemoveEditContainerItem(CEditContainerItemUI* pControl);
 		bool RemoveEditContainerItemAt(int iIndex);
-		void RemoveAllEditContainerItem();
+		void RemoveAllEditContainerItem(bool bDeleteDefault = false);
 		int GetEditContainerItemIndex(CControlUI* pItem);
 
 		void SetPos(RECT rc, bool bNeedInvalidate /* = true */);
 
 		void SetMinLastEditWidth(int width);
+		void SetAttribute(LPCTSTR pstrName, LPCTSTR pstrValue);
+
+		int GetPreEditContainerItem(int nIndex, CEditContainerItemUI** pFind, bool bCheckVisible = true);
+		int GetNextEditContainerItem(int nIndex, CEditContainerItemUI** pFind, bool bCheckVisible = true);
+
+		int FindEditContainerItemByText(LPCTSTR lpszText, CEditContainerItemUI** pFind = NULL, int nSkipIndex = -1, CEditContainerItemUI* pSkipItem = NULL);
+		int FindEidtContainerItemByChildControl(CControlUI* pChild, CEditContainerItemUI** pFind = NULL);
+
+		void SetItemEditStyle(CEditContainerItemUI* pItem, LPCTSTR lpszStyle);
+		void SetItemStyle(CEditContainerItemUI* pItem, LPCTSTR lpszStyle);
+		void SetItemLabelStyle(CEditContainerItemUI* pItem, LPCTSTR lpszStyle);
+
+		void ApplyAllItemStyle();
+		void ApplyItemStyle(CEditContainerItemUI* pItem);
+
+		virtual bool AddEditControlItem(LPCTSTR lpszText);
+
+		void SetPreEditMessageHandler(IEditContainerEditMessageHandler* pHandler);
+		void SetItemControlCreater(IEditContainerItemCreater* pCreater);
+
+		void OnAfterEditContainerItemKillFocus(CEditContainerItemUI* pItem, bool bEditMode, bool bCheckAdd);
+
+		void EnableItemTextRepeat(bool bEnable);
+		bool IsEnableItemTextRepeat();
+
+		void SetEditContainerModify(bool bModify);
+		bool IsEditContainerModify();
+
+		bool IsEditContainerEmpty();
+		CEditUI* GetCurrentEdit();
+		void SetLastItemFocus();
+		void OnEditContainerChanged();
+
+
+		virtual bool OnEditKeydown(int index, CEditContainerItemUI* pItem, CEditUI* pEdit, TCHAR uKey);
+		virtual bool OnEditUpKeydown(int index, CEditContainerItemUI* pItem, CEditUI* pEdit);
+		virtual bool OnEditDownKeydown(int index, CEditContainerItemUI* pItem, CEditUI* pEdit);
+		virtual bool OnEditLeftKeydown(int index, CEditContainerItemUI* pItem, CEditUI* pEdit);
+		virtual bool OnEditRightKeydown(int index, CEditContainerItemUI* pItem, CEditUI* pEdit);
+		virtual bool OnEditReturnKeydown(int index, CEditContainerItemUI* pItem, CEditUI* pEdit);
+		virtual bool OnEditBackKeydown(int index, CEditContainerItemUI* pItem, CEditUI* pEdit);
+		virtual void OnEditKillFocus(int index, CEditContainerItemUI* pItem, CEditUI* pEdit);
 
 	protected:
 		void DoEvent(TEventUI& event);
+		void Notify(TNotifyUI& msg);
+		CLabelUI* CreateItemControl();
 
 	protected:
 		int m_nMinLastEditWidth;
+		CDuiString m_strEditStyleName;
+		CDuiString m_strLabelStyleName;
+		CDuiString m_strItemStyleName;
+
+		IEditContainerEditMessageHandler* m_pPreEditMessageHandler;
+
+		CEditContainerItemUI* m_pCurrentEditItem;
+		IEditContainerItemCreater* m_pItemControlCreater;
+
+		bool m_bCanItemTextRepeat;
+		bool m_bContainerModify;
 	};
+
 }
 #endif // __UIEDIT_H__
