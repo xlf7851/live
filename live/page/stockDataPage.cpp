@@ -231,10 +231,6 @@ void CStockDataPageUI::ShowDayData(stock_wrapper::MarketDayData& data, const sto
 // 
 // 			strItem.Format(_T("%.2lf"), pItem->m_outVol);
 // 			pLabelItem->SetText(8, strItem);
-
-			
-			
-	
 		}
 
 	}
