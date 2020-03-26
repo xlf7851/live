@@ -46,6 +46,7 @@ static CDuiString _GetPageResByTabName(const CDuiString& strName)
 		s_nameMap[_T("toolbarBlock")] = _T("xml_block");
 		s_nameMap[_T("toolbarBase64")] = _T("xml_base64");
 		s_nameMap[_T("toolbarTestControl")] = _T("xml_test_control");
+		s_nameMap[_T("toolbarStockHisData")] = _T("xml_stock_his_data");
 	}
 
 	CDuiString strFind;

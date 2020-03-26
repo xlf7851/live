@@ -5,6 +5,7 @@
 	  <HorizontalLayout name="tools" childvalign="vcenter" childpadding="1" inset="1,1,1,0" bordersize="0,0,0,1" bordercolor="#ff999999">
 		<Control />
 		<Option name="toolbarBlock" text="板块计算" style="toolbarOptionStyle" />
+		<Option name="toolbarStockHisData" text="历史数据" style="toolbarOptionStyle" />
 		<Option name="toolbarBase64" text="base64" style="toolbarOptionStyle" />
 		<Option name="toolbarTestControl" text="test" style="toolbarOptionStyle" />
 		<Control />

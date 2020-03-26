@@ -22,4 +22,5 @@ namespace global_funciton{
 	LPCTSTR GetConfigDir();
 
 	// 打开文件
+
 }

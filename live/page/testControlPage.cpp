@@ -66,6 +66,8 @@ void CTestControlPageUI::InitPage()
 	
 
  	}
+
+	
 }
 
 void CTestControlPageUI::OnNotify(TNotifyUI& msg)
@@ -83,6 +85,11 @@ void CTestControlPageUI::OnNotify(TNotifyUI& msg)
 			CGLShowWnd::ShowGLWindow(m_pManager ? m_pManager->GetPaintWindow() : NULL, 800, 600);
 			return;
 		}
+		else if (name.CompareNoCase(_T("btnTestPageSearch")) == 0)
+		{
+			OnTestVirtualList();
+			return;
+		}
 	}
 }
 
@@ -91,3 +98,24 @@ void CTestControlPageUI::OnScreenshot()
 	CScreenShotWnd dlg;
 	dlg.Work(m_pManager ? m_pManager->GetPaintWindow() : NULL);
 }
+
+void CTestControlPageUI::OnTestVirtualList()
+{
+// 	CVirtualListUI* pList = static_cast<CVirtualListUI*>(m_pManager->FindControl(_T("virListDemo")));
+// 	if (NULL != pList)
+// 	{
+// 		pList->RemoveAll();
+// 
+// 		MVirtualDataProvider* pFileListProvider = new MVirtualDataProvider(m_pManager);
+// 
+// 
+// 		//初始化之前需要清空列表和数据
+// 
+// 		pList->SetDataProvider(pFileListProvider);
+// 		pList->SetElementHeight(22);
+// 
+// 		pList->InitElement();
+// 
+// 	}
+}
+

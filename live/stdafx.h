@@ -28,6 +28,8 @@ using namespace DuiLib;
 
 
 // TODO:  在此处引用程序需要的其他头文件
-#include "base/defines.h"
-#include "base/types.h"
-#include "control/controlGlobalFunc.h"
+#include "base/base.h"
+#include "global/global.h"
+#include "Control/controlGlobalFunc.h"
+#include "stock/stockArray.h"
+#include "stock/stockdata.h"

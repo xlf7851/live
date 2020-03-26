@@ -59,6 +59,7 @@ namespace DuiLib
 		INNER_REGISTER_DUICONTROL(CEditContainerItemUI);
 		INNER_REGISTER_DUICONTROL(CEditContainerUI);
 		INNER_REGISTER_DUICONTROL(CEditContainerItemUI);
+		INNER_REGISTER_DUICONTROL(CVirtualListUI);
 	}
 
 	CControlFactory::~CControlFactory()

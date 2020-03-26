@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "GlobalFuncton.h"
+#include <TlHelp32.h>
 
 extern HWND GlobalGetMainWnd();
 namespace global_funciton {

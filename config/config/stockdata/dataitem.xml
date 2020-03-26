@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<DataItems>
+    <Item id="10" name="NEW" />
+    <Item id="11" name="CLOSE" />
+	<Item id="13" name="VOL" />
+    <Item id="19" name="CLOSE" />
+</DataItems>

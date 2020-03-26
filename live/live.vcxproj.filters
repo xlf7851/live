@@ -69,16 +69,10 @@
     <ClInclude Include="base\types.h">
       <Filter>base</Filter>
     </ClInclude>
-    <ClInclude Include="base\defines.h">
-      <Filter>base</Filter>
-    </ClInclude>
     <ClInclude Include="base\file.h">
       <Filter>base</Filter>
     </ClInclude>
     <ClInclude Include="base\fmtStringArray.h">
-      <Filter>base</Filter>
-    </ClInclude>
-    <ClInclude Include="base\iniParse.h">
       <Filter>base</Filter>
     </ClInclude>
     <ClInclude Include="base\jsonutl.h">
@@ -171,6 +165,33 @@
     <ClInclude Include="mathGraphic\shader.h">
       <Filter>mathGraphic</Filter>
     </ClInclude>
+    <ClInclude Include="global\defines.h">
+      <Filter>global</Filter>
+    </ClInclude>
+    <ClInclude Include="page\stockDataPage.h">
+      <Filter>page</Filter>
+    </ClInclude>
+    <ClInclude Include="stock\hqDataQuery.h">
+      <Filter>stock</Filter>
+    </ClInclude>
+    <ClInclude Include="base\singleton.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="base\base.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="global\globalData.h">
+      <Filter>global</Filter>
+    </ClInclude>
+    <ClInclude Include="global\global.h">
+      <Filter>global</Filter>
+    </ClInclude>
+    <ClInclude Include="control\openFileDlg.h">
+      <Filter>control</Filter>
+    </ClInclude>
+    <ClInclude Include="control\stockDataTable.h">
+      <Filter>control</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -186,9 +207,6 @@
       <Filter>base</Filter>
     </ClCompile>
     <ClCompile Include="base\fmtStringArray.cpp">
-      <Filter>base</Filter>
-    </ClCompile>
-    <ClCompile Include="base\iniParse.cpp">
       <Filter>base</Filter>
     </ClCompile>
     <ClCompile Include="base\jsonutl.cpp">
@@ -280,6 +298,24 @@
     </ClCompile>
     <ClCompile Include="mathGraphic\shader.cpp">
       <Filter>mathGraphic</Filter>
+    </ClCompile>
+    <ClCompile Include="page\stockDataPage.cpp">
+      <Filter>page</Filter>
+    </ClCompile>
+    <ClCompile Include="stock\hqDataQuery.cpp">
+      <Filter>stock</Filter>
+    </ClCompile>
+    <ClCompile Include="base\singleton.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="global\globalData.cpp">
+      <Filter>global</Filter>
+    </ClCompile>
+    <ClCompile Include="control\openFileDlg.cpp">
+      <Filter>control</Filter>
+    </ClCompile>
+    <ClCompile Include="control\stockDataTable.cpp">
+      <Filter>control</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

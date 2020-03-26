@@ -317,6 +317,8 @@ protected:                                                                \
 #define DUI_CTR_EDIT_CONTAINER					  (_T("EditContainer"))
 
 #define DUI_CTR_EDIT_CONTAINER_ITEM					  (_T("EditContainerItem"))
+
+#define DUI_CTR_VIRTUALLIST					  (_T("VirtualList"))
 	///
 	//////////////END控件名称宏定义//////////////////////////////////////////////////
 

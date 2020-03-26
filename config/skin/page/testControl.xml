@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Window >
+	<Style name="editTestLabelStyle" value="autocalcwidth=&quot;true&quot; textpadding=&quot;6,0,6,0&quot; bordersize=&quot;1,1,1,1&quot; bordercolor=&quot;#ff444444&quot; height=&quot;24&quot;" />
+	<Style name="lec_editstylename" value="textpadding=&quot;2&quot;" />
+	
 	<TestControlPage bkcolor="#FFFFFFFF">
 		<HorizontalLayout height="200" childvalign="vcenter">
 			<VerticalLayout width="200" childvalign="vcenter">
@@ -10,5 +13,15 @@
 			<Button name="btnTestPageScreenshots" text="截屏" width="60" height="24" />
 			<Button name="btnTestPageShowGL" text="opengl" width="60" height="24" />
 		</HorizontalLayout>
+		<EditContainer name="editTest" height="40" readonly="true" bordersize="1,1,1,1" bordercolor="#ff2c2c2c" inset="6,1,6,1" padding="10,0,10,0" lec_labeltylename="editTestLabelStyle" >
+			
+		</EditContainer>
+		<Button name="btnTestPageSearch" width="88" height="37" text="搜索" />
+		<VirtualList name="virListDemo" width="500" vscrollbar="true" columns="7" childpadding="10"  vscrollbarname="VScrollBar" >
+			<ListHeader name="domain" bkcolor="#FF333333">
+				<ListHeaderItem text="序号" height="23" minwidth="16"  sepwidth="1" align="center" bkcolor="#FF666666" />
+				<ListHeaderItem text="文件名称"  height="23" minwidth="16"  sepwidth="1" align="center" bkcolor="#FF666666" />
+            </ListHeader>
+		</VirtualList>
 	</TestControlPage>
 </Window>

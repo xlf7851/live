@@ -44,4 +44,8 @@ namespace xlf
 	bool HuffmanEncode(const char* data, int nLen, CBuffer& buffer);
 	bool HuffmanDecode(const char* data, int nLen, CBuffer& buffer);
 
+	bool ParseKeyValue(const std::string& strText, string& strKey, string& strValue);
+
+	void FindDirAllFile(LPCTSTR lpszDir, std::vector<std::string>& vcFile);
+	void FindDirAllDir(LPCTSTR lpszDir, std::vector<std::string>& vcFile);
 }

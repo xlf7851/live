@@ -21,6 +21,9 @@
 #define DUI_CUSTOM_CTRL_CLASS_Base64Page			(_T("Base64PageUI"))
 #define DUI_CUSTOM_CTRL_CLASS_TestControlPage		(_T("TestControlPageUI"))
 #define DUI_CUSTOM_CTRL_CLASS_GL					(_T("GLUI"))
+#define DUI_CUSTOM_CTRL_CLASS_StockDataPage			(_T("StockDataPageUI"))
+#define DUI_CUSTOM_CTRL_CLASS_StockDataTable		(_T("StockDataTableUI"))
+#define DUI_CUSTOM_CTRL_CLASS_StockDataTableHeader	(_T("StockDataTableHeaderUI"))
 
 // custom control interface
 #define DUI_CUSTOM_CTRL_INTERFACE_ToolbarPage			(_T("ToolbarPage"))
@@ -29,4 +32,11 @@
 #define DUI_CUSTOM_CTRL_INTERFACE_BlockcalcPage			(_T("BlockcalcPage"))
 #define DUI_CUSTOM_CTRL_INTERFACE_Base64Page			(_T("Base64Page"))
 #define DUI_CUSTOM_CTRL_INTERFACE_TestControlPage		(_T("TestControlPage"))
-#define DUI_CUSTOM_CTRL_INTERFACE_GL				(_T("GL"))
+#define DUI_CUSTOM_CTRL_INTERFACE_GL					(_T("GL"))
+#define DUI_CUSTOM_CTRL_INTERFACE_StockDataPage			(_T("StockDataPage"))
+#define DUI_CUSTOM_CTRL_INTERFACE_StockDataTable		(_T("StockDataTable"))
+#define DUI_CUSTOM_CTRL_INTERFACE_StockDataTableHeader	(_T("StockDataTableHeader"))
+
+
+// 功能调用
+#define FUNCTION_CALL_KEY		_T("swtichPage")		// 调整页面

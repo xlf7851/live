@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="gbk"?>
+<request period="16384" force="1" uid="256">
+    <stockcode>
+        <item>300033</item>
+    </stockcode>
+    <datetime begian="20200304" end="0"/>
+    <datatype>
+        <item name="NEW"/>
+    </datatype>
+</request>

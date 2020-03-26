@@ -3,7 +3,7 @@
 #include "../base/fmtStringArray.h"
 #include "../base/buffer.h"
 
-#define STOCK_CODE_LEN	8
+#define STOCK_CODE_LEN	16
 namespace stock_wrapper {
 
 	struct Stock
@@ -49,6 +49,7 @@ namespace stock_wrapper {
 					m_szCode[i] = src[i];
 					i++;
 				}
+				m_szCode[i] = 0;
 			}
 
 			return *this;
@@ -83,13 +84,32 @@ namespace stock_wrapper {
 
 		std::string ToString() const
 		{
+			return std::string(m_szCode);
+		}
+
+		LPCTSTR ToCString() const
+		{
 			return m_szCode;
 		}
 
-		bool Empty()
+		bool Empty() const
 		{
 			return m_szCode[0] == 0;
 		}
+
+		void Clear()
+		{
+			m_szCode[0] = 0;
+		}
+
+		operator LPCTSTR() const
+		{
+			return m_szCode;
+		}
+
+	protected:
+
+
 	};
 
 	class StockArray : public xlf::FmtStringArray

@@ -5,8 +5,8 @@
 #include "../page/PageCreater.h"
 #include "caption.h"
 #include "toolbar.h"
-#include "../global/GlobalFuncton.h"
 #include "../base/httpHandler.h"
+#include "../stock/hqDataQuery.h"
 
 CMainWnd::CMainWnd()
 {
@@ -35,6 +35,10 @@ LPCTSTR CMainWnd::GetWindowClassName() const
 
 void CMainWnd::InitWindow()
 {
+	auto gb = xlf::TSingleton<xlf::CGlobalData>::Instance();
+	gb->Init();
+	gb->SetHqDataIpcSrcHwnd(GetHWND());
+
 	CControlUI* pControl = m_pm.GetRoot();
 	if (pControl && _tcsicmp(pControl->GetClass(), _T("VerticalLayoutUI")) == 0)
 	{
@@ -71,14 +75,6 @@ void CMainWnd::OnFinalMessage( HWND hWnd )
 
 CControlUI* CMainWnd::CreateControl(LPCTSTR pstrClassName)
 {
-// 	if (_tcsicmp(pstrClassName, _T("CaptionPage")) == 0)
-// 	{
-// 		return new CCaptionPageUI;
-// 	}
-// 	else if (_tcsicmp(pstrClassName, _T("ToolbarPage")) == 0)
-// 	{
-// 		return new CToolbarPageUI;
-// 	}
 	return WindowImplBase::CreateControl(pstrClassName);
 }
 
@@ -179,6 +175,12 @@ LRESULT CMainWnd::HandleCustomMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, B
 			{
 				pHttpPool->OnHandlerMsg(wParam, lParam);
 			}
+		}
+		break;
+	case WM_COPYDATA:
+		if (stock_wrapper::CHqDataQueryHandler::GetHqDataQueryHandler().OnCopyData(wParam, lParam))
+		{
+
 		}
 		break;
 	default:

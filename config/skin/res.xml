@@ -19,6 +19,7 @@
 	<!-- 板块-->
 	<Xml id="xml_block" path="block/index.xml"/>
 	<Xml id="xml_block_modify" path="block/modify.xml"/>
+	<Xml id="xml_stock_his_data" path="stock/hisdata.xml"/>
 	<!-- base64-->
 	<Xml id="xml_base64" path="base64/index.xml"/>
 	<Xml id="xml_test_control" path="page/testControl.xml"/>

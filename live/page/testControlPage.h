@@ -18,7 +18,6 @@ public:
 	virtual void OnNotify(TNotifyUI& msg);
 protected:
 	void OnScreenshot();
-	
+	void OnTestVirtualList();
 
 };
-

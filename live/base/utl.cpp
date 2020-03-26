@@ -444,4 +444,74 @@ namespace xlf
 	{
 		return false;
 	}
+
+	bool ParseKeyValue(const std::string& strText, string& strKey, string& strValue)
+	{
+		if (strText.size() > 0)
+		{
+			int flagIndex = strText.find(_T('='));
+			if (flagIndex > 0)
+			{
+				strKey = strText.substr(0, flagIndex);
+				strValue.clear();
+				if (flagIndex < strText.size() -1)
+				{
+					int pos = flagIndex + 1;
+					strValue = strText.substr(pos, strText.size() - pos);
+				}
+
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	inline bool _IsDotFile(LPCTSTR lpszFile)
+	{
+		return _tcscmp(lpszFile, _T(".")) == 0 || _tcscmp(lpszFile, _T("..")) == 0;
+	}
+	void _FindDirAllFile(LPCTSTR lpszDir, std::vector<std::string>& vcFile, bool bFile)
+	{
+		std::string strPath = lpszDir;
+		strPath += _T("*.*");
+
+		WIN32_FIND_DATA pNextInfo;
+		HANDLE hFile = FindFirstFile(strPath.c_str(), &pNextInfo);
+		if (!hFile) {
+			return;
+		}
+		string  t;
+
+		while (FindNextFile(hFile, &pNextInfo))
+		{
+			if (_IsDotFile(pNextInfo.cFileName))//¹ýÂË.ºÍ..
+				continue;
+
+			if (pNextInfo.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY)
+			{
+				if (!bFile)
+				{
+					t = pNextInfo.cFileName;
+					vcFile.push_back(t);
+				}
+			}
+			else if (bFile)
+			{
+				t = pNextInfo.cFileName;
+				vcFile.push_back(t);
+			}
+		}
+		//CloseHandle(hFile);
+	}
+
+	void FindDirAllFile(LPCTSTR lpszDir, std::vector<std::string>& vcFile)
+	{
+		_FindDirAllFile(lpszDir, vcFile, true);
+	}
+
+	void FindDirAllDir(LPCTSTR lpszDir, std::vector<std::string>& vcFile)
+	{
+		_FindDirAllFile(lpszDir, vcFile, false);
+	}
 }

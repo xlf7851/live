@@ -97,15 +97,25 @@ namespace xlf
 
 		int WriteToBuf(CBuffer& buf)
 		{
-			int len = m_nSize > 0 && m_data ? m_nSize : 0;
-			buf.Append((unsigned char*)&len, sizeof(int));
-			if (len > 0)
+			int len = 0;
+			// 元素的大小
+			int nElem = GetElemSize();
+			buf.Append((unsigned char*)&nElem, sizeof(int));
+			len += sizeof(int);
+
+			// 数组长度
+			len += m_nSize;
+			buf.Append((unsigned char*)&m_nSize, sizeof(int));
+			len += sizeof(int);
+
+			// 数据部分
+			if (m_nSize > 0)
 			{
-				len = len * GetElemSize();
-				buf.Append((unsigned char*)m_data, len);
+				int nDatalen = m_nSize * GetElemSize();
+				buf.Append((unsigned char*)m_data, nDatalen);
+				len += nDatalen;
 			}
 
-			len += sizeof(int);
 
 			return len;
 		}
@@ -113,26 +123,43 @@ namespace xlf
 		int ReadFromBuf(const char* buf, int len)
 		{
 			int nReadLen = 0;
-			if (buf == nullptr || len < 2)
+			if (buf == nullptr || len < sizeof(int))
 			{
 				return 0;
 			}
 
-			int nDataLen = *((int*)buf);
-			nReadLen = sizeof(int);
-			len -= nReadLen;
-			if (nDataLen * GetElemSize() < len)
+			// 元素的大小
+			int nElem = *((int*)buf);
+			if (nElem != GetElemSize())
+			{
+				return 0;
+			}
+			nReadLen += sizeof(int);
+			buf += sizeof(int);
+			len -= sizeof(int);
+
+			if (len < sizeof(int))
+			{
+				return 0;
+			}
+			// 数组的大小
+			int nArrayLen = *((int*)buf);
+			nReadLen += sizeof(int);
+			len -= sizeof(int);
+			buf += sizeof(int);
+
+			if (nArrayLen * nElem > len)
 			{
 				return 0;
 			}
 
-			
-			if (nDataLen > 0)
+			// 数据部分
+			if (nArrayLen > 0)
 			{
-				Append((const _Type*)(buf+nReadLen), nDataLen);
+				Append((const _Type*)(buf), nArrayLen);
 			}
 			
-			nReadLen += nDataLen * GetElemSize();
+			nReadLen += nArrayLen * nElem;
 
 			return nReadLen;
 		}
@@ -147,6 +174,7 @@ namespace xlf
 			CheckAlloc(len);
 			_Type* pLast = GetAt(m_nSize);
 			memcpy(pLast, obj, len * GetElemSize());
+			m_nSize += len;
 		}
 
 		typedef  int(*_sort_compare)(const void* , const void* );
