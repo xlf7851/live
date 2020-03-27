@@ -72,21 +72,21 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <IncludePath>$(SolutionDir)\json\include;$(IncludePath)</IncludePath>
     <OutDir>$(SolutionDir)lib\$(Configuration)\</OutDir>
-    <IntDir>$(SolutionDir)Temp\$(Configuration)\</IntDir>
+    <IntDir>$(SolutionDir)Temp\$(ProjectName)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <IncludePath>$(SolutionDir)\json\include;$(IncludePath)</IncludePath>
     <OutDir>$(SolutionDir)lib\$(Configuration)\</OutDir>
     <TargetName>$(ProjectName)</TargetName>
-    <IntDir>$(SolutionDir)Temp\$(Configuration)\</IntDir>
+    <IntDir>$(SolutionDir)Temp\$(ProjectName)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IntDir>$(SolutionDir)Temp\$(Configuration)\</IntDir>
+    <IntDir>$(SolutionDir)Temp\$(ProjectName)\$(Configuration)\</IntDir>
     <OutDir>$(SolutionDir)lib\$(Configuration)\</OutDir>
     <IncludePath>$(SolutionDir)\json\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IntDir>$(SolutionDir)Temp\$(Configuration)\</IntDir>
+    <IntDir>$(SolutionDir)Temp\$(ProjectName)\$(Configuration)\</IntDir>
     <OutDir>$(SolutionDir)lib\$(Configuration)\</OutDir>
     <IncludePath>$(SolutionDir)\json\include;$(IncludePath)</IncludePath>
   </PropertyGroup>

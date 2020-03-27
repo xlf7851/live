@@ -11,6 +11,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "json", "json\json.vcxproj",
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "xml", "xml\xml.vcxproj", "{3AF57923-E3FF-4ED6-BF83-964E0D2D6C91}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libcef_dll_wrapper", "libcef_dll_wrapper\libcef_dll_wrapper.vcxproj", "{C8917918-3343-4B79-B63A-262EB270F63C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -45,6 +47,14 @@ Global
 		{3AF57923-E3FF-4ED6-BF83-964E0D2D6C91}.Release|x64.ActiveCfg = Release|x64
 		{3AF57923-E3FF-4ED6-BF83-964E0D2D6C91}.Release|x64.Build.0 = Release|x64
 		{3AF57923-E3FF-4ED6-BF83-964E0D2D6C91}.Release|x86.ActiveCfg = Release|Win32
+		{C8917918-3343-4B79-B63A-262EB270F63C}.Debug|x64.ActiveCfg = Debug|x64
+		{C8917918-3343-4B79-B63A-262EB270F63C}.Debug|x64.Build.0 = Debug|x64
+		{C8917918-3343-4B79-B63A-262EB270F63C}.Debug|x86.ActiveCfg = Debug|Win32
+		{C8917918-3343-4B79-B63A-262EB270F63C}.Debug|x86.Build.0 = Debug|Win32
+		{C8917918-3343-4B79-B63A-262EB270F63C}.Release|x64.ActiveCfg = Release|x64
+		{C8917918-3343-4B79-B63A-262EB270F63C}.Release|x64.Build.0 = Release|x64
+		{C8917918-3343-4B79-B63A-262EB270F63C}.Release|x86.ActiveCfg = Release|Win32
+		{C8917918-3343-4B79-B63A-262EB270F63C}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
