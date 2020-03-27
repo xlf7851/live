@@ -156,13 +156,7 @@
     <ClInclude Include="screenShot\screenShot.h">
       <Filter>screenShot</Filter>
     </ClInclude>
-    <ClInclude Include="mathGraphic\glwindow.h">
-      <Filter>mathGraphic</Filter>
-    </ClInclude>
     <ClInclude Include="mathGraphic\mathBase.h">
-      <Filter>mathGraphic</Filter>
-    </ClInclude>
-    <ClInclude Include="mathGraphic\shader.h">
       <Filter>mathGraphic</Filter>
     </ClInclude>
     <ClInclude Include="global\defines.h">
@@ -289,15 +283,6 @@
     </ClCompile>
     <ClCompile Include="screenShot\screenShot.cpp">
       <Filter>screenShot</Filter>
-    </ClCompile>
-    <ClCompile Include="glad\src\glad.cpp">
-      <Filter>glad</Filter>
-    </ClCompile>
-    <ClCompile Include="mathGraphic\glwindow.cpp">
-      <Filter>mathGraphic</Filter>
-    </ClCompile>
-    <ClCompile Include="mathGraphic\shader.cpp">
-      <Filter>mathGraphic</Filter>
     </ClCompile>
     <ClCompile Include="page\stockDataPage.cpp">
       <Filter>page</Filter>

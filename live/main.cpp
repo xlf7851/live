@@ -4,8 +4,6 @@
 #include "global/customControlFactory.h"
 #include <curl.h>
 
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
 
 static void InitResource()
 {
@@ -33,17 +31,12 @@ HWND GlobalGetMainWnd()
 
 static void InitGL()
 {
-	glfwInit();
-
-	// 新版本opengl必须使用着色器，这里为了学习，不指定版本
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+	
 }
 
 static void UnInitGL()
 {
-	glfwTerminate();
+	
 }
 
 

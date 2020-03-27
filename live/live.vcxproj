@@ -42,14 +42,14 @@
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v141</PlatformToolset>
-    <CharacterSet>Unicode</CharacterSet>
+    <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v141</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
-    <CharacterSet>Unicode</CharacterSet>
+    <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -71,26 +71,32 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(SolutionDir)json\include\json;$(SolutionDir)curl;$(SolutionDir)duilib;$(ProjectDir)glad\include;$(SolutionDir)glfw\include;$(SolutionDir)xml;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)json\include\json;$(SolutionDir)xml;$(SolutionDir)duilib;$(SolutionDir)include\curl;$(IncludePath)</IncludePath>
     <ReferencePath>$(ReferencePath)</ReferencePath>
-    <LibraryPath>$(SolutionDir)\lib;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(SolutionDir)lib;$(SolutionDir)lib\$(Configuration)\;$(LibraryPath)</LibraryPath>
     <IntDir>$(SolutionDir)Temp\$(Configuration)\</IntDir>
     <OutDir>$(SolutionDir)build\$(Configuration)\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
     <IntDir>$(SolutionDir)Temp\$(Configuration)\</IntDir>
+    <OutDir>$(SolutionDir)build\$(Configuration)\</OutDir>
+    <IncludePath>$(SolutionDir)json\include\json;$(SolutionDir)xml;$(SolutionDir)duilib;$(SolutionDir)include\curl;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)lib;$(SolutionDir)lib\$(Configuration)\;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>$(SolutionDir)json\include\json;$(SolutionDir)curl;$(SolutionDir)duilib;$(ProjectDir)glad\include;$(SolutionDir)glfw\include;$(SolutionDir)xml;$(IncludePath)</IncludePath>
-    <LibraryPath>$(SolutionDir)\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(SolutionDir)json\include\json;$(SolutionDir)xml;$(SolutionDir)duilib;$(SolutionDir)include\curl;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)lib;$(SolutionDir)lib\$(Configuration)\;$(LibraryPath)</LibraryPath>
     <IntDir>$(SolutionDir)Temp\$(Configuration)\</IntDir>
     <OutDir>$(SolutionDir)build\$(Configuration)\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
     <IntDir>$(SolutionDir)Temp\$(Configuration)\</IntDir>
+    <OutDir>$(SolutionDir)build\$(Configuration)\</OutDir>
+    <IncludePath>$(SolutionDir)json\include\json;$(SolutionDir)xml;$(SolutionDir)duilib;$(SolutionDir)include\curl;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)lib;$(SolutionDir)lib\$(Configuration)\;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -103,7 +109,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>json_d.lib;duilib_d.lib;libcurl.lib;glfw3_d.lib;xml_d.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>json.lib;duilib.lib;xml.lib;libcurl.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -117,6 +123,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>json.lib;duilib.lib;xml.lib;libcurl.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -134,7 +141,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>json.lib;duilib.lib;libcurl.lib;glfw3.lib;xml.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>json.lib;duilib.lib;xml.lib;libcurl.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -152,6 +159,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalDependencies>json.lib;duilib.lib;xml.lib;libcurl.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -183,9 +191,7 @@
     <ClInclude Include="global\profile.h" />
     <ClInclude Include="ImageLive\imageShowPage.h" />
     <ClInclude Include="login\login.h" />
-    <ClInclude Include="mathGraphic\glwindow.h" />
     <ClInclude Include="mathGraphic\mathBase.h" />
-    <ClInclude Include="mathGraphic\shader.h" />
     <ClInclude Include="page\base64Page.h" />
     <ClInclude Include="page\basePage.h" />
     <ClInclude Include="page\blockcalcPage.h" />
@@ -223,7 +229,6 @@
     <ClCompile Include="frame\caption.cpp" />
     <ClCompile Include="frame\MainWnd.cpp" />
     <ClCompile Include="frame\toolbar.cpp" />
-    <ClCompile Include="glad\src\glad.cpp" />
     <ClCompile Include="global\customControlFactory.cpp" />
     <ClCompile Include="global\globalData.cpp" />
     <ClCompile Include="global\GlobalFuncton.cpp" />
@@ -231,8 +236,6 @@
     <ClCompile Include="ImageLive\imageShowPage.cpp" />
     <ClCompile Include="login\login.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="mathGraphic\glwindow.cpp" />
-    <ClCompile Include="mathGraphic\shader.cpp" />
     <ClCompile Include="page\base64Page.cpp" />
     <ClCompile Include="page\basePage.cpp" />
     <ClCompile Include="page\blockcalcPage.cpp" />
