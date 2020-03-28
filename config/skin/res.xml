@@ -26,5 +26,7 @@
 	
 	<Xml id="xml_empty_common" path="other/empty.xml"/>
 	
+	<Xml id="xml_webdlg" path="webDlg/webdlg.xml"/>
+	
 	
 </Res>

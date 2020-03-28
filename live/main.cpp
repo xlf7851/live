@@ -3,6 +3,7 @@
 #include "login/login.h"
 #include "global/customControlFactory.h"
 #include <curl.h>
+#include <libbrowser.h>
 
 
 static void InitResource()
@@ -39,6 +40,57 @@ static void UnInitGL()
 	
 }
 
+LPCTSTR _GetModulePath()
+{
+	static TCHAR szFilePath[MAX_PATH + 1] = { 0 };
+	if (szFilePath[0] != 0)
+	{
+		return szFilePath;
+	}
+	GetModuleFileName(NULL, szFilePath, MAX_PATH);
+	for (int i = MAX_PATH; i >= 0; i--)
+	{
+		if (szFilePath[i] == _T('\\') || szFilePath[i] == _T('/'))
+		{
+			szFilePath[i + 1] = 0;
+			break;
+		}
+	}
+
+	return szFilePath;
+}
+
+std::string _GetCefResPath()
+{
+	std::string strPath = _GetModulePath();
+
+	strPath += _T("cefres\\");
+
+
+	return strPath;
+
+}
+
+
+static bool InitCef()
+{
+	std::string strCefRespath = _GetCefResPath();
+
+	std::wstring strPath;
+	xlf::AnsiToWstring(strCefRespath.c_str(), strCefRespath.size(), strPath);
+	if (BrowserInitialize(0, (LPCTSTR)strPath.c_str()))
+	{
+		return true;
+	}
+
+	return false;
+}
+
+static void UnInitCef()
+{
+	BrowserUnInitialize();
+}
+
 
 
 int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPSTR /*lpCmdLine*/, int nCmdShow)
@@ -48,6 +100,11 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPSTR /*l
 	if (FAILED(Hr)) return 0;
 	// OLE
 	HRESULT hRes = ::OleInitialize(NULL);
+	if (!InitCef())
+	{
+		//MessageBox(NULL, "test", "fuck", MB_OK);
+		return 0;
+	}
 
 	InitGL();
 	// 初始化UI管理器
@@ -87,13 +144,18 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPSTR /*l
 	
 	//清理curl
 	curl_global_cleanup();
+
+	UnInitGL();
+
+	UnInitCef();
+
 	// 清理资源
 	CPaintManagerUI::Term();
 	// OLE
 	OleUninitialize();
 	// COM
 	::CoUninitialize();
-	UnInitGL();
+	
 
 	return 0;
 }

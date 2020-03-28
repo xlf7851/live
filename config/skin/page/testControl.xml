@@ -12,6 +12,7 @@
 			
 			<Button name="btnTestPageScreenshots" text="截屏" width="60" height="24" />
 			<Button name="btnTestPageShowGL" text="opengl" width="60" height="24" />
+			<Button name="btnTestPageShowWebDlg" text="浏览器" width="80" height="24" />
 		</HorizontalLayout>
 		<EditContainer name="editTest" height="40" readonly="true" bordersize="1,1,1,1" bordercolor="#ff2c2c2c" inset="6,1,6,1" padding="10,0,10,0" lec_labeltylename="editTestLabelStyle" >
 			

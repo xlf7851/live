@@ -24,6 +24,7 @@
 #define DUI_CUSTOM_CTRL_CLASS_StockDataPage			(_T("StockDataPageUI"))
 #define DUI_CUSTOM_CTRL_CLASS_StockDataTable		(_T("StockDataTableUI"))
 #define DUI_CUSTOM_CTRL_CLASS_StockDataTableHeader	(_T("StockDataTableHeaderUI"))
+#define DUI_CUSTOM_CTRL_CLASS_Browser				(_T("BrowserUI"))
 
 // custom control interface
 #define DUI_CUSTOM_CTRL_INTERFACE_ToolbarPage			(_T("ToolbarPage"))
@@ -36,6 +37,7 @@
 #define DUI_CUSTOM_CTRL_INTERFACE_StockDataPage			(_T("StockDataPage"))
 #define DUI_CUSTOM_CTRL_INTERFACE_StockDataTable		(_T("StockDataTable"))
 #define DUI_CUSTOM_CTRL_INTERFACE_StockDataTableHeader	(_T("StockDataTableHeader"))
+#define DUI_CUSTOM_CTRL_INTERFACE_Browser				(_T("Browser"))
 
 
 // 功能调用

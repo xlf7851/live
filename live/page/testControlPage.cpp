@@ -2,6 +2,7 @@
 #include "testControlPage.h"
 #include "../screenShot/screenShot.h"
 #include "../mathGraphic/glwindow.h"
+#include "../browser/browserwindow.h"
 
 
 IMPLEMENT_DUICONTROL(CTestControlPageUI)
@@ -88,6 +89,14 @@ void CTestControlPageUI::OnNotify(TNotifyUI& msg)
 		else if (name.CompareNoCase(_T("btnTestPageSearch")) == 0)
 		{
 			OnTestVirtualList();
+			return;
+		}
+		else if (name.CompareNoCase(_T("btnTestPageShowWebDlg")) == 0)
+		{
+			CWebBrowserDlg dlg;
+			dlg.CreateDuiWindow(m_pManager ? m_pManager->GetPaintWindow() : NULL, _T("webDlg"), UI_WNDSTYLE_FRAME, 0);
+			dlg.CenterWindow();
+			dlg.ShowModal();
 			return;
 		}
 	}
