@@ -24,6 +24,7 @@ protected:
 protected:
 	CBrowserUI* m_pOwner;
 	BROWSER_HANDLE m_hBrowser;
+	CDuiString m_strUrl;
 };
 
 class CBrowserUI : public CControlUI
@@ -64,12 +65,13 @@ class CWebBrowserDlg : public WindowImplBase
 public:
 	CWebBrowserDlg();
 
+	void OnFinalMessage(HWND hWnd);
 	void InitWindow();
 	void OnClick(TNotifyUI& msg);
 
 	void Navigate(LPCTSTR lpszUrl);
 
-	
+	void SetDeleteSelf(bool bDelete);
 
 protected:
 	LPCTSTR GetWindowClassName() const override;
@@ -79,4 +81,5 @@ private:
 	CBrowserUI* m_pBrowser;
 	CEditUI* m_pUrlEditBox;
 	CDuiString m_strUrl;
+	bool m_bDeleteSelf;
 };

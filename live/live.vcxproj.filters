@@ -201,6 +201,12 @@
     <ClInclude Include="browser\browserApi.h">
       <Filter>browser</Filter>
     </ClInclude>
+    <ClInclude Include="global\functioncall.h">
+      <Filter>global</Filter>
+    </ClInclude>
+    <ClInclude Include="global\functioncallBase.h">
+      <Filter>global</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -331,6 +337,12 @@
     </ClCompile>
     <ClCompile Include="browser\browserApi.cpp">
       <Filter>browser</Filter>
+    </ClCompile>
+    <ClCompile Include="global\functioncall.cpp">
+      <Filter>global</Filter>
+    </ClCompile>
+    <ClCompile Include="global\functioncallBase.cpp">
+      <Filter>global</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

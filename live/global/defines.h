@@ -25,6 +25,7 @@
 #define DUI_CUSTOM_CTRL_CLASS_StockDataTable		(_T("StockDataTableUI"))
 #define DUI_CUSTOM_CTRL_CLASS_StockDataTableHeader	(_T("StockDataTableHeaderUI"))
 #define DUI_CUSTOM_CTRL_CLASS_Browser				(_T("BrowserUI"))
+#define DUI_CUSTOM_CTRL_CLASS_ToolbarItem			(_T("ToolbarItemUI"))
 
 // custom control interface
 #define DUI_CUSTOM_CTRL_INTERFACE_ToolbarPage			(_T("ToolbarPage"))
@@ -38,7 +39,33 @@
 #define DUI_CUSTOM_CTRL_INTERFACE_StockDataTable		(_T("StockDataTable"))
 #define DUI_CUSTOM_CTRL_INTERFACE_StockDataTableHeader	(_T("StockDataTableHeader"))
 #define DUI_CUSTOM_CTRL_INTERFACE_Browser				(_T("Browser"))
+#define DUI_CUSTOM_CTRL_INTERFACE_ToolbarItem			(_T("ToolbarItem"))
 
 
-// 功能调用
-#define FUNCTION_CALL_KEY		_T("swtichPage")		// 调整页面
+// 功能调用,XML中调用参数以a:b,c:d格式输入，解析成map
+#define FUNCTION_CALL_CallName						_T("functoncallname")
+#define FUNCTION_CALL_CallParam						_T("functioncallparam")
+
+// 功能调用名称
+#define FUNCTION_CALL_CallName_SwitchPage			_T("switchPage")	// 调整页面
+#define FUNCTION_CALL_CallName_Command				_T("command")		// 调整页面
+#define FUNCTION_CALL_CallName_ShowWebDlg			_T("showWebDlg")
+
+// 功能调用参数名称
+#define FUNCTION_CALL_PARAM_xmlres					_T("xmlres")		// xml文件后者id
+#define FUNCTION_CALL_PARAM_CommandName				_T("CommandName")
+#define FUNCTION_CALL_PARAM_Url						_T("url")
+
+
+
+// 功能调用返回错误信息
+enum function_call_error_code
+{
+	function_call_error_none = 0,			// 成功
+	function_call_error_unknow = 1,			// 未知错误
+	function_call_error_name = 2,			// 功能名错误
+	function_call_error_param = 3,		    // 调用参数错误
+
+};
+
+

@@ -1,13 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Window >
-  <Style name="toolbarOptionStyle" value="width=&quot;60&quot; group=&quot;toolbarGroup&quot; textcolor=&quot;#FFCCCCCC&quot; selectedtextcolor=&quot;#FFFFFFFF&quot; pushedtextcolor=&quot;#FFFFFFFF&quot; "/>
+  <Style name="ToolbarItemStyle" value="width=&quot;60&quot; height=&quot;20&quot; textcolor=&quot;#ffffffff&quot; cursor=&quot;hand&quot; hotbkcolor=&quot;#ff771345&quot;" />
   <ToolbarPage height="30">
-	  <HorizontalLayout name="tools" childvalign="vcenter" childpadding="1" inset="1,1,1,0" bordersize="0,0,0,1" bordercolor="#ff999999">
+	  <HorizontalLayout name="tools" childvalign="vcenter" inset="1,1,1,0" bordersize="0,0,0,1" bordercolor="#ff999999">
 		<Control />
-		<Option name="toolbarBlock" text="板块计算" style="toolbarOptionStyle" />
-		<Option name="toolbarStockHisData" text="历史数据" style="toolbarOptionStyle" />
-		<Option name="toolbarBase64" text="base64" style="toolbarOptionStyle" />
-		<Option name="toolbarTestControl" text="test" style="toolbarOptionStyle" />
+		<ToolbarItem name="toolbarBlock" text="板块计算" style="ToolbarItemStyle" functoncallname="switchPage" functioncallparam="xmlres:xml_block" />
+		<ToolbarItem name="toolbarStockHisData" text="历史数据" style="ToolbarItemStyle" functoncallname="switchPage" functioncallparam="xmlres:xml_stock_his_data" />
+		<ToolbarItem name="toolbarBase64" text="base64" style="ToolbarItemStyle" functoncallname="switchPage" functioncallparam="xmlres:xml_base64" />
+		<ToolbarItem name="toolbarTestControl" text="test" style="ToolbarItemStyle" functoncallname="switchPage" functioncallparam="xmlres:xml_test_control"/>
+		<ToolbarItem name="toolbarTestControl" text="浏览器" style="ToolbarItemStyle" functoncallname="showWebDlg" functioncallparam="url : http://www.baidu.com, modal : true"/>
 		<Control />
 	  </HorizontalLayout>
   </ToolbarPage>

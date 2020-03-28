@@ -1,6 +1,5 @@
 #include "stdafx.h"
 #include "browserApi.h"
-#include "../global/GlobalFuncton.h"
 
 
 CBrowserApi::CBrowserApi()

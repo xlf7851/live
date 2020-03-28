@@ -32,8 +32,10 @@ namespace xlf
 	bool Base64Decode(const char* data, int nLen, CBuffer& buffer);
 
 	
-
-	int SplitString(std::vector<std::string>& rst, LPCTSTR lpszText, int nLen, TCHAR ch, BOOL bEmpty = FALSE);
+	int CompareStringNoCase(const _tstring& src, const _tstring& dest);
+	void TrimStringLeft(_tstring& str, TCHAR ch);
+	void TrimStringRight(_tstring& str, TCHAR ch);
+	int SplitString(std::vector<_tstring>& rst, LPCTSTR lpszText, int nLen, TCHAR ch, BOOL bEmpty = FALSE);
 
 	// url code
 	std::string UrlEncode(const std::string& str);
@@ -46,7 +48,7 @@ namespace xlf
 	bool HuffmanEncode(const char* data, int nLen, CBuffer& buffer);
 	bool HuffmanDecode(const char* data, int nLen, CBuffer& buffer);
 
-	bool ParseKeyValue(const std::string& strText, string& strKey, string& strValue);
+	bool ParseKeyValue(const _tstring& strText, _tstring& strKey, _tstring& strValue, TCHAR ch = _T('='));
 
 	void FindDirAllFile(LPCTSTR lpszDir, std::vector<std::string>& vcFile);
 	void FindDirAllDir(LPCTSTR lpszDir, std::vector<std::string>& vcFile);

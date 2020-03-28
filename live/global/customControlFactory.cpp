@@ -24,6 +24,7 @@ CCustomControlFactory::CCustomControlFactory()
 	REGIST_DUICONTROL(CStockDataTableUI);
 	REGIST_DUICONTROL(CStockDataTableHeaderUI);
 	REGIST_DUICONTROL(CBrowserUI);
+	REGIST_DUICONTROL(CToolbarItemUI);
 }
 
 void CCustomControlFactory::InitFactory()

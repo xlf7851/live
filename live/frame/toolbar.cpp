@@ -1,7 +1,52 @@
 #include "stdafx.h"
 #include "toolbar.h"
-#include "../Control/controlGlobalFunc.h"
-#include "../global/GlobalFuncton.h"
+#include "../global/functioncall.h"
+
+IMPLEMENT_DUICONTROL(CToolbarItemUI)
+CToolbarItemUI::CToolbarItemUI()
+{
+}
+
+CToolbarItemUI::~CToolbarItemUI()
+{
+
+}
+
+LPCTSTR CToolbarItemUI::GetClass() const
+{
+	return DUI_CUSTOM_CTRL_CLASS_ToolbarItem;
+}
+
+LPVOID CToolbarItemUI::GetInterface(LPCTSTR pstrName)
+{
+	if (_tcsicmp(pstrName, DUI_CUSTOM_CTRL_INTERFACE_ToolbarItem) == 0)
+	{
+		return this;
+	}
+
+	return CButtonUI::GetInterface(pstrName);
+}
+
+void CToolbarItemUI::SetAttribute(LPCTSTR pstrName, LPCTSTR pstrValue)
+{
+	if (_tcsicmp(pstrName, FUNCTION_CALL_CallName) == 0)
+	{
+		m_functionCall.SetName(pstrValue);
+	}
+	else if (_tcsicmp(pstrName, FUNCTION_CALL_CallParam) == 0)
+	{
+		m_functionCall.ParseParam(pstrValue);
+	}
+	else
+	{
+		CButtonUI::SetAttribute(pstrName, pstrValue);
+	}
+}
+
+CFunctionCallItem& CToolbarItemUI::GetFunctionCall()
+{
+	return m_functionCall;
+}
 
 
 IMPLEMENT_DUICONTROL(CToolbarPageUI)
@@ -31,51 +76,29 @@ LPVOID CToolbarPageUI::GetInterface(LPCTSTR pstrName)
 
 void CToolbarPageUI::OnNotify(TNotifyUI& msg)
 {
+	CToolbarItemUI* pItem = static_cast<CToolbarItemUI*>(msg.pSender->GetInterface(DUI_CUSTOM_CTRL_INTERFACE_ToolbarItem));
+	if (nullptr == pItem)
+	{
+		return;
+	}
+
+	if (!control_utl::IsChildControl(this, pItem))
+	{
+		return;
+	}
 	CDuiString name = msg.pSender->GetName();
-	if (msg.sType == DUI_MSGTYPE_SELECTCHANGED)
+	if (msg.sType == DUI_MSGTYPE_CLICK)
 	{
-		OnSelectTab(name);
+		OnClickToolBarItem(pItem);
 	}
 }
 
-static CDuiString _GetPageResByTabName(const CDuiString& strName)
+void CToolbarPageUI::OnClickToolBarItem(CToolbarItemUI* pItem)
 {
-	static std::map<CDuiString, CDuiString> s_nameMap;
-	if (s_nameMap.size() == 0)
-	{
-		s_nameMap[_T("toolbarBlock")] = _T("xml_block");
-		s_nameMap[_T("toolbarBase64")] = _T("xml_base64");
-		s_nameMap[_T("toolbarTestControl")] = _T("xml_test_control");
-		s_nameMap[_T("toolbarStockHisData")] = _T("xml_stock_his_data");
-	}
-
-	CDuiString strFind;
-	std::map<CDuiString, CDuiString>::iterator it = s_nameMap.find(strName);
-	if (it != s_nameMap.end())
-	{
-		strFind = it->second;
-	}
-
-	return strFind;
-}
-
-void CToolbarPageUI::OnSelectTab(const CDuiString& strName)
-{
-	if (m_strSelectTabName.Compare(strName) == 0)
+	if (pItem == nullptr)
 	{
 		return;
 	}
 
-	m_strSelectTabName = strName;
-	if (m_strSelectTabName.IsEmpty())
-	{
-		return;
-	}
-
-	CDuiString strPageXml = _GetPageResByTabName(m_strSelectTabName);
-	if (strPageXml.IsEmpty())
-	{
-		return;
-	}
-	global_funciton::ShowPage((LPCTSTR)strPageXml);
+	CFunctionCall::Call(pItem->GetFunctionCall());
 }

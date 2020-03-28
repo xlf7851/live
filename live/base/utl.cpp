@@ -315,7 +315,72 @@ namespace xlf
 		return true;
 	}
 
-	int SplitString(std::vector<std::string>& rst, LPCTSTR lpszText, int nLen, TCHAR ch, BOOL bEmpty)
+	int CompareStringNoCase(const _tstring& src, const _tstring& dest)
+	{
+		return _tcsicmp(src.c_str(), dest.c_str());
+	}
+
+	void TrimStringLeft(_tstring& str, TCHAR ch)
+	{
+		if (str.size() == 0)
+		{
+			return;
+		}
+
+		int i = 0;
+		int size = str.size();
+		for (; i < size ; i++)
+		{
+			if (str[i] != ch)
+			{
+				break;
+			}
+		}
+
+		if (i > 0)
+		{
+			if (i >= size)
+			{
+				str.clear();
+			}
+			else
+			{
+				_tstring strCp(str.c_str() + i, size - i);
+				str = strCp;
+			}
+			
+		}
+	}
+
+	void TrimStringRight(_tstring& str, TCHAR ch)
+	{
+		if (str.size() == 0)
+		{
+			return;
+		}
+		int i = str.size() - 1;
+		for (; i >= 0; i--)
+		{
+			if (str[i] != ch)
+			{
+				break;
+			}
+		}
+
+		if (i != str.size() -1)
+		{
+			if (i < 0)
+			{
+				str.clear();
+			}
+			else
+			{
+				str.resize(i+1);
+			}
+		}
+	}
+
+	int SplitString(std::vector<_tstring>& rst, LPCTSTR lpszText, int nLen, TCHAR ch, BOOL bEmpty)
 	{
 		if (lpszText == nullptr || lpszText[0] == 0)
 		{
@@ -326,9 +391,10 @@ namespace xlf
 
 		int nOffset = 0;
 		int nBegin = nOffset;
-		while (nOffset < nLen)
+		while (nOffset < nLen || nLen < 0 )
 		{
-			if (ch == lpszText[nOffset] || nOffset == nLen -1)
+			bool bLast = nOffset == nLen - 1 || (nLen < 0 && lpszText[nOffset] == 0);
+			if (bLast || ch == lpszText[nOffset])
 			{
 				if (nOffset == nBegin)
 				{
@@ -339,8 +405,13 @@ namespace xlf
 				}
 				else
 				{
-					std::string str(lpszText[nBegin], nOffset - nBegin);
+					std::string str(&lpszText[nBegin], nOffset - nBegin);
 					rst.push_back(str);
+				}
+
+				if (bLast)
+				{
+					break;
 				}
 
 				nBegin = nOffset + 1;
@@ -456,11 +527,11 @@ namespace xlf
 		return false;
 	}
 
-	bool ParseKeyValue(const std::string& strText, string& strKey, string& strValue)
+	bool ParseKeyValue(const _tstring& strText, _tstring& strKey, _tstring& strValue, TCHAR ch)
 	{
 		if (strText.size() > 0)
 		{
-			int flagIndex = strText.find(_T('='));
+			int flagIndex = strText.find(ch);
 			if (flagIndex > 0)
 			{
 				strKey = strText.substr(0, flagIndex);

@@ -10,6 +10,7 @@ CBrowserWnd::CBrowserWnd()
 
 void CBrowserWnd::Navigate(LPCTSTR lpszUrl)
 {
+	m_strUrl = lpszUrl;
 	if (m_hBrowser)
 	{
 		CBrowserApi::Instance()->Navigate(m_hBrowser, lpszUrl);
@@ -200,12 +201,30 @@ CWebBrowserDlg::CWebBrowserDlg()
 {
 	m_pBrowser = NULL;
 	m_pUrlEditBox = NULL;
+	m_bDeleteSelf = false;
+}
+
+void CWebBrowserDlg::SetDeleteSelf(bool bDelete)
+{
+	m_bDeleteSelf = true;
+}
+
+void CWebBrowserDlg::OnFinalMessage(HWND hWnd)
+{
+	if (m_bDeleteSelf)
+	{
+		delete this;
+	}
 }
 
 void CWebBrowserDlg::InitWindow()
 {
 	m_pBrowser = static_cast<CBrowserUI*>(m_pm.FindControl(_T("webBrowser")));
 	m_pUrlEditBox = static_cast<CEditUI*>(m_pm.FindControl(_T("urlBox")));
+	if (m_pBrowser && !m_strUrl.IsEmpty())
+	{
+		m_pBrowser->Navigate(m_strUrl);
+	}
 }
 
 void CWebBrowserDlg::OnClick(TNotifyUI& msg)
@@ -243,5 +262,8 @@ void CWebBrowserDlg::Navigate(LPCTSTR lpszUrl)
 	{
 		m_pBrowser->Navigate(lpszUrl);
 	}
-
+	else
+	{
+		m_strUrl = lpszUrl;
+	}
 }

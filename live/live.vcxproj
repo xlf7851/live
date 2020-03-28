@@ -187,6 +187,8 @@
     <ClInclude Include="frame\toolbar.h" />
     <ClInclude Include="global\customControlFactory.h" />
     <ClInclude Include="global\defines.h" />
+    <ClInclude Include="global\functioncall.h" />
+    <ClInclude Include="global\functioncallBase.h" />
     <ClInclude Include="global\global.h" />
     <ClInclude Include="global\globalData.h" />
     <ClInclude Include="global\GlobalFuncton.h" />
@@ -237,6 +239,8 @@
     <ClCompile Include="frame\toolbar.cpp" />
     <ClCompile Include="glad\src\glad.cpp" />
     <ClCompile Include="global\customControlFactory.cpp" />
+    <ClCompile Include="global\functioncall.cpp" />
+    <ClCompile Include="global\functioncallBase.cpp" />
     <ClCompile Include="global\globalData.cpp" />
     <ClCompile Include="global\GlobalFuncton.cpp" />
     <ClCompile Include="global\profile.cpp" />
