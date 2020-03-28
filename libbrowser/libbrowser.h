@@ -1,13 +1,12 @@
 #pragma once
 
-#include <Windows.h>
-
 #ifdef  __cplusplus
 	#define   LIB_BROWSER_API extern "C" __declspec(dllexport)
 #else
 	#define   LIB_BROWSER_API __declspec(dllexport)
 #endif
 
+// 事件通知
 typedef void* BROWSER_HANDLE;
 
 /**
@@ -43,7 +42,7 @@ LIB_BROWSER_API void BrowserUnInitialize();
 * @return 浏览器对象句柄
 */
 
-LIB_BROWSER_API BROWSER_HANDLE BrowserCreateBrowser(HWND hParent, const RECT& rc);
+LIB_BROWSER_API BROWSER_HANDLE BrowserCreateBrowser(HWND hParent, int left, int top, int width, int height);
 
 /**
 * @brief 关闭浏览器
@@ -67,4 +66,4 @@ LIB_BROWSER_API void BrowserNavigate(BROWSER_HANDLE hBrowser, LPCTSTR lpszUrl);
 * @return 无
 */
 
-LIB_BROWSER_API void BrowserMoveWindow(BROWSER_HANDLE hBrowser, const RECT& rc);
+LIB_BROWSER_API void BrowserMoveWindow(BROWSER_HANDLE hBrowser, int left, int top, int width, int height);

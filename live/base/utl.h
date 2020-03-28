@@ -21,6 +21,7 @@ namespace xlf
 	int UnicodeToAnsiBufLength(const wchar_t* buf, int len);
 	int AnsiToWstring(const char* buf, int len, wstring&out);
 	int WstringToAnsi(const wchar_t* buf, int nLen, CBuffer& out);
+	std::wstring AutoToWString(LPCTSTR lpszText);
 
 	// utf8 and ansi
 	int Utf8ToAnsi(const char* buf, int nLen, CBuffer& out);
@@ -30,6 +31,7 @@ namespace xlf
 	bool Base64Encode(const char* data, int nLen, CBuffer& buffer);
 	bool Base64Decode(const char* data, int nLen, CBuffer& buffer);
 
+	
 
 	int SplitString(std::vector<std::string>& rst, LPCTSTR lpszText, int nLen, TCHAR ch, BOOL bEmpty = FALSE);
 

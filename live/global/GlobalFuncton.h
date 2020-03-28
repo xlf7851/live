@@ -16,6 +16,7 @@ namespace global_funciton{
 	void SetMainWndLayered(int nLayered);
 
 	// 获取程序目录
+	LPCTSTR GetProgramPath();
 	LPCTSTR GetRootDir();
 
 	// 获取配置目录

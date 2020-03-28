@@ -3,10 +3,9 @@
 #include "login/login.h"
 #include "global/customControlFactory.h"
 #include <curl.h>
-#include <libbrowser.h>
-
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+#include "browser/browserApi.h"
 
 static void InitResource()
 {
@@ -48,55 +47,14 @@ static void UnInitGL()
 	glfwTerminate();
 }
 
-LPCTSTR _GetModulePath()
+inline static bool InitCef()
 {
-	static TCHAR szFilePath[MAX_PATH + 1] = { 0 };
-	if (szFilePath[0] != 0)
-	{
-		return szFilePath;
-	}
-	GetModuleFileName(NULL, szFilePath, MAX_PATH);
-	for (int i = MAX_PATH; i >= 0; i--)
-	{
-		if (szFilePath[i] == _T('\\') || szFilePath[i] == _T('/'))
-		{
-			szFilePath[i + 1] = 0;
-			break;
-		}
-	}
-
-	return szFilePath;
+	return CBrowserApi::Instance()->Initialize();
 }
 
-std::string _GetCefResPath()
+inline static void UnInitCef()
 {
-	std::string strPath = _GetModulePath();
-
-	strPath += _T("cefres\\");
-
-
-	return strPath;
-
-}
-
-
-static bool InitCef()
-{
-	std::string strCefRespath = _GetCefResPath();
-
-	std::wstring strPath;
-	xlf::AnsiToWstring(strCefRespath.c_str(), strCefRespath.size(), strPath);
-	if (BrowserInitialize(0, (LPCTSTR)strPath.c_str()))
-	{
-		return true;
-	}
-
-	return false;
-}
-
-static void UnInitCef()
-{
-	BrowserUnInitialize();
+	CBrowserApi::Instance()->UnInitialize();
 }
 
 

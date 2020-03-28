@@ -1,5 +1,5 @@
 #pragma once
-#include <libbrowser.h>
+
 
 class CBrowserUI;
 class CBrowserWnd : public CWindowWnd

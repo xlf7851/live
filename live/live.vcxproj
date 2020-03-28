@@ -176,6 +176,7 @@
     <ClInclude Include="base\singleton.h" />
     <ClInclude Include="base\types.h" />
     <ClInclude Include="base\utl.h" />
+    <ClInclude Include="browser\browserApi.h" />
     <ClInclude Include="browser\browserwindow.h" />
     <ClInclude Include="control\controlGlobalFunc.h" />
     <ClInclude Include="control\openFileDlg.h" />
@@ -225,6 +226,7 @@
     <ClCompile Include="base\jsonutl.cpp" />
     <ClCompile Include="base\singleton.cpp" />
     <ClCompile Include="base\utl.cpp" />
+    <ClCompile Include="browser\browserApi.cpp" />
     <ClCompile Include="browser\browserwindow.cpp" />
     <ClCompile Include="control\controlGlobalFunc.cpp" />
     <ClCompile Include="control\openFileDlg.cpp" />

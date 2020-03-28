@@ -1,6 +1,6 @@
 // libbrowser.cpp : 定义 DLL 应用程序的导出函数。
 //
-
+#include "pch.h"
 #include "libbrowser.h"
 #include "browserManager.h"
 #include "browserHandler.h"
@@ -27,8 +27,9 @@ void BrowserUnInitialize()
 	GetBrowserManager()->BrowserUnInitialize();
 }
 
-BROWSER_HANDLE BrowserCreateBrowser(HWND hParent, const RECT& rc)
+BROWSER_HANDLE BrowserCreateBrowser(HWND hParent, int left, int top, int width, int height)
 {
+	RECT rc = { left, top, left + width, top + height };
 	return GetBrowserManager()->BrowserCreateBrowser(hParent, rc);
 }
 
@@ -47,7 +48,7 @@ void BrowserNavigate(BROWSER_HANDLE hBrowser, LPCTSTR lpszUrl)
 
 }
 
-void BrowserMoveWindow(BROWSER_HANDLE hBrowser, const RECT& rc)
+void BrowserMoveWindow(BROWSER_HANDLE hBrowser, int left, int top, int width, int height)
 {
 	CBrowserHandler* pHandler = (CBrowserHandler*)hBrowser;
 	if (pHandler)
@@ -55,7 +56,7 @@ void BrowserMoveWindow(BROWSER_HANDLE hBrowser, const RECT& rc)
 		HWND hWnd = pHandler->GetBrowserHwnd();
 		if (hWnd)
 		{
-			::MoveWindow(hWnd, rc.left, rc.top, rc.right, rc.bottom, FALSE);
+			::MoveWindow(hWnd, left, top, width, height, FALSE);
 		}
 	}
 }

@@ -26,6 +26,7 @@
 
 using namespace DuiLib;
 
+#include <libbrowser.h>
 
 // TODO:  在此处引用程序需要的其他头文件
 #include "base/base.h"
@@ -33,3 +34,5 @@ using namespace DuiLib;
 #include "Control/controlGlobalFunc.h"
 #include "stock/stockArray.h"
 #include "stock/stockdata.h"
+
+

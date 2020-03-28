@@ -198,6 +198,9 @@
     <ClInclude Include="mathGraphic\shader.h">
       <Filter>mathGraphic</Filter>
     </ClInclude>
+    <ClInclude Include="browser\browserApi.h">
+      <Filter>browser</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -325,6 +328,9 @@
     </ClCompile>
     <ClCompile Include="mathGraphic\shader.cpp">
       <Filter>mathGraphic</Filter>
+    </ClCompile>
+    <ClCompile Include="browser\browserApi.cpp">
+      <Filter>browser</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -38,16 +38,21 @@ namespace global_funciton {
 		}
 	}
 
-	static TCHAR g_szRoot[MAX_PATH + 1] = { 0 };
-	LPCTSTR GetRootDir()
+	static TCHAR g_szProgramePath[MAX_PATH + 1] = { 0 };
+	LPCTSTR GetProgramPath()
 	{
-		if (g_szRoot[0] == 0)
+		if (g_szProgramePath[0] == 0)
 		{
-			GetModuleFileName(NULL, g_szRoot, MAX_PATH);
-			(_tcsrchr(g_szRoot, _T('\\')))[1] = 0;
+			GetModuleFileName(NULL, g_szProgramePath, MAX_PATH);
+			(_tcsrchr(g_szProgramePath, _T('\\')))[1] = 0;
 		}
 
-		return g_szRoot;
+		return g_szProgramePath;
+	}
+
+	LPCTSTR GetRootDir()
+	{
+		return GetProgramPath();
 	}
 
 	static TCHAR g_szConfig[MAX_PATH + 1] = { 0 };

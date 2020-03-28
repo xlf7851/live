@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "browserwindow.h"
+#include "browserApi.h"
 
 CBrowserWnd::CBrowserWnd()
 {
@@ -9,15 +10,9 @@ CBrowserWnd::CBrowserWnd()
 
 void CBrowserWnd::Navigate(LPCTSTR lpszUrl)
 {
-	//SetBrowserPos();
-
 	if (m_hBrowser)
 	{
-		std::string strUrl = lpszUrl;
-		std::wstring url;
-		xlf::AnsiToWstring(strUrl.c_str(), strUrl.size(), url);
-
-		BrowserNavigate(m_hBrowser, (LPCTSTR)url.c_str());
+		CBrowserApi::Instance()->Navigate(m_hBrowser, lpszUrl);
 	}
 }
 
@@ -65,10 +60,8 @@ void CBrowserWnd::CreateBrowser()
 	{
 		return;
 	}
-	RECT rc;
-	GetClientRect(GetHWND(), &rc);
-
-	m_hBrowser = BrowserCreateBrowser(GetHWND(), rc);
+	
+	m_hBrowser = CBrowserApi::Instance()->CreateBrowser(GetHWND());
 }
 
 void CBrowserWnd::SetBrowserPos()
@@ -77,7 +70,7 @@ void CBrowserWnd::SetBrowserPos()
 	{
 		RECT rc;
 		GetClientRect(GetHWND(), &rc);
-		BrowserMoveWindow(m_hBrowser, rc);
+		CBrowserApi::Instance()->MoveWindow(m_hBrowser, rc.left, rc.top, rc.right-rc.left, rc.bottom-rc.top);
 	}
 }
 

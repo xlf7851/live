@@ -93,10 +93,11 @@ void CTestControlPageUI::OnNotify(TNotifyUI& msg)
 		}
 		else if (name.CompareNoCase(_T("btnTestPageShowWebDlg")) == 0)
 		{
-			CWebBrowserDlg dlg;
-			dlg.CreateDuiWindow(m_pManager ? m_pManager->GetPaintWindow() : NULL, _T("webDlg"), UI_WNDSTYLE_FRAME, 0);
-			dlg.CenterWindow();
-			dlg.ShowModal();
+			CWebBrowserDlg* dlg = new CWebBrowserDlg;
+			dlg->CreateDuiWindow(m_pManager ? m_pManager->GetPaintWindow() : NULL, _T("webDlg"), UI_WNDSTYLE_FRAME, 0);
+			dlg->CenterWindow();
+			dlg->ShowModal();
+			delete dlg;
 			return;
 		}
 	}

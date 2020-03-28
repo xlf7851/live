@@ -124,6 +124,17 @@ namespace xlf
 		return WstringToUtf8(str.c_str(), str.size(), out);
 	}
 
+	std::wstring AutoToWString(LPCTSTR lpszText)
+	{
+		std::wstring str;
+#ifdef _UNICODE
+		wstring = lpszText;
+#else
+		AnsiToWstring(lpszText, -1, str);
+#endif
+		return str;
+	}
+
 	static const unsigned char Base64EncodeMap[64] =
 	{
 		'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H',
