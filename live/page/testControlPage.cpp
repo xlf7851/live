@@ -83,7 +83,7 @@ void CTestControlPageUI::OnNotify(TNotifyUI& msg)
 		}
 		else if (name == _T("btnTestPageShowGL"))
 		{
-			//CGLShowWnd::ShowGLWindow(m_pManager ? m_pManager->GetPaintWindow() : NULL, 800, 600);
+			CGLShowWnd::ShowGLWindow(m_pManager ? m_pManager->GetPaintWindow() : NULL, 800, 600);
 			return;
 		}
 		else if (name.CompareNoCase(_T("btnTestPageSearch")) == 0)

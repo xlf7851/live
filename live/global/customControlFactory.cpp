@@ -6,7 +6,7 @@
 #include "../page/blockcalcPage.h"
 #include "../frame/caption.h"
 #include "../frame/toolbar.h"
-//#include "../mathGraphic/glwindow.h"
+#include "../mathGraphic/glwindow.h"
 #include "../page/stockDataPage.h"
 #include "../Control/stockDataTable.h"
 #include "../browser/browserwindow.h"
@@ -19,7 +19,7 @@ CCustomControlFactory::CCustomControlFactory()
  	REGIST_DUICONTROL(CBasePageUI);
  	REGIST_DUICONTROL(CBase64PageUI);
  	REGIST_DUICONTROL(CBlockcalcPageUI);
-	//REGIST_DUICONTROL(CGLUI);
+	REGIST_DUICONTROL(CGLUI);
 	REGIST_DUICONTROL(CStockDataPageUI);
 	REGIST_DUICONTROL(CStockDataTableUI);
 	REGIST_DUICONTROL(CStockDataTableHeaderUI);

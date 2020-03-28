@@ -65,8 +65,8 @@ HBITMAP CScreenShotWnd::ScreenShotBitmap()
 
 	::SelectObject(hdcMem, hOldBitmap);
 	::DeleteDC(hdcMem);
-	::ReleaseDC(hDesktop, hDC);
-
+	::ReleaseDC(hDesktop, hDC);
+
 	return hBitmap;
 }
 

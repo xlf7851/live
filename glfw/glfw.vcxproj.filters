@@ -1,90 +1,109 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="Header Files">
-      <UniqueIdentifier>{98BF616E-3DAC-306F-BFB7-E922075236B5}</UniqueIdentifier>
+    <Filter Include="源文件">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
     </Filter>
-    <Filter Include="Source Files">
-      <UniqueIdentifier>{FFEE3CB0-2DCB-30D3-89F7-1122919AF32B}</UniqueIdentifier>
+    <Filter Include="头文件">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="资源文件">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\GLFW\glfw3.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="framework.h">
+      <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="src\egl_context.h">
-      <Filter>Header Files</Filter>
+      <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="src\glfw_config.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\GLFW\glfw3native.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\internal.h">
-      <Filter>Header Files</Filter>
+      <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="src\mappings.h">
-      <Filter>Header Files</Filter>
+      <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="src\osmesa_context.h">
-      <Filter>Header Files</Filter>
+      <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="src\wgl_context.h">
-      <Filter>Header Files</Filter>
+      <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="src\win32_joystick.h">
-      <Filter>Header Files</Filter>
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="include\GLFW\glfw3.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="include\GLFW\glfw3native.h">
+      <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="src\win32_platform.h">
-      <Filter>Header Files</Filter>
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="src\internal.h">
+      <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\context.c">
-      <Filter>Source Files</Filter>
+      <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="src\egl_context.c">
-      <Filter>Source Files</Filter>
+      <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="src\init.c">
-      <Filter>Source Files</Filter>
+      <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="src\input.c">
-      <Filter>Source Files</Filter>
+      <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="src\monitor.c">
-      <Filter>Source Files</Filter>
+      <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="src\osmesa_context.c">
-      <Filter>Source Files</Filter>
+      <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="src\vulkan.c">
-      <Filter>Source Files</Filter>
+      <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="src\wgl_context.c">
-      <Filter>Source Files</Filter>
+      <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="src\win32_init.c">
-      <Filter>Source Files</Filter>
+      <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="src\win32_joystick.c">
-      <Filter>Source Files</Filter>
+      <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="src\win32_monitor.c">
-      <Filter>Source Files</Filter>
+      <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="src\win32_thread.c">
-      <Filter>Source Files</Filter>
+      <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="src\win32_time.c">
-      <Filter>Source Files</Filter>
+      <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="src\win32_window.c">
-      <Filter>Source Files</Filter>
+      <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="src\window.c">
-      <Filter>Source Files</Filter>
+      <Filter>源文件</Filter>
     </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="src\cocoa_init.m" />
+    <None Include="src\cocoa_joystick.m" />
+    <None Include="src\cocoa_monitor.m" />
+    <None Include="src\cocoa_window.m" />
+    <None Include="src\glfw3.pc.in" />
+    <None Include="src\glfw3Config.cmake.in" />
+    <None Include="src\mappings.h.in" />
+    <None Include="src\nsgl_context.m" />
   </ItemGroup>
 </Project>
