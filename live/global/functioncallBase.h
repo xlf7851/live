@@ -22,6 +22,7 @@ public:
 	bool IsAttributeTrue(LPCTSTR lpszKey) const;
 
 	void SetName(LPCTSTR lpszName);
+	void SetParam(LPCTSTR lpszKey, LPCTSTR lpszValue);
 	void ParseParam(LPCTSTR lpszParam);
 protected:
 	void Release();

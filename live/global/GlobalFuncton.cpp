@@ -38,16 +38,29 @@ namespace global_funciton {
 		}
 	}
 
-	static TCHAR g_szProgramePath[MAX_PATH + 1] = { 0 };
-	LPCTSTR GetProgramPath()
+	static TCHAR g_szProgramePath[MAX_PATH +1] = { 0 };
+	static TCHAR g_szModuleFilePath[MAX_PATH + 1] = { 0 };
+
+	LPCTSTR _GetModulePath(bool bFileName = false)
 	{
-		if (g_szProgramePath[0] == 0)
+		if (g_szModuleFilePath[0] == 0)
 		{
-			GetModuleFileName(NULL, g_szProgramePath, MAX_PATH);
+			GetModuleFileName(NULL, g_szModuleFilePath, MAX_PATH);
+			_tcscpy_s(g_szProgramePath, g_szModuleFilePath);
 			(_tcsrchr(g_szProgramePath, _T('\\')))[1] = 0;
 		}
 
-		return g_szProgramePath;
+		return bFileName ? g_szModuleFilePath : g_szProgramePath;
+	}
+
+	LPCTSTR GetProgramPath()
+	{
+		return _GetModulePath(false);
+	}
+
+	LPCTSTR GetModuleFilePath()
+	{
+		return _GetModulePath(true);
 	}
 
 	LPCTSTR GetRootDir()
@@ -69,5 +82,34 @@ namespace global_funciton {
 		}
 
 		return g_szConfig;
+	}
+
+	void RestartProgram()
+	{
+		HWND hWmd = GlobalGetMainWnd();
+		if (hWmd == nullptr)
+		{
+			return;
+		}
+		::PostMessage(hWmd, WM_SYSCOMMAND, SC_CLOSE, NULL);
+		//获取exe程序当前路径
+	
+		_tstring strFile = GetModuleFilePath();
+		//重启程序
+		STARTUPINFO StartInfo;
+		PROCESS_INFORMATION procStruct;
+		memset(&StartInfo, 0, sizeof(STARTUPINFO));
+		StartInfo.cb = sizeof(STARTUPINFO);
+		::CreateProcess(
+			strFile.c_str(),
+			NULL,
+			NULL,
+			NULL,
+			FALSE,
+			NORMAL_PRIORITY_CLASS,
+			NULL,
+			NULL,
+			&StartInfo,
+			&procStruct);
 	}
 }

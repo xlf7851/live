@@ -52,6 +52,11 @@ int CFunctionCall::SwitchPage(const _tstring& xmlres)
 
 int CFunctionCall::Command(const _tstring& strCommand, const CFunctionCallItem& callInfo)
 {
+	if (_tcsicmp(strCommand.c_str(), _T("restartProgram")) == 0)
+	{
+		global_funciton::RestartProgram();
+		return function_call_error_none;
+	}
 	return function_call_error_unknow;
 }
 
@@ -72,8 +77,6 @@ int CFunctionCall::ShowWebDlg(const _tstring& url, const CFunctionCallItem& call
 			dlg->SetDeleteSelf(true);
 			dlg->ShowWindow();
 		}
-		
-		
 	}
-	return function_call_error_unknow;
+	return function_call_error_none;
 }

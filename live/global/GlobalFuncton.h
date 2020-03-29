@@ -17,7 +17,10 @@ namespace global_funciton{
 
 	// 获取程序目录
 	LPCTSTR GetProgramPath();
+	LPCTSTR GetModuleFilePath();
 	LPCTSTR GetRootDir();
+
+	void RestartProgram();
 
 	// 获取配置目录
 	LPCTSTR GetConfigDir();

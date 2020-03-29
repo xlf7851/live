@@ -63,6 +63,18 @@ void CFunctionCallItem::SetName(LPCTSTR lpszName)
 	m_strName = lpszName;
 }
 
+void CFunctionCallItem::SetParam(LPCTSTR lpszKey, LPCTSTR lpszValue)
+{
+	FunctionParamItem* pFind = FindParamItem(lpszKey);
+	if (pFind == nullptr)
+	{
+		pFind = new FunctionParamItem;
+		pFind->m_strKey = lpszKey;
+		m_param.push_back(pFind);
+	}
+
+	pFind->m_strValue = lpszValue;
+}
 
 void CFunctionCallItem::ParseParam(LPCTSTR lpszParam)
 {

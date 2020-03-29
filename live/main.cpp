@@ -7,13 +7,31 @@
 #include <GLFW/glfw3.h>
 #include "browser/browserApi.h"
 
-static void InitResource()
+
+
+static void LoadDuilibResource()
 {
+#ifdef _DEBUG
 	// 资源路径
 	CDuiString strResourcePath = CPaintManagerUI::GetInstancePath();
-	
 	strResourcePath += _T("skin\\");
 	CPaintManagerUI::SetResourcePath(strResourcePath.GetData());
+#else 
+	CPaintManagerUI::SetResourceType(UILIB_ZIPRESOURCE);
+	HRSRC hResource = ::FindResource(CPaintManagerUI::GetResourceDll(), MAKEINTRESOURCE(IDR_ZIPRES_SKIN), _T("ZIPRES"));
+	if (hResource != NULL) {
+		DWORD dwSize = 0;
+		HGLOBAL hGlobal = ::LoadResource(CPaintManagerUI::GetResourceDll(), hResource);
+		if (hGlobal != NULL) {
+			dwSize = ::SizeofResource(CPaintManagerUI::GetResourceDll(), hResource);
+			if (dwSize > 0) {
+				CPaintManagerUI::SetResourceZip((LPBYTE)::LockResource(hGlobal), dwSize);
+			}
+		}
+		::FreeResource(hResource);
+	}
+#endif
+	
 	// 加载资源管理器
 	CResourceManager::GetInstance()->LoadResource(_T("res.xml"), NULL);
 }
@@ -73,10 +91,11 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPSTR /*l
 	}
 
 	InitGL();
-	// 初始化UI管理器
+	
+	// 初始化DUILIB资源
 	CPaintManagerUI::SetInstance(hInstance);
-	// 初始化资源
-	InitResource();
+	LoadDuilibResource();
+
 	// 注册自定义控件类
 	CCustomControlFactory::InitFactory();
 
