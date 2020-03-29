@@ -204,6 +204,7 @@
     <ClInclude Include="page\PageCreater.h" />
     <ClInclude Include="page\stockDataPage.h" />
     <ClInclude Include="page\testControlPage.h" />
+    <ClInclude Include="page\webBrowserPage.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="screenShot\screenShot.h" />
     <ClInclude Include="skin\skinSetWnd.h" />
@@ -255,6 +256,7 @@
     <ClCompile Include="page\PageCreater.cpp" />
     <ClCompile Include="page\stockDataPage.cpp" />
     <ClCompile Include="page\testControlPage.cpp" />
+    <ClCompile Include="page\webBrowserPage.cpp" />
     <ClCompile Include="screenShot\screenShot.cpp" />
     <ClCompile Include="skin\skinSetWnd.cpp" />
     <ClCompile Include="stdafx.cpp">

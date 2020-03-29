@@ -35,6 +35,7 @@ using namespace DuiLib;
 #include "Control/controlGlobalFunc.h"
 #include "stock/stockArray.h"
 #include "stock/stockdata.h"
+#include "page/basePage.h"
 
 
 

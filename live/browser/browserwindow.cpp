@@ -4,8 +4,23 @@
 
 CBrowserWnd::CBrowserWnd()
 {
-	m_pOwner = NULL;
 	m_hBrowser = NULL;
+	m_bDeleteSelf = false;
+}
+
+CBrowserWnd::~CBrowserWnd()
+{
+	
+}
+
+void CBrowserWnd::EnableDeleteSelf(bool bEnable)
+{
+	m_bDeleteSelf = bEnable;
+}
+
+bool CBrowserWnd::IsDeleteSelf()
+{
+	return m_bDeleteSelf;
 }
 
 void CBrowserWnd::Navigate(LPCTSTR lpszUrl)
@@ -17,18 +32,6 @@ void CBrowserWnd::Navigate(LPCTSTR lpszUrl)
 	}
 }
 
-void CBrowserWnd::Init(CBrowserUI* pOwner)
-{
-	m_pOwner = pOwner;
-	
-}
-
-RECT CBrowserWnd::CalPos()
-{
-	CDuiRect rcPos = m_pOwner->GetPos();
-	return rcPos;
-}
-
 LPCTSTR CBrowserWnd::GetWindowClassName() const
 {
 	return _T("BrowserBaseWnd");
@@ -36,7 +39,10 @@ LPCTSTR CBrowserWnd::GetWindowClassName() const
 
 void CBrowserWnd::OnFinalMessage(HWND hWnd)
 {
-	
+	if (IsDeleteSelf())
+	{
+		delete this;
+	}
 }
 
 LRESULT CBrowserWnd::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
@@ -89,7 +95,7 @@ CBrowserUI::CBrowserUI()
 
 CBrowserUI::~CBrowserUI()
 {
-
+	DestoryBrowser();
 }
 
 void CBrowserUI::DoInit()
@@ -171,6 +177,7 @@ void CBrowserUI::CreateBrowser()
 	if (m_pBrowserWnd == NULL)
 	{
 		m_pBrowserWnd = new CBrowserWnd;
+		m_pBrowserWnd->EnableDeleteSelf(true);
 	}
 
 	if (m_pBrowserWnd->GetHWND() != NULL)
@@ -180,6 +187,27 @@ void CBrowserUI::CreateBrowser()
 
 	m_pBrowserWnd->CreateDuiWindow(m_pManager->GetPaintWindow(), _T("BrowserBaseWnd"), UI_WNDSTYLE_CHILD, 0);
 
+}
+
+void CBrowserUI::DestoryBrowser()
+{
+	if (m_pBrowserWnd)
+	{
+		if (m_pBrowserWnd->GetHWND())
+		{
+			bool bDeleteSelf = m_pBrowserWnd->IsDeleteSelf();
+			m_pBrowserWnd->PostMessage(WM_CLOSE);
+			if (!bDeleteSelf)
+			{
+				delete m_pBrowserWnd;
+			}
+		}
+		else
+		{
+			delete m_pBrowserWnd;
+		}
+		m_pBrowserWnd = nullptr;
+	}
 }
 
 void CBrowserUI::SetBrowserPos()

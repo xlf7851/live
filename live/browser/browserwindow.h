@@ -6,11 +6,11 @@ class CBrowserWnd : public CWindowWnd
 {
 public:
 	CBrowserWnd();
+	virtual ~CBrowserWnd();
 
 	void Navigate(LPCTSTR lpszUrl);
-
-	void Init(CBrowserUI* pOwner);
-	RECT CalPos();
+	void EnableDeleteSelf(bool bEnable);
+	bool IsDeleteSelf();
 
 	LPCTSTR GetWindowClassName() const;
 	void OnFinalMessage(HWND hWnd);
@@ -22,9 +22,9 @@ protected:
 	void ShowBrowser(bool bShow);
 
 protected:
-	CBrowserUI* m_pOwner;
 	BROWSER_HANDLE m_hBrowser;
 	CDuiString m_strUrl;
+	bool m_bDeleteSelf;
 };
 
 class CBrowserUI : public CControlUI
@@ -52,6 +52,7 @@ public:
 
 protected:
 	CBrowserWnd* GetBrowserWnd();
+	void DestoryBrowser();
 	void CreateBrowser();
 	void SetBrowserPos();
 	void ShowBrowser(bool bShow);

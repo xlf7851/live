@@ -10,6 +10,7 @@
 #include "../page/stockDataPage.h"
 #include "../Control/stockDataTable.h"
 #include "../browser/browserwindow.h"
+#include "../page/webBrowserPage.h"
 
 CCustomControlFactory::CCustomControlFactory()
 {
@@ -25,6 +26,7 @@ CCustomControlFactory::CCustomControlFactory()
 	REGIST_DUICONTROL(CStockDataTableHeaderUI);
 	REGIST_DUICONTROL(CBrowserUI);
 	REGIST_DUICONTROL(CToolbarItemUI);
+	REGIST_DUICONTROL(CWebBrowserPageUI);
 }
 
 void CCustomControlFactory::InitFactory()

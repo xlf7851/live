@@ -207,6 +207,9 @@
     <ClInclude Include="global\functioncallBase.h">
       <Filter>global</Filter>
     </ClInclude>
+    <ClInclude Include="page\webBrowserPage.h">
+      <Filter>page</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -343,6 +346,9 @@
     </ClCompile>
     <ClCompile Include="global\functioncallBase.cpp">
       <Filter>global</Filter>
+    </ClCompile>
+    <ClCompile Include="page\webBrowserPage.cpp">
+      <Filter>page</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
