@@ -2,25 +2,15 @@
 #include "browserwindow.h"
 #include "browserApi.h"
 
-CBrowserWnd::CBrowserWnd()
+CBrowserWnd::CBrowserWnd(CBrowserWnd** pSelfPtr /* = nullptr */)
 {
 	m_hBrowser = NULL;
-	m_bDeleteSelf = false;
+	m_pSelfPtr = pSelfPtr;
 }
 
 CBrowserWnd::~CBrowserWnd()
 {
 	
-}
-
-void CBrowserWnd::EnableDeleteSelf(bool bEnable)
-{
-	m_bDeleteSelf = bEnable;
-}
-
-bool CBrowserWnd::IsDeleteSelf()
-{
-	return m_bDeleteSelf;
 }
 
 void CBrowserWnd::Navigate(LPCTSTR lpszUrl)
@@ -39,8 +29,9 @@ LPCTSTR CBrowserWnd::GetWindowClassName() const
 
 void CBrowserWnd::OnFinalMessage(HWND hWnd)
 {
-	if (IsDeleteSelf())
+	if (m_pSelfPtr)
 	{
+		*m_pSelfPtr = nullptr;
 		delete this;
 	}
 }
@@ -176,8 +167,7 @@ void CBrowserUI::CreateBrowser()
 
 	if (m_pBrowserWnd == NULL)
 	{
-		m_pBrowserWnd = new CBrowserWnd;
-		m_pBrowserWnd->EnableDeleteSelf(true);
+		m_pBrowserWnd = new CBrowserWnd(&m_pBrowserWnd);
 	}
 
 	if (m_pBrowserWnd->GetHWND() != NULL)
@@ -195,18 +185,13 @@ void CBrowserUI::DestoryBrowser()
 	{
 		if (m_pBrowserWnd->GetHWND())
 		{
-			bool bDeleteSelf = m_pBrowserWnd->IsDeleteSelf();
-			m_pBrowserWnd->PostMessage(WM_CLOSE);
-			if (!bDeleteSelf)
-			{
-				delete m_pBrowserWnd;
-			}
+			m_pBrowserWnd->SendMessage(WM_CLOSE);
 		}
 		else
 		{
 			delete m_pBrowserWnd;
+			m_pBrowserWnd = nullptr;
 		}
-		m_pBrowserWnd = nullptr;
 	}
 }
 
