@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "browserwindow.h"
-#include "browserApi.h"
+#include "browserModule.h"
 
 CBrowserWnd::CBrowserWnd(CBrowserWnd** pSelfPtr /* = nullptr */)
 {
@@ -18,7 +18,7 @@ void CBrowserWnd::Navigate(LPCTSTR lpszUrl)
 	m_strUrl = lpszUrl;
 	if (m_hBrowser)
 	{
-		CBrowserApi::Instance()->Navigate(m_hBrowser, lpszUrl);
+		CBrowserModule::Instance()->Navigate(m_hBrowser, lpszUrl);
 	}
 }
 
@@ -59,7 +59,11 @@ void CBrowserWnd::CreateBrowser()
 		return;
 	}
 	
-	m_hBrowser = CBrowserApi::Instance()->CreateBrowser(GetHWND());
+	m_hBrowser = CBrowserModule::Instance()->CreateBrowser(GetHWND());
+	if (m_hBrowser && !m_strUrl.IsEmpty())
+	{
+		CBrowserModule::Instance()->Navigate(m_hBrowser, m_strUrl);
+	}
 }
 
 void CBrowserWnd::SetBrowserPos()
@@ -68,7 +72,7 @@ void CBrowserWnd::SetBrowserPos()
 	{
 		RECT rc;
 		GetClientRect(GetHWND(), &rc);
-		CBrowserApi::Instance()->MoveWindow(m_hBrowser, rc.left, rc.top, rc.right-rc.left, rc.bottom-rc.top);
+		CBrowserModule::Instance()->MoveWindow(m_hBrowser, rc.left, rc.top, rc.right-rc.left, rc.bottom-rc.top);
 	}
 }
 
@@ -126,6 +130,7 @@ CBrowserWnd* CBrowserUI::GetBrowserWnd()
 
 void CBrowserUI::Navigate(LPCTSTR lpszUrl)
 {
+	m_strUrl = lpszUrl;
 	if (m_pBrowserWnd)
 	{
 		m_pBrowserWnd->Navigate(lpszUrl);
@@ -148,6 +153,18 @@ void CBrowserUI::SetVisible(bool bVisible /* = true */)
 {
 	CControlUI::SetInternVisible(bVisible);
 	ShowBrowser(bVisible);
+}
+
+void CBrowserUI::SetAttribute(LPCTSTR pstrName, LPCTSTR pstrValue)
+{
+	if (_tcsicmp(pstrName, _T("url")) == 0)
+	{
+		Navigate(pstrValue);
+	}
+	else
+	{
+		CControlUI::SetAttribute(pstrName, pstrValue);
+	}
 }
 
 void CBrowserUI::ShowBrowser(bool bShow)
@@ -175,6 +192,11 @@ void CBrowserUI::CreateBrowser()
 		return;
 	}
 
+	if (!m_strUrl.IsEmpty())
+	{
+		m_pBrowserWnd->Navigate(m_strUrl);
+	}
+	
 	m_pBrowserWnd->CreateDuiWindow(m_pManager->GetPaintWindow(), _T("BrowserBaseWnd"), UI_WNDSTYLE_CHILD, 0);
 
 }

@@ -15,6 +15,7 @@ public:
 	bool CreateBrowser(HWND hParent, const RECT& rc);
 	void CloseBrowser();
 	HWND GetBrowserHwnd();
+	void MoveBrowserWindow(int left, int top, int width, int height);
 	void Navigate(LPCTSTR lpszUrl);
 
 public:
@@ -35,5 +36,8 @@ public:
 protected:
 	CefRefPtr<CBrowserClientHandler>	m_client;
 	CefRefPtr<CefBrowser>				m_browser;
+
+	CefString m_strUrl;
+	RECT m_rcMove;
 };
 

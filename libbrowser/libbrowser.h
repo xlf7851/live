@@ -16,7 +16,7 @@ typedef void* BROWSER_HANDLE;
 *
 * @return 返回说明
 */
-LIB_BROWSER_API bool BrowserInitialize(unsigned int uOption, LPCTSTR lpResourceDirPath);
+LIB_BROWSER_API bool BrowserInitialize(unsigned int uOption, const wchar_t* lpResourceDirPath);
 
 
 /**
@@ -58,7 +58,7 @@ LIB_BROWSER_API void BrowserCloseBrowser(BROWSER_HANDLE hBrowser);
 * @param hBrowser 浏览器对象
 * @return 无
 */
-LIB_BROWSER_API void BrowserNavigate(BROWSER_HANDLE hBrowser, LPCTSTR lpszUrl);
+LIB_BROWSER_API void BrowserNavigate(BROWSER_HANDLE hBrowser, const wchar_t* lpszUrl);
 
 /**
 * @brief 浏览器消息循环

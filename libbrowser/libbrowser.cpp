@@ -12,7 +12,7 @@ inline CBrowerManager* GetBrowserManager()
 	return &g_sBrowserManager;
 }
 
-bool BrowserInitialize(unsigned int uOption, LPCTSTR lpResourceDirPath)
+bool BrowserInitialize(unsigned int uOption, const wchar_t* lpResourceDirPath)
 {
 	return GetBrowserManager()->BrowserInitialize(uOption, lpResourceDirPath);
 }
@@ -38,7 +38,7 @@ void BrowserCloseBrowser(BROWSER_HANDLE hBrowser)
 	GetBrowserManager()->BrowserCloseBrowser((CBrowserHandler*)hBrowser);
 }
 
-void BrowserNavigate(BROWSER_HANDLE hBrowser, LPCTSTR lpszUrl)
+void BrowserNavigate(BROWSER_HANDLE hBrowser, const wchar_t* lpszUrl)
 {
 	CBrowserHandler* pHandler = (CBrowserHandler*)hBrowser;
 	if (pHandler)
@@ -53,10 +53,6 @@ void BrowserMoveWindow(BROWSER_HANDLE hBrowser, int left, int top, int width, in
 	CBrowserHandler* pHandler = (CBrowserHandler*)hBrowser;
 	if (pHandler)
 	{
-		HWND hWnd = pHandler->GetBrowserHwnd();
-		if (hWnd)
-		{
-			::MoveWindow(hWnd, left, top, width, height, FALSE);
-		}
+		pHandler->MoveBrowserWindow(left, top, width, height);
 	}
 }

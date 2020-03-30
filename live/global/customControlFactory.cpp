@@ -10,7 +10,7 @@
 #include "../page/stockDataPage.h"
 #include "../Control/stockDataTable.h"
 #include "../browser/browserwindow.h"
-#include "../page/webBrowserPage.h"
+#include "../browser/webBrowserPage.h"
 
 CCustomControlFactory::CCustomControlFactory()
 {

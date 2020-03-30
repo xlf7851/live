@@ -45,6 +45,7 @@ public:
 	void SetPos(RECT rc, bool bNeedInvalidate = true);
 	void Move(SIZE szOffset, bool bNeedInvalidate = true);
 	void SetVisible(bool bVisible = true);
+	void SetAttribute(LPCTSTR pstrName, LPCTSTR pstrValue);
 
 	RECT CalcBrowserPos();
 
@@ -57,6 +58,7 @@ protected:
 
 private:
 	CBrowserWnd* m_pBrowserWnd;
+	CDuiString m_strUrl;
 };
 
 class CWebBrowserDlg : public WindowImplBase

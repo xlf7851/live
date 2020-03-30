@@ -5,7 +5,7 @@
 #include <curl.h>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
-#include "browser/browserApi.h"
+#include "browser/browserModule.h"
 
 
 
@@ -67,12 +67,12 @@ static void UnInitGL()
 
 inline static bool InitCef()
 {
-	return CBrowserApi::Instance()->Initialize();
+	return CBrowserModule::Instance()->Initialize();
 }
 
 inline static void UnInitCef()
 {
-	CBrowserApi::Instance()->UnInitialize();
+	CBrowserModule::Instance()->UnInitialize();
 }
 
 
