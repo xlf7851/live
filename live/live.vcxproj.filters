@@ -207,9 +207,6 @@
     <ClInclude Include="browser\browserModule.h">
       <Filter>browser</Filter>
     </ClInclude>
-    <ClInclude Include="browser\webBrowserPage.h">
-      <Filter>browser</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -345,9 +342,6 @@
       <Filter>global</Filter>
     </ClCompile>
     <ClCompile Include="browser\browserModule.cpp">
-      <Filter>browser</Filter>
-    </ClCompile>
-    <ClCompile Include="browser\webBrowserPage.cpp">
       <Filter>browser</Filter>
     </ClCompile>
   </ItemGroup>

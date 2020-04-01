@@ -37,14 +37,6 @@ CPageCreater::~CPageCreater()
 
 CControlUI* CPageCreater::CreateControl(LPCTSTR pstrClass)
 {
-// 	if (_tcsicmp(pstrClass, _T("Base64Page")) == 0)
-// 	{
-// 		return new CBase64PageUI;
-// 	}
-// 	else if (_tcsicmp(pstrClass, _T("BlockcalcPage")) == 0)
-// 	{
-// 		return new CBlockcalcPageUI;
-// 	}
 	return nullptr;
 }
 

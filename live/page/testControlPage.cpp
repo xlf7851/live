@@ -2,7 +2,7 @@
 #include "testControlPage.h"
 #include "../screenShot/screenShot.h"
 #include "../mathGraphic/glwindow.h"
-#include "../browser/browserwindow.h"
+#include "../global/functioncall.h"
 
 
 IMPLEMENT_DUICONTROL(CTestControlPageUI)
@@ -41,34 +41,6 @@ void CTestControlPageUI::InitPage()
 		}
 		pPie->CalcData();
 	}
-
- 	CEditContainerUI* pContainer = (CEditContainerUI*)control_utl::FindChildByName(this, _T("editTest"));
- 	if (pContainer && pContainer->GetInterface(_T("EditContainer")) == pContainer)
- 	{
-//  		for (int i = 0; i < 5; i++)
-// 		{
-//  			CEditConinerItemUI* pItem = new CEditConinerItemUI;
-// 			//pItem->SetFixedHeight(30);
-// 			//pItem->SetFixedWidth(100);
-// 			CDuiString strData;
-// 			strData.Format(_T("²âÊÔ%d"), i);
-// 			CEditConinerItemLabelUI* pButton = new CEditConinerItemLabelUI;
-// 			pButton->SetText(strData);
-// 			pButton->SetAutoCalcWidth(true);
-// 			pItem->SetControl(pButton);
-// // 			if (i == 4)
-// // 			{
-// // 				//pItem->SetEditWidth(200);
-// // 				//pItem->EnableEdit(true);
-// // 			}
-//  			pContainer->AddEditContainerItem(pItem);
-// 		}
-
-	
-
- 	}
-
-	
 }
 
 void CTestControlPageUI::OnNotify(TNotifyUI& msg)
@@ -93,7 +65,11 @@ void CTestControlPageUI::OnNotify(TNotifyUI& msg)
 		}
 		else if (name.CompareNoCase(_T("btnTestPageShowWebDlg")) == 0)
 		{
-		
+			CFunctionCallItem item;
+			item.SetName(FUNCTION_CALL_CallName_ShowWebDlg);
+			item.SetParam(FUNCTION_CALL_PARAM_Url, _T("10jqka.com.cn"));
+			item.SetParam(_T("modal"), _T("true"));
+			CFunctionCall::Call(item);
 			return;
 		}
 	}

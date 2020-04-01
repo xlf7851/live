@@ -25,6 +25,32 @@ private:
 	GLFWwindow* m_pGLWindow;
 };
 
+class CGLPageUI : public CBasePageUI
+{
+	DECLARE_DUICONTROL(CGLPageUI)
+public:
+	CGLPageUI();
+	~CGLPageUI();
+
+	virtual LPCTSTR GetClass() const;
+	virtual LPVOID GetInterface(LPCTSTR pstrName);
+
+	virtual void OnNotify(TNotifyUI& msg);
+	virtual void InitPage();
+
+	void OnTestGL();
+
+	GLFWwindow* GetGLWindow();
+protected:
+	// 三角形
+	void OnBtnTriangle();
+	void InitVBO();
+
+protected:
+	CGLUI* m_pGLUI;
+	unsigned int m_vbo;
+};
+
 class CGLShowWnd : public WindowImplBase
 {
 public:
@@ -34,21 +60,7 @@ public:
 	CDuiString GetSkinFile();
 	LPCTSTR GetWindowClassName() const;
 
-	void InitWindow();
-	void OnClick(TNotifyUI& msg);
 
 	static void ShowGLWindow(HWND hParent, int width = 0, int height = 0);
 
-	void OnTestGL();
-
-	GLFWwindow* GetGLWindow();
-protected:
-	// 三角形
-	void OnBtnTriangle();
-
-
-	void InitVBO();
-protected:
-	CGLUI* m_pGLUI;
-	unsigned int m_vbo;
 };

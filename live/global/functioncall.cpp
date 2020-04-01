@@ -67,14 +67,13 @@ int CFunctionCall::ShowWebDlg(const _tstring& url, const CFunctionCallItem& call
 		CWebBrowserDlg* dlg = new CWebBrowserDlg;
 		dlg->CreateDuiWindow(global_funciton::GetMianHwnd(), _T("webDlg"), UI_WNDSTYLE_FRAME, 0);
 		dlg->CenterWindow();
+		dlg->Navigate(url.c_str());
 		if (callInfo.IsAttributeTrue(_T("modal")))
 		{
 			dlg->ShowModal();
-			delete dlg;
 		}
 		else
 		{
-			dlg->SetDeleteSelf(true);
 			dlg->ShowWindow();
 		}
 	}

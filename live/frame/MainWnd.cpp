@@ -7,6 +7,7 @@
 #include "toolbar.h"
 #include "../base/httpHandler.h"
 #include "../stock/hqDataQuery.h"
+#include "../global/functioncall.h"
 
 CMainWnd::CMainWnd()
 {
@@ -53,6 +54,7 @@ void CMainWnd::InitWindow()
 	InitCaption();
 	InitToolbar();
 	InitBody();
+	StartPage();
 }
 
 void CMainWnd::Notify( TNotifyUI& msg )
@@ -156,6 +158,14 @@ void CMainWnd::InitBody()
 	m_pRoot->Add(m_pBody);
 }
 
+void CMainWnd::StartPage()
+{
+	CFunctionCallItem item;
+	item.SetName(FUNCTION_CALL_CallName_SwitchPage);
+	item.SetParam(FUNCTION_CALL_PARAM_xmlres, _T("xml_web_browser_page"));
+	CFunctionCall::Call(item);
+}
+
 LRESULT CMainWnd::HandleCustomMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 {
 	switch (uMsg)
@@ -204,10 +214,11 @@ void CMainWnd::OnShowCurrentPage(WPARAM wParam, LPARAM lParam)
 	}
 
 	LPCTSTR lpszSkinFile = (LPCTSTR)wParam;
-	if (NULL == lpszSkinFile || lpszSkinFile[0] == 0)
+	if (NULL == lpszSkinFile || lpszSkinFile[0] == 0 || m_strCurrentPageXmlRes.CompareNoCase(lpszSkinFile) == 0)
 	{
 		return;
 	}
+
 	if (nullptr == m_pPageCrater)
 	{
 		m_pPageCrater = new CPageCreater(m_pm);
@@ -219,6 +230,7 @@ void CMainWnd::OnShowCurrentPage(WPARAM wParam, LPARAM lParam)
 		return;
 	}
 
+	m_strCurrentPageXmlRes = lpszSkinFile;
 	
 	m_pBody->RemoveAll();
 	m_pBody->Add(pControl);

@@ -29,6 +29,7 @@ protected:
 	void InitCaption();
 	void InitToolbar();
 	void InitBody();
+	void StartPage();
 
 	void OnShowCurrentPage(WPARAM wParam, LPARAM lParam);
 	void DoClose();
@@ -42,4 +43,5 @@ protected:
 
 private:
 	CPageCreater* m_pPageCrater;
+	CDuiString m_strCurrentPageXmlRes;
 };
