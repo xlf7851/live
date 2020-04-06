@@ -276,6 +276,27 @@ namespace DuiLib {
 							DWORD clrColor = _tcstoul(pstrValue, &pstr, 16);
 							pManager->SetDefaultFontColor(clrColor);
 						}
+						else if (_tcsicmp(pstrName, _T("defaulthotfontcolor")) == 0) {
+							pManager->SetDefaultHotFontColor(ColorStringColor(pstrValue));
+						}
+						else if (_tcsicmp(pstrName, _T("defaultselectedfontcolor")) == 0) {
+							pManager->SetDefaultSelectedFontColor(ColorStringColor(pstrValue));
+						}
+						else if (_tcsicmp(pstrName, _T("defaultbkcolor")) == 0) {
+							if (*pstrValue == _T('#')) pstrValue = ::CharNext(pstrValue);
+							LPTSTR pstr = NULL;
+							DWORD clrColor = _tcstoul(pstrValue, &pstr, 16);
+							pManager->SetDefaultBkColor(clrColor);
+						}
+						else if (_tcsicmp(pstrName, _T("defaulthotbkcolor")) == 0) {
+							pManager->SetDefaultHotBkColor(ColorStringColor(pstrValue));
+						}
+						else if (_tcsicmp(pstrName, _T("defaultbordercolor")) == 0) {
+							if (*pstrValue == _T('#')) pstrValue = ::CharNext(pstrValue);
+							LPTSTR pstr = NULL;
+							DWORD clrColor = _tcstoul(pstrValue, &pstr, 16);
+							pManager->SetDefaultBorderColor(clrColor);
+						}
 						else if( _tcsicmp(pstrName, _T("linkfontcolor")) == 0 ) {
 							if( *pstrValue == _T('#')) pstrValue = ::CharNext(pstrValue);
 							LPTSTR pstr = NULL;
@@ -288,7 +309,7 @@ namespace DuiLib {
 							DWORD clrColor = _tcstoul(pstrValue, &pstr, 16);
 							pManager->SetDefaultLinkHoverFontColor(clrColor);
 						} 
-						else if( _tcsicmp(pstrName, _T("selectedcolor")) == 0 ) {
+						else if( _tcsicmp(pstrName, _T("defaultselectedbkcolor")) == 0 ) {
 							if( *pstrValue == _T('#')) pstrValue = ::CharNext(pstrValue);
 							LPTSTR pstr = NULL;
 							DWORD clrColor = _tcstoul(pstrValue, &pstr, 16);

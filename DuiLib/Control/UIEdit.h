@@ -73,6 +73,9 @@ namespace DuiLib
 
 		void PaintStatusImage(HDC hDC);
 		void PaintText(HDC hDC);
+		void PaintBkColor(HDC hDC);
+
+		void SetUseDefaultBkAndTextColor();
 
 		LRESULT PreHandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, bool& bHandled);
 		void SetPreMessageHandler(IEditPreMessageHandler* pHandler);
@@ -95,6 +98,7 @@ namespace DuiLib
 		DWORD m_dwEditbkColor;
 		DWORD m_dwEditTextColor;
 		int m_iWindowStyls;
+		int m_nSetDefaultBkAndTextColorStatus;
 
 		IEditPreMessageHandler* m_pPreMessageHandler;
 	};

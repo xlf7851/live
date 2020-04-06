@@ -24,7 +24,9 @@ bool COpenFileHelp::OpenFile(bool bOpenFileDialog, LPCTSTR lpszDefExt, LPCTSTR l
 	if (!GetOpenFileName(&ofn))
 	{
 		return false;
-	}	m_strFilePath = szFile;
+	}
+
+	m_strFilePath = szFile;
 	return true;
 }
 

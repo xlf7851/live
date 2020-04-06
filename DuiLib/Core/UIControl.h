@@ -87,6 +87,9 @@ namespace DuiLib {
 		void SetBottomBorderSize(int nSize);
 		int GetBorderStyle() const;
 		void SetBorderStyle(int nStyle);
+		DWORD GetHotBorderColor() const;
+		void SetHotBorderColor(DWORD dwColor);
+		virtual DWORD GetPaintBorderColor();
 
 		// 位置相关
 		virtual RECT GetRelativePos() const; // 相对(父控件)位置
@@ -190,6 +193,7 @@ namespace DuiLib {
 		virtual void PaintForeImage(HDC hDC);
 		virtual void PaintText(HDC hDC);
 		virtual void PaintBorder(HDC hDC);
+		virtual void InitDefaultColorInfo();
 
 		virtual void DoPostPaint(HDC hDC, const RECT& rcPaint);
 
@@ -247,6 +251,7 @@ namespace DuiLib {
 		CDuiString m_sForeImage;
 		DWORD m_dwBorderColor;
 		DWORD m_dwFocusBorderColor;
+		DWORD m_dwHotBorderColor;
 		bool m_bColorHSL;
 		int m_nBorderSize;
 		int m_nBorderStyle;

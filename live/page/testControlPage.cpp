@@ -41,6 +41,12 @@ void CTestControlPageUI::InitPage()
 		}
 		pPie->CalcData();
 	}
+
+	CEditContainerUI* pEditContainer = (CEditContainerUI*)control_utl::FindChildByName(this, _T("editTest"));
+	if (pEditContainer)
+	{
+		pEditContainer->ApplyAllItemStyle();
+	}
 }
 
 void CTestControlPageUI::OnNotify(TNotifyUI& msg)

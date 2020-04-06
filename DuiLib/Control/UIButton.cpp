@@ -516,6 +516,18 @@ namespace DuiLib
 		}
 	}
 
+	DWORD CButtonUI::GetPaintBorderColor()
+	{
+		if ((m_uButtonState & UISTATE_HOT) != 0 && m_dwHotBorderColor != 0)
+		{
+			return m_dwHotBorderColor;
+		}
+		else
+		{
+			return CControlUI::GetPaintBorderColor();
+		}
+	}
+
 	IMPLEMENT_DUICONTROL(CCompareValueButtonUI)
 	CCompareValueButtonUI::CCompareValueButtonUI()
 	{

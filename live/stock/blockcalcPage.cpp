@@ -1,9 +1,6 @@
 #include "stdafx.h"
 #include "blockcalcPage.h"
-#include "../global/GlobalFuncton.h"
-#include "../control/controlGlobalFunc.h"
-#include "../base/utl.h"
-#include "../stock/blockAsk.h"
+#include "blockAsk.h"
 #include "../base/file.h"
 
 void CBlockItemUI::DoEvent(TEventUI& event)

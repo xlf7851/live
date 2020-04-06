@@ -1,9 +1,6 @@
 #pragma once
-#include "../stock/block.h"
-#include "basePage.h"
-#include "../base/httpHandler.h"
-#include "../base/buffer.h"
-#include "../stock/blockAsk.h"
+#include "block.h"
+#include "blockAsk.h"
 
 class CBlockItemUI : public CListLabelElementUI
 {

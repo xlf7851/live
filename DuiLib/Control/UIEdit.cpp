@@ -282,6 +282,7 @@ namespace DuiLib
 	{
 		SetTextPadding(CDuiRect(4, 3, 4, 3));
 		SetBkColor(0xFFFFFFFF);
+		m_nSetDefaultBkAndTextColorStatus = -1;
 	}
 
 	LPCTSTR CEditUI::GetClass() const
@@ -692,6 +693,13 @@ namespace DuiLib
 			DWORD clrColor = _tcstoul(pstrValue, &pstr, 16);
 			SetNativeEditBkColor(clrColor);
 		}
+		else if (_tcsicmp(pstrName, _T("usedefaultbkandtextcolor")) == 0) {
+			if (_tcsicmp(pstrValue, _T("true")) == 0)
+			{
+				SetUseDefaultBkAndTextColor();
+			}
+			
+		}
 		else CLabelUI::SetAttribute(pstrName, pstrValue);
 	}
 
@@ -767,6 +775,16 @@ namespace DuiLib
 		}
 	}
 
+	void CEditUI::PaintBkColor(HDC hDC)
+	{
+		if (m_nSetDefaultBkAndTextColorStatus == 0)
+		{
+			SetUseDefaultBkAndTextColor();
+		}
+
+		CLabelUI::PaintBkColor(hDC);
+	}
+
 	LRESULT CEditUI::PreHandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, bool& bHandled)
 	{
 		if (m_pPreMessageHandler)
@@ -779,6 +797,48 @@ namespace DuiLib
 	void CEditUI::SetPreMessageHandler(IEditPreMessageHandler* pHandler)
 	{
 		m_pPreMessageHandler = pHandler;
+	}
+
+	void CEditUI::SetUseDefaultBkAndTextColor()
+	{
+		if (m_nSetDefaultBkAndTextColorStatus > 0)
+		{
+			return;
+		}
+		m_nSetDefaultBkAndTextColorStatus = 0;
+		if (m_pManager)
+		{
+			m_nSetDefaultBkAndTextColorStatus = 1;
+			DWORD dwBkColor = 0;
+			CControlUI* pParent = GetParent();
+			while (pParent)
+			{
+				dwBkColor = pParent->GetBkColor();
+				if (dwBkColor != 0)
+				{
+					break;
+				}
+				pParent = pParent->GetParent();
+			}
+			if (dwBkColor == 0)
+			{
+				dwBkColor = m_pManager->GetDefaultBkColor();
+			}
+
+			if (dwBkColor != 0)
+			{
+				m_dwEditbkColor = dwBkColor;
+				SetBkColor(m_dwEditbkColor);
+			}
+		
+
+			DWORD dwTextColor = m_pManager->GetDefaultFontColor();
+			if (dwTextColor != 0)
+			{
+				m_dwEditTextColor = dwTextColor;
+				SetTextColor(dwTextColor);
+			}
+		}
 	}
 
 

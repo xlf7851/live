@@ -150,9 +150,14 @@ namespace DuiLib {
 	{
 		DWORD m_dwDefaultDisabledColor;
 		DWORD m_dwDefaultFontColor;
+		DWORD m_dwDefaultHotFontColor;
+		DWORD m_dwDefaultSelectedFontColor;
 		DWORD m_dwDefaultLinkFontColor;
 		DWORD m_dwDefaultLinkHoverFontColor;
+		DWORD m_dwDefaultBkColor;
+		DWORD m_dwDefaultHotBkColor;
 		DWORD m_dwDefaultSelectedBkColor;
+		DWORD m_dwDefaultBorderColor;
 		TFontInfo m_DefaultFontInfo;
 		CStdStringPtrMap m_CustomFonts;
 		CStdStringPtrMap m_ImageHash;
@@ -296,16 +301,32 @@ namespace DuiLib {
 
 		void DeletePtr(void* ptr);
 
+		// border color
+		DWORD GetDefaultBorderColor() const;
+		void SetDefaultBorderColor(DWORD dwColor, bool bShared = false);
+		// disable color
 		DWORD GetDefaultDisabledColor() const;
 		void SetDefaultDisabledColor(DWORD dwColor, bool bShared = false);
+		// text color
 		DWORD GetDefaultFontColor() const;
 		void SetDefaultFontColor(DWORD dwColor, bool bShared = false);
+		DWORD GetDefaultHotFontColor() const;
+		void SetDefaultHotFontColor(DWORD dwColor, bool bShared = false);
+		DWORD GetDefaultSelectedFontColor() const;
+		void SetDefaultSelectedFontColor(DWORD dwColor, bool bShared = false);
+		// link text color
 		DWORD GetDefaultLinkFontColor() const;
 		void SetDefaultLinkFontColor(DWORD dwColor, bool bShared = false);
 		DWORD GetDefaultLinkHoverFontColor() const;
 		void SetDefaultLinkHoverFontColor(DWORD dwColor, bool bShared = false);
+		// bk color
+		DWORD GetDefaultBkColor() const;
+		void SetDefaultBkColor(DWORD dwColor, bool bShared = false);
+		void SetDefaultHotBkColor(DWORD dwColor, bool bShared = false);
+		DWORD GetDefaultHotBkColor() const;
 		DWORD GetDefaultSelectedBkColor() const;
 		void SetDefaultSelectedBkColor(DWORD dwColor, bool bShared = false);
+
 		TFontInfo* GetDefaultFontInfo();
 		void SetDefaultFont(LPCTSTR pStrFontName, int nSize, bool bBold, bool bUnderline, bool bItalic, bool bShared = false);
 		DWORD GetCustomFontCount(bool bShared = false) const;

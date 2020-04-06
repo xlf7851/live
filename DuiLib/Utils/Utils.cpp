@@ -982,6 +982,13 @@ namespace DuiLib
 		::SetCursor(m_hOrigCursor);
 	}
 
+	DWORD ColorStringColor(LPCTSTR lpszColor)
+	{
+		if (*lpszColor == _T('#')) lpszColor = ::CharNext(lpszColor);
+		LPTSTR pstr = NULL;
+		return _tcstoul(lpszColor, &pstr, 16);
+	}
+
 
 	/////////////////////////////////////////////////////////////////////////////////////
 	//

@@ -19,15 +19,15 @@ namespace DuiLib {
 		m_ListInfo.nColumns = 0;
 		m_ListInfo.nFont = -1;
 		m_ListInfo.uTextStyle = DT_VCENTER | DT_SINGLELINE;
-		m_ListInfo.dwTextColor = 0xFF000000;
+		m_ListInfo.dwTextColor = 0;
 		m_ListInfo.dwBkColor = 0;
 		m_ListInfo.bAlternateBk = false;
-		m_ListInfo.dwSelectedTextColor = 0xFF000000;
-		m_ListInfo.dwSelectedBkColor = 0xFFC1E3FF;
-		m_ListInfo.dwHotTextColor = 0xFF000000;
-		m_ListInfo.dwHotBkColor = 0xFFE9F5FF;
-		m_ListInfo.dwDisabledTextColor = 0xFFCCCCCC;
-		m_ListInfo.dwDisabledBkColor = 0xFFFFFFFF;
+		m_ListInfo.dwSelectedTextColor = 0;
+		m_ListInfo.dwSelectedBkColor = 0;
+		m_ListInfo.dwHotTextColor = 0;
+		m_ListInfo.dwHotBkColor = 0;
+		m_ListInfo.dwDisabledTextColor = 0;
+		m_ListInfo.dwDisabledBkColor = 0;
 		m_ListInfo.dwLineColor = 0;
 		m_ListInfo.bShowRowLine = false;
 		m_ListInfo.bShowColumnLine = false;
@@ -54,6 +54,49 @@ namespace DuiLib {
 		if( _tcsicmp(pstrName, _T("IList")) == 0 ) return static_cast<IListUI*>(this);
 		if( _tcsicmp(pstrName, _T("IListOwner")) == 0 ) return static_cast<IListOwnerUI*>(this);
 		return CVerticalLayoutUI::GetInterface(pstrName);
+	}
+
+	void CListUI::DoInit()
+	{
+		CVerticalLayoutUI::DoInit();
+		InitDefaultColorInfo();
+	}
+
+	void CListUI::InitDefaultColorInfo()
+	{
+		if (m_pManager)
+		{
+			if (m_ListInfo.dwBkColor == 0)
+			{
+				m_ListInfo.dwBkColor = m_pManager->GetDefaultBkColor();
+			}
+
+			if (m_ListInfo.dwHotBkColor == 0)
+			{
+				m_ListInfo.dwHotBkColor = m_pManager->GetDefaultHotBkColor();
+			}
+
+			if (m_ListInfo.dwSelectedBkColor == 0)
+			{
+				m_ListInfo.dwSelectedBkColor = m_pManager->GetDefaultSelectedBkColor();
+			}
+
+			if (m_ListInfo.dwTextColor == 0)
+			{
+				m_ListInfo.dwTextColor = m_pManager->GetDefaultFontColor();
+			}
+
+			if (m_ListInfo.dwHotTextColor == 0)
+			{
+				m_ListInfo.dwHotTextColor = m_pManager->GetDefaultHotFontColor();
+			}
+
+			if (m_ListInfo.dwSelectedTextColor == 0)
+			{
+				m_ListInfo.dwSelectedTextColor = m_pManager->GetDefaultSelectedFontColor();
+			}
+
+		}
 	}
 
 	CControlUI* CListUI::GetItemAt(int iIndex) const

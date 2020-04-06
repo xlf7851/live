@@ -193,6 +193,7 @@
     <ClInclude Include="global\globalData.h" />
     <ClInclude Include="global\GlobalFuncton.h" />
     <ClInclude Include="global\profile.h" />
+    <ClInclude Include="ImageLive\bmpData.h" />
     <ClInclude Include="ImageLive\imageShowPage.h" />
     <ClInclude Include="login\login.h" />
     <ClInclude Include="mathGraphic\glwindow.h" />
@@ -200,9 +201,7 @@
     <ClInclude Include="mathGraphic\shader.h" />
     <ClInclude Include="page\base64Page.h" />
     <ClInclude Include="page\basePage.h" />
-    <ClInclude Include="page\blockcalcPage.h" />
     <ClInclude Include="page\PageCreater.h" />
-    <ClInclude Include="page\stockDataPage.h" />
     <ClInclude Include="page\testControlPage.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="screenShot\screenShot.h" />
@@ -211,10 +210,12 @@
     <ClInclude Include="stock\block.h" />
     <ClInclude Include="stock\blockAsk.h" />
     <ClInclude Include="stock\blockcalc.h" />
+    <ClInclude Include="stock\blockcalcPage.h" />
     <ClInclude Include="stock\hqDataQuery.h" />
     <ClInclude Include="stock\market.h" />
     <ClInclude Include="stock\stockArray.h" />
     <ClInclude Include="stock\stockdata.h" />
+    <ClInclude Include="stock\stockDataPage.h" />
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
@@ -244,6 +245,7 @@
     <ClCompile Include="global\globalData.cpp" />
     <ClCompile Include="global\GlobalFuncton.cpp" />
     <ClCompile Include="global\profile.cpp" />
+    <ClCompile Include="ImageLive\bmpData.cpp" />
     <ClCompile Include="ImageLive\imageShowPage.cpp" />
     <ClCompile Include="login\login.cpp" />
     <ClCompile Include="main.cpp" />
@@ -251,9 +253,7 @@
     <ClCompile Include="mathGraphic\shader.cpp" />
     <ClCompile Include="page\base64Page.cpp" />
     <ClCompile Include="page\basePage.cpp" />
-    <ClCompile Include="page\blockcalcPage.cpp" />
     <ClCompile Include="page\PageCreater.cpp" />
-    <ClCompile Include="page\stockDataPage.cpp" />
     <ClCompile Include="page\testControlPage.cpp" />
     <ClCompile Include="screenShot\screenShot.cpp" />
     <ClCompile Include="skin\skinSetWnd.cpp" />
@@ -266,10 +266,12 @@
     <ClCompile Include="stock\block.cpp" />
     <ClCompile Include="stock\blockAsk.cpp" />
     <ClCompile Include="stock\blockcalc.cpp" />
+    <ClCompile Include="stock\blockcalcPage.cpp" />
     <ClCompile Include="stock\hqDataQuery.cpp" />
     <ClCompile Include="stock\market.cpp" />
     <ClCompile Include="stock\stockArray.cpp" />
     <ClCompile Include="stock\stockdata.cpp" />
+    <ClCompile Include="stock\stockDataPage.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="live.rc" />

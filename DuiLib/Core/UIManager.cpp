@@ -238,9 +238,14 @@ namespace DuiLib {
 		{
 			m_SharedResInfo.m_dwDefaultDisabledColor = 0xFFA7A6AA;
 			m_SharedResInfo.m_dwDefaultFontColor = 0xFF000000;
+			m_SharedResInfo.m_dwDefaultHotBkColor = 0;
+			m_SharedResInfo.m_dwDefaultSelectedFontColor = 0;
 			m_SharedResInfo.m_dwDefaultLinkFontColor = 0xFF0000FF;
 			m_SharedResInfo.m_dwDefaultLinkHoverFontColor = 0xFFD3215F;
 			m_SharedResInfo.m_dwDefaultSelectedBkColor = 0xFFBAE4FF;
+			m_SharedResInfo.m_dwDefaultBkColor = 0xFFFFFFFF;
+			m_SharedResInfo.m_dwDefaultHotBkColor = 0;
+			m_SharedResInfo.m_dwDefaultBorderColor = 0xFF777777;
 
 			LOGFONT lf = { 0 };
 			::GetObject(::GetStockObject(DEFAULT_GUI_FONT), sizeof(LOGFONT), &lf);
@@ -260,6 +265,8 @@ namespace DuiLib {
 		m_ResInfo.m_dwDefaultLinkFontColor = m_SharedResInfo.m_dwDefaultLinkFontColor;
 		m_ResInfo.m_dwDefaultLinkHoverFontColor = m_SharedResInfo.m_dwDefaultLinkHoverFontColor;
 		m_ResInfo.m_dwDefaultSelectedBkColor = m_SharedResInfo.m_dwDefaultSelectedBkColor;
+		m_ResInfo.m_dwDefaultBkColor = m_SharedResInfo.m_dwDefaultBkColor;
+		m_ResInfo.m_dwDefaultBorderColor = m_SharedResInfo.m_dwDefaultBorderColor;
 
 		if( m_hUpdateRectPen == NULL ) {
 			m_hUpdateRectPen = ::CreatePen(PS_SOLID, 1, RGB(220, 0, 0));
@@ -2575,6 +2582,64 @@ namespace DuiLib {
 		m_bForceUseSharedRes = bForce;
 	}
 
+	void CPaintManagerUI::SetDefaultBorderColor(DWORD dwColor, bool bShared /* = false */)
+	{
+		if (bShared)
+		{
+			if (m_ResInfo.m_dwDefaultBorderColor == m_SharedResInfo.m_dwDefaultBorderColor)
+				m_ResInfo.m_dwDefaultBorderColor = dwColor;
+			m_SharedResInfo.m_dwDefaultBorderColor = dwColor;
+		}
+		else
+		{
+			m_ResInfo.m_dwDefaultBorderColor = dwColor;
+		}
+	}
+
+	DWORD CPaintManagerUI::GetDefaultBorderColor() const
+	{
+		return m_ResInfo.m_dwDefaultBorderColor;
+	}
+
+	void CPaintManagerUI::SetDefaultBkColor(DWORD dwColor, bool bShared /* = false */)
+	{
+		if (bShared)
+		{
+			if (m_ResInfo.m_dwDefaultBkColor == m_SharedResInfo.m_dwDefaultBkColor)
+				m_ResInfo.m_dwDefaultBkColor = dwColor;
+			m_SharedResInfo.m_dwDefaultBkColor = dwColor;
+		}
+		else
+		{
+			m_ResInfo.m_dwDefaultBkColor = dwColor;
+		}
+	}
+
+	DWORD CPaintManagerUI::GetDefaultHotBkColor() const
+	{
+		return m_ResInfo.m_dwDefaultHotBkColor;
+	}
+
+	void CPaintManagerUI::SetDefaultHotBkColor(DWORD dwColor, bool bShared /* = false */)
+	{
+		if (bShared)
+		{
+			if (m_ResInfo.m_dwDefaultHotBkColor == m_SharedResInfo.m_dwDefaultHotBkColor)
+				m_ResInfo.m_dwDefaultHotBkColor = dwColor;
+			m_SharedResInfo.m_dwDefaultHotBkColor = dwColor;
+		}
+		else
+		{
+			m_ResInfo.m_dwDefaultHotBkColor = dwColor;
+		}
+	}
+
+	DWORD CPaintManagerUI::GetDefaultBkColor() const
+	{
+		return m_ResInfo.m_dwDefaultBkColor;
+	}
+
+
 	DWORD CPaintManagerUI::GetDefaultDisabledColor() const
 	{
 		return m_ResInfo.m_dwDefaultDisabledColor;
@@ -2610,6 +2675,44 @@ namespace DuiLib {
 		else
 		{
 			m_ResInfo.m_dwDefaultFontColor = dwColor;
+		}
+	}
+
+	DWORD CPaintManagerUI::GetDefaultHotFontColor() const
+	{
+		return m_ResInfo.m_dwDefaultHotFontColor;
+	}
+
+	void CPaintManagerUI::SetDefaultHotFontColor(DWORD dwColor, bool bShared)
+	{
+		if (bShared)
+		{
+			if (m_ResInfo.m_dwDefaultHotFontColor == m_SharedResInfo.m_dwDefaultHotFontColor)
+				m_ResInfo.m_dwDefaultHotFontColor = dwColor;
+			m_SharedResInfo.m_dwDefaultHotFontColor = dwColor;
+		}
+		else
+		{
+			m_ResInfo.m_dwDefaultHotFontColor = dwColor;
+		}
+	}
+
+	DWORD CPaintManagerUI::GetDefaultSelectedFontColor() const
+	{
+		return m_ResInfo.m_dwDefaultSelectedFontColor;
+	}
+
+	void CPaintManagerUI::SetDefaultSelectedFontColor(DWORD dwColor, bool bShared)
+	{
+		if (bShared)
+		{
+			if (m_ResInfo.m_dwDefaultSelectedFontColor == m_SharedResInfo.m_dwDefaultSelectedFontColor)
+				m_ResInfo.m_dwDefaultSelectedFontColor = dwColor;
+			m_SharedResInfo.m_dwDefaultSelectedFontColor = dwColor;
+		}
+		else
+		{
+			m_ResInfo.m_dwDefaultSelectedFontColor = dwColor;
 		}
 	}
 

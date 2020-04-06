@@ -28,6 +28,7 @@
 #define DUI_CUSTOM_CTRL_CLASS_Browser				(_T("BrowserUI"))
 #define DUI_CUSTOM_CTRL_CLASS_ToolbarItem			(_T("ToolbarItemUI"))
 #define DUI_CUSTOM_CTRL_CLASS_WebBrowserPage		(_T("WebBrowserPageUI"))
+#define DUI_CUSTOM_CTRL_CLASS_ImageShowPage			(_T("ImageShowPageUI"))
 
 // custom control interface
 #define DUI_CUSTOM_CTRL_INTERFACE_ToolbarPage			(_T("ToolbarPage"))
@@ -44,6 +45,7 @@
 #define DUI_CUSTOM_CTRL_INTERFACE_Browser				(_T("Browser"))
 #define DUI_CUSTOM_CTRL_INTERFACE_ToolbarItem			(_T("ToolbarItem"))
 #define DUI_CUSTOM_CTRL_INTERFACE_WebBrowserPage		(_T("WebBrowserPage"))
+#define DUI_CUSTOM_CTRL_INTERFACE_ImageShowPage			(_T("ImageShowPage"))
 
 
 // 功能调用,XML中调用参数以a:b,c:d格式输入，解析成map

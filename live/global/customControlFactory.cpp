@@ -3,14 +3,15 @@
 
 #include "../page/testControlPage.h"
 #include "../page/base64Page.h"
-#include "../page/blockcalcPage.h"
+#include "../stock/blockcalcPage.h"
 #include "../frame/caption.h"
 #include "../frame/toolbar.h"
 #include "../mathGraphic/glwindow.h"
-#include "../page/stockDataPage.h"
+#include "../stock/stockDataPage.h"
 #include "../Control/stockDataTable.h"
 #include "../browser/browserwindow.h"
 #include "../mathGraphic/glwindow.h"
+#include "../ImageLive/imageShowPage.h"
 
 CCustomControlFactory::CCustomControlFactory()
 {
@@ -28,6 +29,7 @@ CCustomControlFactory::CCustomControlFactory()
 	REGIST_DUICONTROL(CBrowserUI);
 	REGIST_DUICONTROL(CToolbarItemUI);
 	REGIST_DUICONTROL(CWebBrowserPageUI);
+	REGIST_DUICONTROL(CImageShowPageUI);
 }
 
 void CCustomControlFactory::InitFactory()

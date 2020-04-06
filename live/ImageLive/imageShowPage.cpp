@@ -2,26 +2,26 @@
 #include "imageShowPage.h"
 
 
-CImageShowPage::CImageShowPage()
+CImageShowPageUI::CImageShowPageUI()
 {
 }
 
-CImageShowPage::~CImageShowPage()
+CImageShowPageUI::~CImageShowPageUI()
 {
 
 }
 
-LPCTSTR CImageShowPage::GetClass() const
+LPCTSTR CImageShowPageUI::GetClass() const
 {
 	return _T("ImageShowPageUI");
 }
 
-LPVOID CImageShowPage::GetInterface(LPCTSTR pstrName)
+LPVOID CImageShowPageUI::GetInterface(LPCTSTR pstrName)
 {
 	if (_tcsicmp(pstrName, _T("ImageShowPage")) == 0)
 	{
 		return this;
 	}
 
-	return _ImageShowPageBase::GetInterface(pstrName);
+	return CBasePageUI::GetInterface(pstrName);
 }

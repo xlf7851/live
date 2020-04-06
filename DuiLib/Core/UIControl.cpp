@@ -33,7 +33,8 @@ namespace DuiLib {
 		m_nBorderStyle(PS_SOLID),
 		m_nTooltipWidth(300),
 		m_wCursor(0),
-		m_instance(NULL)
+		m_instance(NULL),
+		m_dwHotBorderColor(0)
 	{
 		m_cXY.cx = m_cXY.cy = 0;
 		m_cxyFixed.cx = m_cxyFixed.cy = 0;
@@ -1039,6 +1040,12 @@ namespace DuiLib {
 			DWORD clrColor = _tcstoul(pstrValue, &pstr, 16);
 			SetBorderColor(clrColor);
 		}
+		else if (_tcsicmp(pstrName, _T("hotbordercolor")) == 0) {
+			if (*pstrValue == _T('#')) pstrValue = ::CharNext(pstrValue);
+			LPTSTR pstr = NULL;
+			DWORD clrColor = _tcstoul(pstrValue, &pstr, 16);
+			SetHotBorderColor(clrColor);
+		}
 		else if( _tcsicmp(pstrName, _T("focusbordercolor")) == 0 ) {
 			if( *pstrValue == _T('#')) pstrValue = ::CharNext(pstrValue);
 			LPTSTR pstr = NULL;
@@ -1296,6 +1303,11 @@ namespace DuiLib {
 		return;
 	}
 
+	void CControlUI::InitDefaultColorInfo()
+	{
+		
+	}
+
 	void CControlUI::PaintBorder(HDC hDC)
 	{
 		int nBorderSize;
@@ -1312,13 +1324,11 @@ namespace DuiLib {
 			rcBorderSize = m_rcBorderSize;
 		}
 		
-		if(m_dwBorderColor != 0 || m_dwFocusBorderColor != 0) {
+		DWORD dwColor = GetPaintBorderColor();
+		if(dwColor != 0) {
 			//»­Ô²½Ç±ß¿ò
 			if(nBorderSize > 0 && ( cxyBorderRound.cx > 0 || cxyBorderRound.cy > 0 )) {
-				if (IsFocused() && m_dwFocusBorderColor != 0)
-					CRenderEngine::DrawRoundRect(hDC, m_rcItem, nBorderSize, cxyBorderRound.cx, cxyBorderRound.cy, GetAdjustColor(m_dwFocusBorderColor), m_nBorderStyle);
-				else
-					CRenderEngine::DrawRoundRect(hDC, m_rcItem, nBorderSize, cxyBorderRound.cx, cxyBorderRound.cy, GetAdjustColor(m_dwBorderColor), m_nBorderStyle);
+				CRenderEngine::DrawRoundRect(hDC, m_rcItem, nBorderSize, cxyBorderRound.cx, cxyBorderRound.cy, GetAdjustColor(dwColor), m_nBorderStyle);
 			}
 			else {
 				if (IsFocused() && m_dwFocusBorderColor != 0 && nBorderSize > 0) { 
@@ -1330,28 +1340,28 @@ namespace DuiLib {
 					if(rcBorderSize.left > 0){
 						rcBorder		= m_rcItem;
 						rcBorder.right	= rcBorder.left;
-						CRenderEngine::DrawLine(hDC,rcBorder,rcBorderSize.left,GetAdjustColor(m_dwBorderColor),m_nBorderStyle);
+						CRenderEngine::DrawLine(hDC,rcBorder,rcBorderSize.left,GetAdjustColor(dwColor),m_nBorderStyle);
 					}
 					if(rcBorderSize.top > 0){
 						rcBorder		= m_rcItem;
 						rcBorder.bottom	= rcBorder.top;
-						CRenderEngine::DrawLine(hDC,rcBorder,rcBorderSize.top,GetAdjustColor(m_dwBorderColor),m_nBorderStyle);
+						CRenderEngine::DrawLine(hDC,rcBorder,rcBorderSize.top,GetAdjustColor(dwColor),m_nBorderStyle);
 					}
 					if(rcBorderSize.right > 0){
 						rcBorder		= m_rcItem;
 						rcBorder.right -= 1;
 						rcBorder.left	= rcBorder.right;
-						CRenderEngine::DrawLine(hDC,rcBorder,rcBorderSize.right,GetAdjustColor(m_dwBorderColor),m_nBorderStyle);
+						CRenderEngine::DrawLine(hDC,rcBorder,rcBorderSize.right,GetAdjustColor(dwColor),m_nBorderStyle);
 					}
 					if(rcBorderSize.bottom > 0){
 						rcBorder		= m_rcItem;
 						rcBorder.bottom -= 1;
 						rcBorder.top	= rcBorder.bottom;
-						CRenderEngine::DrawLine(hDC,rcBorder,rcBorderSize.bottom,GetAdjustColor(m_dwBorderColor),m_nBorderStyle);
+						CRenderEngine::DrawLine(hDC,rcBorder,rcBorderSize.bottom,GetAdjustColor(dwColor),m_nBorderStyle);
 					}
 				}
 				else if(nBorderSize > 0) {
-					CRenderEngine::DrawRect(hDC, m_rcItem, nBorderSize, GetAdjustColor(m_dwBorderColor), m_nBorderStyle);
+					CRenderEngine::DrawRect(hDC, m_rcItem, nBorderSize, GetAdjustColor(dwColor), m_nBorderStyle);
 				}
 			}
 		}
@@ -1421,4 +1431,28 @@ namespace DuiLib {
 		Invalidate();
 	}
 
+	DWORD CControlUI::GetHotBorderColor() const
+	{
+		return m_dwHotBorderColor;
+	}
+
+	void CControlUI::SetHotBorderColor(DWORD dwColor)
+	{
+		m_dwHotBorderColor = dwColor;
+	}
+
+	DWORD CControlUI::GetPaintBorderColor()
+	{
+		if (m_dwBorderColor == 0 && m_pManager)
+		{
+			m_dwBorderColor = m_pManager->GetDefaultBorderColor();
+		}
+		DWORD dwColor = m_dwBorderColor;
+		if (IsFocused() && m_dwFocusBorderColor != 0)
+		{
+			dwColor = m_dwFocusBorderColor;
+		}
+
+		return dwColor;
+	}
 } // namespace DuiLib

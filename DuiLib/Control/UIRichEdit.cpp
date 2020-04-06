@@ -2226,6 +2226,14 @@ err:
 	{
 		RECT rcTemp = { 0 };
 		if( !::IntersectRect(&rcTemp, &rcPaint, &m_rcItem) ) return true;
+		if (m_dwTextColor == 0)
+		{
+			DWORD dwDefaultColor = m_pManager->GetDefaultFontColor();
+			if (dwDefaultColor != 0)
+			{
+				SetTextColor(dwDefaultColor);
+			}
+		}
 
 		CRenderClip clip;
 		CRenderClip::GenerateClip(hDC, rcTemp, clip);

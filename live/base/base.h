@@ -5,3 +5,4 @@
 #include "base/buffer.h"
 #include "base/singleton.h"
 #include "base/utl.h"
+#include "httpHandler.h"

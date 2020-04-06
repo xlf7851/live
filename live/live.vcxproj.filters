@@ -135,9 +135,6 @@
     <ClInclude Include="page\PageCreater.h">
       <Filter>page</Filter>
     </ClInclude>
-    <ClInclude Include="page\blockcalcPage.h">
-      <Filter>page</Filter>
-    </ClInclude>
     <ClInclude Include="base\httpHandler.h">
       <Filter>base</Filter>
     </ClInclude>
@@ -164,9 +161,6 @@
     </ClInclude>
     <ClInclude Include="global\defines.h">
       <Filter>global</Filter>
-    </ClInclude>
-    <ClInclude Include="page\stockDataPage.h">
-      <Filter>page</Filter>
     </ClInclude>
     <ClInclude Include="stock\hqDataQuery.h">
       <Filter>stock</Filter>
@@ -206,6 +200,15 @@
     </ClInclude>
     <ClInclude Include="browser\browserModule.h">
       <Filter>browser</Filter>
+    </ClInclude>
+    <ClInclude Include="ImageLive\bmpData.h">
+      <Filter>ImageLive</Filter>
+    </ClInclude>
+    <ClInclude Include="stock\blockcalcPage.h">
+      <Filter>stock</Filter>
+    </ClInclude>
+    <ClInclude Include="stock\stockDataPage.h">
+      <Filter>stock</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -281,9 +284,6 @@
     <ClCompile Include="page\PageCreater.cpp">
       <Filter>page</Filter>
     </ClCompile>
-    <ClCompile Include="page\blockcalcPage.cpp">
-      <Filter>page</Filter>
-    </ClCompile>
     <ClCompile Include="base\httpHandler.cpp">
       <Filter>base</Filter>
     </ClCompile>
@@ -304,9 +304,6 @@
     </ClCompile>
     <ClCompile Include="screenShot\screenShot.cpp">
       <Filter>screenShot</Filter>
-    </ClCompile>
-    <ClCompile Include="page\stockDataPage.cpp">
-      <Filter>page</Filter>
     </ClCompile>
     <ClCompile Include="stock\hqDataQuery.cpp">
       <Filter>stock</Filter>
@@ -343,6 +340,15 @@
     </ClCompile>
     <ClCompile Include="browser\browserModule.cpp">
       <Filter>browser</Filter>
+    </ClCompile>
+    <ClCompile Include="ImageLive\bmpData.cpp">
+      <Filter>ImageLive</Filter>
+    </ClCompile>
+    <ClCompile Include="stock\blockcalcPage.cpp">
+      <Filter>stock</Filter>
+    </ClCompile>
+    <ClCompile Include="stock\stockDataPage.cpp">
+      <Filter>stock</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

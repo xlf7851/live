@@ -109,6 +109,9 @@ namespace DuiLib {
 	public:
 		CListUI();
 
+		void DoInit();
+		void InitDefaultColorInfo();
+
 		LPCTSTR GetClass() const;
 		UINT GetControlFlags() const;
 		LPVOID GetInterface(LPCTSTR pstrName);

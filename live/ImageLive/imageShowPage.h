@@ -1,11 +1,10 @@
 #pragma once
 
-typedef  CVerticalLayoutUI _ImageShowPageBase;
-class  CImageShowPage : public _ImageShowPageBase
+class  CImageShowPageUI : public CBasePageUI
 {
 public:
-	CImageShowPage();
-	~CImageShowPage();
+	CImageShowPageUI();
+	~CImageShowPageUI();
 
 	virtual LPCTSTR GetClass() const;
 	virtual LPVOID GetInterface(LPCTSTR pstrName);

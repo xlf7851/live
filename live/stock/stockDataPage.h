@@ -1,5 +1,4 @@
 #pragma once
-#include "basePage.h"
 
 typedef  CBasePageUI _StockDataPageUIBase;
 namespace stock_wrapper

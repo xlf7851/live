@@ -62,6 +62,8 @@ namespace DuiLib
 		void PaintStatusImage(HDC hDC);
 		void PaintForeImage(HDC hDC);
 
+		DWORD GetPaintBorderColor();
+
 	protected:
 		UINT m_uButtonState;
 
