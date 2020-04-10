@@ -131,7 +131,7 @@ namespace stock_wrapper
 					continue;
 				}
 
-				param->m_ayCode.Add(strTmp.c_str());
+				//param->m_ayCode.Add(strTmp.c_str());
 			}
 		} while (FALSE);
 

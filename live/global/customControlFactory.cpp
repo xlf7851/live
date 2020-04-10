@@ -8,7 +8,7 @@
 #include "../frame/toolbar.h"
 #include "../mathGraphic/glwindow.h"
 #include "../stock/stockDataPage.h"
-#include "../Control/stockDataTable.h"
+#include "../stock/stockDataTable.h"
 #include "../browser/browserwindow.h"
 #include "../mathGraphic/glwindow.h"
 #include "../ImageLive/imageShowPage.h"

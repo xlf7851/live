@@ -6,6 +6,11 @@
 #define STOCK_CODE_LEN	16
 namespace stock_wrapper {
 
+	// ÊÐ³¡×ª»»
+	_tstring MarketToString(uint32 uMarket);
+	uint32 StringToMarket(LPCTSTR lpszMarket);
+
+#pragma pack(1)
 	struct Stock
 	{
 		TCHAR m_szCode[STOCK_CODE_LEN];
@@ -99,7 +104,7 @@ namespace stock_wrapper {
 
 		void Clear()
 		{
-			m_szCode[0] = 0;
+			memset(this, 0, sizeof(Stock));
 		}
 
 		operator LPCTSTR() const
@@ -112,13 +117,110 @@ namespace stock_wrapper {
 
 	};
 
-	class StockArray : public xlf::FmtStringArray
+
+	class StockCode
+	{
+	public:
+		StockCode()
+		{
+			memset(this, 0, sizeof(StockCode));
+		}
+
+		StockCode(const StockCode& src)
+		{
+			*this = src;
+		}
+
+
+		StockCode& operator=(const StockCode& src)
+		{
+			memcpy(this, &src, sizeof(StockCode));
+
+			return *this;
+		}
+
+
+		StockCode& Assign(uint32 uMarket, const Stock& stock)
+		{
+			m_uMarket = uMarket;
+			m_stock = stock;
+		}
+
+
+		int Compare(const StockCode& src) const
+		{
+			if (m_uMarket == src.m_uMarket)
+			{
+				return m_stock.Compare(src.m_stock);
+			}
+			else
+			{
+				return m_uMarket - src.m_uMarket;
+			}
+		}
+
+		bool operator==(const StockCode& src) const
+		{
+			return Compare(src) == 0;
+		}
+
+		bool operator>(const StockCode& src) const
+		{
+			return Compare(src) > 0;
+		}
+
+		bool operator<(const StockCode& src) const
+		{
+			return Compare(src) < 0;
+		}
+
+		uint32 GetMarket() const
+		{
+			return m_uMarket;
+		}
+
+		const Stock& GetStock() const
+		{
+			return m_stock;
+		}
+
+		Stock& GetStock()
+		{
+			return m_stock;
+		}
+
+		void Clear()
+		{
+			memset(this, 0, sizeof(StockCode));
+		}
+
+		bool Empty() const
+		{
+			return m_stock.Empty();
+		}
+
+		bool FromString(LPCTSTR str);
+		_tstring ToString();
+	protected:
+		const void* GetPtr() const{ return this; }
+		friend class StockArray;
+	private:
+		uint32 m_uMarket;
+		Stock m_stock;
+
+	};
+#pragma pack()
+
+	class StockArray : protected xlf::FmtStringArray
 	{
 	public:
 		StockArray();
+		StockArray(const StockArray& src);
 
-		void FromString(LPCTSTR lpszCodes, int nLen, TCHAR ch);
-		void ToString(std::string& strCodes, char c = ',');
+		StockArray& operator=(const StockArray& src);
+
+		void FromString(LPCTSTR lpszCodes, int nLen, TCHAR ch = _T(','));
+		void ToString(_tstring& strCodes, TCHAR c = _T(','));
 		void WriteToBuf(xlf::CBuffer& buf);
 		int ReadFromBuf(const char* data, int nLen);
 
@@ -126,7 +228,41 @@ namespace stock_wrapper {
 		void Union(const StockArray& src);
 		void Sub(const StockArray& src);
 		void Inner(const StockArray& src);
+
+		int GetStockCodeSize() const
+		{
+			return GetSize();
+		}
+		void ClearStockCode()
+		{
+			Clear();
+		}
+		bool EmptyStockCode()
+		{
+			Empty();
+		}
+
+		void SetStockCodeCapacity(int nSize)
+		{
+			SetCapacity(nSize);
+		}
+
+		StockCode* AddStockCode(const StockCode& stockCode);
+		StockCode* GetStockCodeAt(int index);
+		const StockCode* GetStockCodeAt(int index) const;
+		int FindStockCodeIndex(const StockCode& stockCode) const;
+		int RemoveStockCode(const StockCode& stockCode);
+
+		bool IsSorted() const;
+
+	protected:
+		int _FindStockCodeByOrder(const StockCode& stockCode) const;
+		int _FindStockCodeBySort(const StockCode& stockCode) const;
+
+
+		bool m_bSortEd;
 	};
 
+	
 	
 }

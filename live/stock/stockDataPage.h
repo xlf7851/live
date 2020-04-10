@@ -1,4 +1,5 @@
 #pragma once
+#include "stockDataTable.h"
 
 typedef  CBasePageUI _StockDataPageUIBase;
 namespace stock_wrapper
@@ -23,7 +24,6 @@ protected:
 	void AddLog(LPCTSTR lpszLog);
 	void FindGetDataWindow();
 	void OnLoadData();
-	void OnOpenFile();
 
 protected:
 	void LoadPoolData(LPCTSTR lpszFile);

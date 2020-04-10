@@ -21,6 +21,7 @@ namespace xlf
 	public:
 		LPCTSTR Add(LPCTSTR lpszText, int nLen = -1);
 		LPCTSTR GetAt(int nIndex) const;
+		void RemoveAt(int index);
 		int GetSize() const;
 		void Clear();
 		bool Empty();
@@ -32,6 +33,7 @@ namespace xlf
 		TCHAR* GetData(int nSize = -1) const;
 		int GetDataBufferSize();
 		TCHAR* GetDataBuffer();
+		void Clone(const FmtStringArray& src);
 
 	protected:
 		TCHAR* m_data;

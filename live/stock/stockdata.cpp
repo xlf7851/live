@@ -13,7 +13,13 @@ namespace stock_wrapper
 
 #define stock_data_dir_day (_T("day\\"))
 #define stock_data_dir_minute (_T("min\\"))
+#define stock_data_dir_unknow (_T("unknow"))
 
+	static inline void _StockFileName(const Stock& stock, _tstring& strFile)
+	{
+		strFile = stock.ToCString();
+		strFile += _T(".dat");
+	}
 	static int _FindMarketStringIndex(LPCTSTR lpszMarket)
 	{
 		static LPCTSTR s_ayMarket[] = { _T("USHA"), _T("USZA") };
@@ -29,10 +35,35 @@ namespace stock_wrapper
 		return -1;
 	}
 
-	static _tstring _makeMarketDirPath(const _tstring& strRoot, const std::string strMarket, LPCTSTR lpszDataDir)
+	static _tstring _StockDataTypeToDirName(stock_data_type_t _tp)
 	{
-		_tstring strPath = strRoot + strMarket + _T("\\");
-		strPath += lpszDataDir;
+		if (_tp == stock_data_type_minute)
+		{
+			return stock_data_dir_minute;
+		}
+		else if (_tp == stock_data_type_day)
+		{
+			return stock_data_dir_day;
+		}
+		else
+		{
+			return stock_data_dir_unknow;
+		}
+	}
+
+	static _tstring _makeMarketDirPath(const _tstring& strRoot, uint32 uMarket, stock_data_type_t _tp)
+	{
+		_tstring strPath = strRoot;
+		_tstring strMarket = MarketToString(uMarket);
+		if (!strMarket.empty())
+		{
+			strPath += strMarket + _T("\\");
+		}
+
+
+		strPath += _StockDataTypeToDirName(_tp);
+		
+		
 		return strPath;
 	}
 
@@ -62,10 +93,6 @@ namespace stock_wrapper
 		}
 	}
 
-	inline std::string _MarketDayFileName(const std::string& strMarket)
-	{
-		return strMarket + _T(".dat");
-	}
 
 	// 返回读取的字节长度，包括字符串结束符，如果没有结束符，str为空，返回值为size
 	inline int _ReadString(const unsigned char* pBuf, int size, std::string& str)
@@ -114,6 +141,271 @@ namespace stock_wrapper
 		buf.Append(&c, 1);
 	}
 
+	
+
+	MarketBaseData::MarketBaseData()
+	{
+
+	}
+
+	MarketBaseData::~MarketBaseData()
+	{
+		Clear();
+	}
+
+	void MarketBaseData::Clear()
+	{
+		for (_data_map_iterator_t it = m_mapData.begin(); it != m_mapData.end(); it++)
+		{
+			delete it->second;
+		}
+		m_mapData.clear();
+	}
+
+	void MarketBaseData::Init(uint32 uMarket, LPCTSTR lpszFilePath /* = NULL */)
+	{
+		m_uMarket = uMarket;
+		if (lpszFilePath)
+		{
+			m_strFilePathRoot = lpszFilePath;
+		}
+	}
+
+	void MarketBaseData::LoadFrom(LPCTSTR lpszDir /* = nullptr */)
+	{
+		std::string strRoot = (lpszDir && lpszDir[0] != 0) ? lpszDir : m_strFilePathRoot;
+		if (strRoot.empty())
+		{
+			return;
+		}
+
+		std::vector<std::string> vcFile;
+		xlf::FindDirAllFile(strRoot.c_str(), vcFile);
+
+		for (int i = 0; i < vcFile.size(); i++)
+		{
+			std::string strPath = m_strFilePathRoot + vcFile[i];
+			ReadCodeDataFromFile(strPath.c_str());
+		}
+	}
+
+	void MarketBaseData::SaveTo(LPCTSTR lpszDir /* = nullptr */)
+	{
+		std::string strRoot = (lpszDir && lpszDir[0] != 0) ? lpszDir : m_strFilePathRoot;
+		if (strRoot.empty())
+		{
+			return;
+		}
+
+		if (m_mapData.size() == 0)
+		{
+			return;
+		}
+
+
+		_tstring strFileName;
+		for (_data_map_iterator_t it = m_mapData.begin(); it != m_mapData.end(); it++)
+		{
+			if (it->second == nullptr || it->second->GetStockDataSize() == 0)
+			{
+				continue;
+			}
+
+			_StockFileName(it->first, strFileName);
+			_tstring strFilePath = strRoot + strFileName;
+			WriteCodeDataToFile(it->first, it->second, strFilePath.c_str());
+		}
+	}
+
+	void MarketBaseData::ReadCodeDataFromFile(LPCTSTR lpszFilePath)
+	{
+		xlf::CBuffer buf;
+		xlf::ReadBufferFromFile(buf, lpszFilePath);
+		if (buf.GetSize() > 0)
+		{
+			Stock code;
+			ReadCodeDataFromBufferWidthFlag(code, buf.GetBuffer(), buf.GetSize());
+		}
+	}
+
+	void MarketBaseData::WriteCodeDataToFile(const Stock& code, IStockDataArray* pData, LPCTSTR lpszFile)
+	{
+
+	}
+
+	int MarketBaseData::ReadCodeDataFromBufferWidthFlag(Stock& code, const unsigned char* buf, int len)
+	{
+		int nRead = 0;
+		if (code.Empty())
+		{
+			if (!ReadFlag(buf, len, code, nRead) || code.Empty())
+			{
+				return nRead;
+			}
+		}
+		else
+		{
+			std::string flag;
+			nRead = _ReadString(buf, len, flag);
+		}
+
+
+		len -= nRead;
+		buf += nRead;
+
+		return ReadCodeDataFromBuffer(code, buf, len);
+	}
+
+	int MarketBaseData::ReadCodeDataFromBuffer(const Stock& code, const unsigned char* buf, int len)
+	{
+		int nRead = 0;
+		if (buf && len > 0)
+		{
+			IStockDataArray* pArray = GetData(code, TRUE);
+			if (pArray)
+			{
+				nRead = pArray->ReadStockDataFromBuf((char*)buf, len);
+			}
+		}
+
+		return nRead;
+	}
+
+	bool MarketBaseData::ReadFlag(const unsigned char* buf, int len, Stock& code, int& readLen)
+	{
+		std::string key;
+		return _ReadStockDataFlag(buf, len, key, code, readLen) && IsThisDataFlag(key.c_str());
+	}
+
+	IStockDataArray* MarketBaseData::GetData(const Stock& code, BOOL bCreate)
+	{
+		IStockDataArray* pFind = nullptr;
+		_data_map_iterator_t it = m_mapData.find(code);
+		if (it == m_mapData.end() || it->second == nullptr)
+		{
+			if (bCreate)
+			{
+				pFind = NewStockDataArray();
+				if (pFind)
+				{
+					m_mapData[code] = pFind;
+				}
+			}
+		}
+		else
+		{
+			pFind = it->second;
+		}
+		return pFind;
+	}
+
+	void MarketBaseData::UpdateData(const Stock& code, const IStockDataArray* data)
+	{
+		IStockDataArray* pFind = GetData(code, TRUE);
+		if (pFind)
+		{
+			pFind->CloneStockDataArray(data);
+		}
+	}
+
+	void MarketBaseData::AppendData(const Stock& code, const IStockDataArray* data)
+	{
+		IStockDataArray* pFind = GetData(code, TRUE);
+		if (pFind)
+		{
+			pFind->AppendStockDataArray(data);
+		}
+	}
+
+
+	bool MarketBaseData::IsThisMarket(uint32 uMarket)
+	{
+		return uMarket == m_uMarket;
+	}
+	
+
+	MarketDataBasePool::MarketDataBasePool()
+	{
+
+	}
+
+
+	MarketDataBasePool::~MarketDataBasePool()
+	{
+		Clear();
+	}
+
+	void MarketDataBasePool::Clear()
+	{
+		for (_data_iterator_t it = m_data.begin(); it != m_data.end(); it++)
+		{
+			delete *it;
+		}
+		m_data.clear();
+	}
+
+	void MarketDataBasePool::Init(LPCTSTR lpszFileRoot)
+	{
+		m_strRoot = lpszFileRoot;
+	}
+
+	void MarketDataBasePool::Read(uint32 uMarket)
+	{
+		MarketBaseData* pFind = GetData(uMarket, TRUE);
+		if (pFind)
+		{
+			pFind->LoadFrom();
+		}
+	}
+
+	void MarketDataBasePool::Write(uint32 uMarket)
+	{
+		MarketBaseData* pFind = GetData(uMarket, TRUE);
+		if (pFind)
+		{
+			pFind->SaveTo();
+		}
+	}
+
+
+	MarketBaseData* MarketDataBasePool::GetData(uint32 uMarket, BOOL bCreate)
+	{
+		MarketBaseData* pFind = nullptr;
+		for (_data_iterator_t it = m_data.begin(); it != m_data.end(); it++)
+		{
+			MarketBaseData* pCur = *it;
+			if (pCur && pCur->IsThisMarket(uMarket))
+			{
+				pFind = pCur;
+				break;
+			}
+		}
+
+		if (nullptr == pFind && bCreate)
+		{
+			pFind = NewMarketData();
+			if (pFind)
+			{
+				std::string strRoot = _makeMarketDirPath(m_strRoot, uMarket, pFind->GetMarketDataType());
+				pFind->Init(uMarket, strRoot.c_str());
+				m_data.push_back(pFind);
+			}
+		}
+
+		return pFind;
+	}
+
+	void MarketDataBasePool::UpdateData(uint32 uMarket, const Stock& code, const IStockDataArray* data)
+	{
+		MarketBaseData* pFind = GetData(uMarket, TRUE);
+		if (pFind)
+		{
+			pFind->UpdateData(code, data);
+		}
+	}
+	
+
+	
 	long DayDataArray::GetFirstDate() const
 	{
 		long lDate = 0;
@@ -162,10 +454,80 @@ namespace stock_wrapper
 		return -1;
 	}
 
-	void DayDataArray::AppendData(const DayDataArray& data)
+	int DayDataArray::GetStockDataSize()
+	{
+		return GetSize();
+	}
+
+	int DayDataArray::ReadStockDataFromBuf(const char* buf, int len)
+	{
+		return ReadFromBuf(buf, len);
+	}
+
+	int DayDataArray::WriteStockDataToBuf(xlf::CBuffer& buf)
+	{
+		return WriteToBuf(buf);
+	}
+
+	void DayDataArray::AppendStockDataArray(const IStockDataArray* pArray)
+	{
+		if (pArray)
+		{
+			DayDataArray* pSrc = (DayDataArray*)pArray;
+			Append(*pSrc);
+		}
+	}
+
+	void DayDataArray::CloneStockDataArray(const IStockDataArray* pArray)
+	{
+		if (pArray)
+		{
+			DayDataArray* pSrc = (DayDataArray*)pArray;
+			*this = *pSrc;
+		}
+	}
+
+
+	MarketDayData::MarketDayData()
 	{
 
 	}
+
+	MarketDayData::~MarketDayData()
+	{
+
+	}
+
+
+	bool MarketDayData::IsThisDataFlag(LPCTSTR lpszFlag)
+	{
+		return _IsStockDayData(lpszFlag);
+	}
+
+	IStockDataArray* MarketDayData::NewStockDataArray()
+	{
+		return new DayDataArray;
+	}
+
+
+	MarketDayDataPool::MarketDayDataPool()
+	{
+
+	}
+
+
+	MarketDayDataPool::~MarketDayDataPool()
+	{
+
+	}
+
+	MarketBaseData* MarketDayDataPool::NewMarketData()
+	{
+		return new MarketDayData;
+	}
+
+
+
 
 	static int _compareFenshiByDate(const void* src, const void* dst)
 	{
@@ -194,6 +556,39 @@ namespace stock_wrapper
 		return nullptr;
 	}
 
+	int MinuteDataArray::GetStockDataSize()
+	{
+		return GetSize();
+	}
+
+	int MinuteDataArray::ReadStockDataFromBuf(const char* buf, int len)
+	{
+		return ReadFromBuf(buf, len);
+	}
+
+	int MinuteDataArray::WriteStockDataToBuf(xlf::CBuffer& buf)
+	{
+		return WriteToBuf(buf);
+	}
+
+	void MinuteDataArray::AppendStockDataArray(const IStockDataArray* pArray)
+	{
+		if (pArray)
+		{
+			MinuteDataArray* pSrc = (MinuteDataArray*)pArray;
+			Append(*pSrc);
+		}
+	}
+
+	void MinuteDataArray::CloneStockDataArray(const IStockDataArray* pArray)
+	{
+		if (pArray)
+		{
+			MinuteDataArray* pSrc = (MinuteDataArray*)pArray;
+			*this = *pSrc;
+		}
+	}
+
 	MarketMinuteData::MarketMinuteData()
 	{
 
@@ -201,479 +596,17 @@ namespace stock_wrapper
 
 	MarketMinuteData::~MarketMinuteData()
 	{
-
-	}
-
-
-
-	MinuteDataArray* MarketMinuteData::GetData(const Stock& code, BOOL bCreate)
-	{
-		MinuteDataArray* pFind = nullptr;
-		_data_map_iterator_t it = m_mapData.find(code);
-		if (it == m_mapData.end() || it->second == nullptr)
-		{
-			if (bCreate)
-			{
-				pFind = new MinuteDataArray;
-				m_mapData[code] = pFind;
-			}
-		}
-		else
-		{
-			pFind = it->second;
-		}
-		return pFind;
-	}
-
-	void MarketMinuteData::UpdateData(const Stock& code, const MinuteDataArray& data)
-	{
-		MinuteDataArray* pFind = GetData(code, TRUE);
-		if (pFind)
-		{
-			*pFind = data;
-		}
-	}
-
-	void MarketMinuteData::AppendData(const Stock& code, const MinuteDataArray& data)
-	{
-		MinuteDataArray* pFind = GetData(code, TRUE);
-		if (pFind)
-		{
-			//pFind->AppendData(data);
-		}
-	}
-
-	void MarketMinuteData::UpdateData(const Stock& code, const _minute_data_node_t& data)
-	{
-		MinuteDataArray* pFind = GetData(code, TRUE);
-		if (pFind)
-		{
-		//	pFind->
-		}
-	}
-
-
-	void MarketMinuteData::Lock()
-	{
-	}
-
-	void MarketMinuteData::Unlock()
-	{
-
-	}
-
-	void MarketMinuteData::Init(LPCTSTR lpszMarket, LPCTSTR lpszFilePath /* = NULL */)
-	{
-		m_strMarket = lpszMarket;
-		if (lpszFilePath)
-		{
-			m_strFilePathRoot = lpszFilePath;
-		}
-	}
-
-	bool MarketMinuteData::IsThisMarket(LPCTSTR lpszMarket)
-	{
-		return m_strMarket.compare(lpszMarket) == 0;
-	}
-
-	void MarketMinuteData::Clear()
-	{
-		for (_data_map_iterator_t it = m_mapData.begin(); it != m_mapData.end(); it++)
-		{
-			delete it->second;
-		}
-		m_mapData.clear();
-	}
-
-
-	void MarketMinuteData::LoadFrom(LPCTSTR lpszDir /* = nullptr */)
-	{
-		std::string strRoot = (lpszDir && lpszDir[0] != 0) ? lpszDir : m_strFilePathRoot;
-		if (strRoot.empty())
-		{
-			return;
-		}
-
-		std::vector<std::string> vcFile;
-		xlf::FindDirAllFile(strRoot.c_str(), vcFile);
-
-		for (int i = 0; i < vcFile.size(); i++)
-		{
-			std::string strPath = m_strFilePathRoot + vcFile[i];
-			ReadCodeDataFromFile(strPath.c_str());
-		}
-
-	}
-
-	bool MarketMinuteData::ReadFlag(const unsigned char* buf, int len, Stock& code, int& readLen)
-	{
-		std::string key;
-		return _ReadStockDataFlag(buf, len, key, code, readLen) && _IsStockMinuteData(key.c_str());
-	}
-
-	void MarketMinuteData::ReadCodeDataFromFile(LPCTSTR lpszFilePath)
-	{
-		xlf::CBuffer buf;
-		xlf::ReadBufferFromFile(buf, lpszFilePath);
-		if (buf.GetSize() > 0)
-		{
-			Stock code;
-			ReadCodeDataFromBufferWidthFlag(code, buf.GetBuffer(), buf.GetSize());
-		}
-	}
-
-	int MarketMinuteData::ReadCodeDataFromBufferWidthFlag(Stock& code, const unsigned char* buf, int len)
-	{
-		int nRead = 0;
-		if (code.Empty())
-		{
-			if (!ReadFlag(buf, len, code, nRead) || code.Empty())
-			{
-				return nRead;
-			}
-		}
-		else
-		{
-			std::string flag;
-			nRead = _ReadString(buf, len, flag);
-		}
-
-
-		len -= nRead;
-		buf += nRead;
-
-		return ReadCodeDataFromBuffer(code, buf, len);
-	}
-
-	int MarketMinuteData::ReadCodeDataFromBuffer(const Stock& code, const unsigned char* buf, int len)
-	{
-		int nRead = 0;
-		if (buf && len > 0)
-		{
-			MinuteDataArray* pArray = GetData(code, TRUE);
-			if (pArray)
-			{
-				nRead = pArray->ReadFromBuf((char*)buf, len);
-			}
-		}
-
-		return nRead;
-	}
-
-	
-
-	void MarketMinuteData::SaveTo(LPCTSTR lpszDir /* = nullptr */)
-	{
-		std::string strRoot = ( lpszDir && lpszDir[0]!= 0) ? lpszDir : m_strFilePathRoot;
-		if (strRoot.empty())
-		{
-			return;
-		}
-
-		strRoot += _MarketDayFileName(m_strMarket);
-
-		if (m_mapData.size() == 0)
-		{
-			return;
-		}
-
-		xlf::CBuffer buffer;
-		// market flag
-		std::string strTm;
-		strTm = _T("market=") + m_strMarket;
-		buffer.Append(strTm.c_str(), strTm.size());
-		_AppendZero(buffer);
-
-		for (_data_map_iterator_t it = m_mapData.begin(); it != m_mapData.end(); it++)
-		{
-			if (it->second == nullptr || it->second->GetSize() == 0)
-			{
-				continue;
-			}
-
-// 			std::string code = it->first.ToString();
-// 			buffer.Append(code.c_str(), code.size());
-// 			_AppendZero(buffer);
-// 			it->second->WriteToBuf(buffer);
-		}
-	}
-
-
-	MarketDayData::MarketDayData()
-	{
-
-	}
-
-	MarketDayData::~MarketDayData()
-	{
-
-	}
-
-	DayDataArray* MarketDayData::GetData(const Stock& code, BOOL bCreate)
-	{
-		DayDataArray* pFind = nullptr;
-		_data_map_iterator_t it = m_mapData.find(code);
-		if (it == m_mapData.end() || it->second == nullptr)
-		{
-			if (bCreate)
-			{
-				pFind = new DayDataArray;
-				m_mapData[code] = pFind;
-			}
-		}
-		else
-		{
-			pFind = it->second;
-		}
-		return pFind;
-	}
-
-	void MarketDayData::UpdateData(const Stock& code, const DayDataArray& data)
-	{
-		DayDataArray* pFind = GetData(code, TRUE);
-		if (pFind)
-		{
-			*pFind = data;
-		}
-	}
-
-	void MarketDayData::AppendData(const Stock& code, const DayDataArray& data)
-	{
-		DayDataArray* pFind = GetData(code, TRUE);
-		if (pFind)
-		{
-			pFind->AppendData(data);
-		}
-	}
-
-
-	void MarketDayData::Lock()
-	{
-	}
-
-	void MarketDayData::Unlock()
-	{
-
-	}
-
-	void MarketDayData::Init(LPCTSTR lpszMarket, LPCTSTR lpszFilePath /* = NULL */)
-	{
-		m_strMarket = lpszMarket;
-		if (lpszFilePath)
-		{
-			m_strFilePathRoot = lpszFilePath;
-		}
-	}
-
-	bool MarketDayData::IsThisMarket(LPCTSTR lpszMarket)
-	{
-		return m_strMarket.compare(lpszMarket) == 0;
-	}
-
-	void MarketDayData::Clear()
-	{
-		for (_data_map_iterator_t it = m_mapData.begin(); it !=m_mapData.end(); it++)
-		{
-			delete it->second;
-		}
-		m_mapData.clear();
-	}
-
-	
-
-	void MarketDayData::ReadFromFile(LPCTSTR lpszFile)
-	{
-		std::string strRoot = lpszFile ? lpszFile : m_strFilePathRoot;
-		if (strRoot.empty())
-		{
-			return;
-		}
-
-		strRoot += _MarketDayFileName(m_strMarket);
-		
-		xlf::CBuffer buffer;
-		xlf::ReadBufferFromFile(buffer, strRoot.c_str());
-		
-
-		unsigned char* pBuf = buffer.GetBuffer();
-		int size = buffer.GetSize();
-
-		std::string tmp;
-		int read = _ReadString(pBuf, size, tmp);
-		size -= read;
-		pBuf += read;
-		while (size > 0)
-		{
-			// 
-			tmp.clear();
-			read = _ReadString(pBuf, size, tmp);
-			size -= read;
-			pBuf += read;
-
-			stock_wrapper::Stock stock = tmp.c_str();
-			if (stock.Empty())
-			{
-				break;
-			}
-
-			DayDataArray* pArray = GetData(stock, TRUE);
-			if (NULL == pArray)
-			{
-				break;
-			}
-
-			read = pArray->ReadFromBuf((char*)pBuf, size);
-			size -= read;
-			pBuf += read;
-		}
 		
 	}
 
-	bool MarketDayData::ReadFlag(const unsigned char* buf, int len, Stock& code, int& readLen)
+	bool MarketMinuteData::IsThisDataFlag(LPCTSTR lpszFlag)
 	{
-		std::string key;
-		return _ReadStockDataFlag(buf, len, key, code, readLen) && _IsStockDayData(key.c_str());
+		return _IsStockMinuteData(lpszFlag);
 	}
 
-	int MarketDayData::ReadCodeDataFromBufferWidthFlag(Stock& code, const unsigned char* buf, int len)
+	IStockDataArray* MarketMinuteData::NewStockDataArray()
 	{
-		int nRead = 0;
-		if (code.Empty())
-		{
-			if (!ReadFlag(buf, len, code, nRead) || code.Empty())
-			{
-				return nRead;
-			}
-		}
-		else
-		{
-			std::string flag;
-			nRead = _ReadString(buf, len, flag);
-		}
-		
-
-		len -= nRead;
-		buf += nRead;
-
-		return ReadCodeDataFromBuffer(code, buf, len);
-	}
-
-	int MarketDayData::ReadCodeDataFromBuffer(const Stock& code, const unsigned char* buf, int len)
-	{
-		int nRead = 0;
-		if (buf && len > 0)
-		{
-			DayDataArray* pArray = GetData(code, TRUE);
-			if (pArray)
-			{
-				nRead = pArray->ReadFromBuf((char*)buf, len);
-			}
-		}
-
-		return nRead;
-	}
-
-
-	void MarketDayData::WriteToFile(LPCTSTR lpszFile)
-	{
-		std::string strRoot = lpszFile ? lpszFile :  m_strFilePathRoot;
-		if (strRoot.empty())
-		{
-			return;
-		}
-
-		strRoot += _MarketDayFileName(m_strMarket);
-
-		if (m_mapData.size() == 0)
-		{
-			return;
-		}
-		
-		xlf::CBuffer buffer;
-		// market flag
-		std::string strTm;
-		strTm = _T("market=") + m_strMarket;
-		buffer.Append(strTm.c_str(), strTm.size());
-		_AppendZero(buffer);
-
-		for (_data_map_iterator_t it = m_mapData.begin(); it != m_mapData.end(); it++)
-		{
-			if (it->second == nullptr || it->second->GetSize() == 0)
-			{
-				continue;
-			}
-
-			std::string code = it->first.ToString();
-			buffer.Append(code.c_str(), code.size());
-			_AppendZero(buffer);
-			it->second->WriteToBuf(buffer);
-		}
-	}
-
-	MarketDayDataPool::MarketDayDataPool()
-	{
-
-	}
-
-	
-	MarketDayDataPool::~MarketDayDataPool()
-	{
-
-	}
-
-	void MarketDayDataPool::Init(LPCTSTR lpszFileRoot)
-	{
-		m_strRoot = lpszFileRoot;
-	}
-
-	void MarketDayDataPool::Read(LPCTSTR lpszMarket)
-	{
-		MarketDayData* pFind = GetData(lpszMarket, TRUE);
-		if (pFind)
-		{
-			pFind->ReadFromFile();
-		}
-	}
-
-	void MarketDayDataPool::Write(LPCTSTR lpszMarket)
-	{
-		MarketDayData* pFind = GetData(lpszMarket, TRUE);
-		if (pFind)
-		{
-			pFind->WriteToFile();
-		}
-	}
-
-
-	MarketDayData* MarketDayDataPool::GetData(const std::string& strMarket, BOOL bCreate)
-	{
-		MarketDayData* pFind = nullptr;
-		for (_data_map_iterator_t it = m_mapData.begin(); it != m_mapData.end(); it++)
-		{
-			if (it->first == strMarket)
-			{
-				pFind = it->second;
-				break;
-			}
-		}
-
-		if (nullptr == pFind && bCreate)
-		{
-			pFind = new MarketDayData;
-			std::string strRoot = _makeMarketDirPath(m_strRoot, strMarket, stock_data_dir_day);
-			pFind->Init(strMarket.c_str(), strRoot.c_str());
-			m_mapData[strMarket] = pFind;
-		}
-
-		return pFind;
-	}
-	void MarketDayDataPool::UpdateData(const std::string& strMarket, const Stock& code, const DayDataArray& data)
-	{
-		MarketDayData* pFind = GetData(strMarket, TRUE);
-		if (pFind)
-		{
-			pFind->UpdateData(code, data);
-		}
+		return new MinuteDataArray;
 	}
 
 	MarketMinuteDataPool::MarketMinuteDataPool()
@@ -684,62 +617,88 @@ namespace stock_wrapper
 
 	MarketMinuteDataPool::~MarketMinuteDataPool()
 	{
-
+		
 	}
 
-	void MarketMinuteDataPool::Init(LPCTSTR lpszFileRoot)
+	MarketBaseData* MarketMinuteDataPool::NewMarketData()
 	{
-		m_strRoot = lpszFileRoot;
-	}
-
-	void MarketMinuteDataPool::Read(LPCTSTR lpszMarket)
-	{
-		MarketMinuteData* pFind = GetData(lpszMarket, TRUE);
-		if (pFind)
-		{
-			pFind->LoadFrom();
-		}
-	}
-
-	void MarketMinuteDataPool::Write(LPCTSTR lpszMarket)
-	{
-		MarketMinuteData* pFind = GetData(lpszMarket, FALSE);
-		if (pFind)
-		{
-			pFind->SaveTo();
-		}
+		return new MarketMinuteData;
 	}
 
 
-	MarketMinuteData* MarketMinuteDataPool::GetData(const std::string& strMarket, BOOL bCreate)
+	void TradeDate::UpdateDate(const long* pDate, int len)
 	{
-		MarketMinuteData* pFind = nullptr;
-		for (_data_map_iterator_t it = m_mapData.begin(); it != m_mapData.end(); it++)
-		{
-			if (it->first == strMarket)
-			{
-				pFind = it->second;
-				break;
-			}
-		}
-
-		if (nullptr == pFind && bCreate)
-		{
-			pFind = new MarketMinuteData;
-			std::string strRoot = _makeMarketDirPath(m_strRoot, strMarket, stock_data_dir_minute);
-			pFind->Init(strMarket.c_str(), strRoot.c_str());
-			m_mapData[strMarket] = pFind;
-		}
-
-		return pFind;
+		Clear();
+		Append(pDate, len);
+		Write();
 	}
-	void MarketMinuteDataPool::UpdateData(const std::string& strMarket, const Stock& code, const MinuteDataArray& data)
+
+	static int _compareTradeDate(const void* src, const void* dst)
 	{
-		MarketMinuteData* pFind = GetData(strMarket, TRUE);
-		if (pFind)
+		const long* f = (const long*)src;
+		const long* s = (const long*)dst;
+		return (*f - *s);
+	}
+
+	void TradeDate::SortDate()
+	{
+		Sort(_compareTradeDate);
+	}
+
+	void TradeDate::SetFilePath(LPCTSTR lpszFilePath)
+	{
+		m_strFilePath = lpszFilePath;
+	}
+
+	void TradeDate::Read()
+	{
+		if (m_strFilePath.empty())
 		{
-			pFind->UpdateData(code, data);
+			return;
 		}
+		Clear();
+
+		xlf::CBuffer buf;
+		xlf::ReadBufferFromFile(buf, m_strFilePath.c_str());
+		if (buf.GetSize() <= 0)
+		{
+			return;
+		}
+
+		unsigned char* pBuf = buf.GetBuffer();
+		int len = buf.GetSize();
+		_tstring str;
+		int nRead = _ReadString(pBuf, len, str);
+		if (nRead <= 0)
+		{
+			return;
+		}
+
+		pBuf += nRead;
+		len -= nRead;
+
+		ReadFromBuf((const char*)pBuf, len);
+	}
+
+	void TradeDate::Write()
+	{
+		if (m_strFilePath.empty())
+		{
+			return;
+		}
+
+		int nSize = GetSize();
+		xlf::CBuffer buf;
+		_tstring strFlag = _T("tradeDate=");
+		TCHAR sz[64] = { 0 };
+		_stprintf_s(sz, _T("%d"), nSize);
+		strFlag += sz;
+		buf.Append(strFlag.c_str(), strFlag.size());
+		_AppendZero(buf);
+		WriteToBuf(buf);
+
+		xlf::WriteBufferToFile(buf, m_strFilePath.c_str());
+
 	}
 
 
@@ -762,15 +721,40 @@ namespace stock_wrapper
 		}
 	}
 
-	StockDataPool* StockDataPool::GetStokDataPool(bool bNew)
+	void StockDataPool::Clear()
 	{
-		auto gd = xlf::TSingleton<xlf::CGlobalData>::Instance();
-		if (gd)
+		if (m_pDayDataPool)
 		{
-			return gd->GetStockDataPool();
+			m_pDayDataPool->Clear();
 		}
 
-		return NULL;
+		if (m_pMinuteDataPool)
+		{
+			m_pMinuteDataPool->Clear();
+		}
+	}
+
+	void StockDataPool::ClearMarket(uint32 uMarket)
+	{
+		if (m_pDayDataPool)
+		{
+			
+		}
+
+		if (m_pMinuteDataPool)
+		{
+		
+		}
+	}
+
+	StockDataPool* StockDataPool::Instance()
+	{
+		static StockDataPool* s_obj = nullptr;
+		if (s_obj == nullptr)
+		{
+			s_obj = new StockDataPool;
+		}
+		return s_obj;
 	}
 
 	void StockDataPool::InitDataPath(LPCTSTR lpszFilePath)
@@ -782,7 +766,7 @@ namespace stock_wrapper
 			m_pDayDataPool->Init(m_strRoot.c_str());
 			m_pMinuteDataPool->Init(m_strRoot.c_str());
 		}
-		LoadTradeData();
+		//LoadTradeData();
 	}
 
 	void StockDataPool::LoadData()
@@ -791,30 +775,47 @@ namespace stock_wrapper
 		{
 			return;
 		}
-		std::vector<std::string> vcDir;
+		std::vector<_tstring> vcDir;
 		xlf::FindDirAllDir(m_strRoot.c_str(), vcDir);
 		for (int i = 0; i < vcDir.size(); i++)
 		{
-			LoadMarketData(vcDir[i]);
+			uint32 uMarket = StringToMarket(vcDir[i].c_str());
+			if (uMarket != 0)
+			{
+				LoadMarketData(uMarket);
+			}
 		}
 	}
 
-	void StockDataPool::LoadMarketData(const std::string& strMarket)
+	void StockDataPool::LoadMarketData(uint32 uMarket)
 	{
-		//m_pDayDataPool->Read(strMarket.c_str());
-		m_pMinuteDataPool->Read(strMarket.c_str());
+		m_pDayDataPool->Read(uMarket);
+		m_pMinuteDataPool->Read(uMarket);
 	}
 
 
 	void StockDataPool::LoadTradeData()
 	{
-		if (m_strConfigFilePath.empty())
+		if (m_strRoot.empty())
 		{
 			return;
 		}
 
-		//GetProfileString()
+		_tstring strPath = m_strRoot + _T("tradeDate.dat");
+		m_tradeDate.SetFilePath(strPath.c_str());
+		m_tradeDate.Read();
 
+	}
+
+	void StockDataPool::GetTradeDate(TradeDate& tradeDate, uint32 uMarket)
+	{
+		tradeDate = m_tradeDate;
+		tradeDate.SetFilePath(_T(""));
+	}
+
+	TradeDate* StockDataPool::GetTradeDate(uint32 uMarket)
+	{
+		return &m_tradeDate;
 	}
 
 	stock_data_type_t StockDataPool::CheckStockDataType(const xlf::CBuffer& buf, Stock* pStock /* = NULL */)
@@ -836,33 +837,36 @@ namespace stock_wrapper
 		return tp;
 	}
 
-	void StockDataPool::GetMinuteData(const std::string market, const Stock& code, long lDate, _minute_data_node_t& data)
+	MinuteDataArray* StockDataPool::GetMinuteDataArray(uint32 uMarket, const Stock& code, BOOL bCreate /* = FALSE */)
 	{
-		MarketMinuteData* pMarketData = m_pMinuteDataPool->GetData(market, FALSE);
+		MarketMinuteData* pMarketData = (MarketMinuteData*)m_pMinuteDataPool->GetData(uMarket, bCreate);
 		if (pMarketData)
 		{
-			MinuteDataArray* pData = pMarketData->GetData(code, FALSE);
-			if (pData)
+			return (MinuteDataArray*)pMarketData->GetData(code, bCreate);
+		}
+
+		return nullptr;
+	}
+
+	void StockDataPool::GetMinuteData(uint32 uMarket, const Stock& code, long lDate, _minute_data_node_t& data)
+	{
+		MinuteDataArray* pData = GetMinuteDataArray(uMarket, code, FALSE);
+		if (pData)
+		{
+			_minute_data_node_t* pFind = pData->FindByDate(lDate);
+			if (pFind)
 			{
-				_minute_data_node_t* pFind = pData->FindByDate(lDate);
-				if (pFind)
-				{
-					data = *pFind;
-				}
+				data = *pFind;
 			}
 		}
 	}
 
-	void StockDataPool::GetMinuteData(const std::string& market, const Stock& code, MinuteDataArray& ayData)
+	void StockDataPool::GetMinuteData(uint32 uMarket, const Stock& code, MinuteDataArray& ayData)
 	{
-		MarketMinuteData* pMarketData = m_pMinuteDataPool->GetData(market, FALSE);
-		if (pMarketData)
+		MinuteDataArray* pData = GetMinuteDataArray(uMarket, code, FALSE);
+		if (pData)
 		{
-			MinuteDataArray* pData = pMarketData->GetData(code, FALSE);
-			if (pData)
-			{
-				ayData = *pData;
-			}
+			ayData = *pData;
 		}
 	}
 }

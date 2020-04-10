@@ -50,6 +50,6 @@ namespace xlf
 
 	bool ParseKeyValue(const _tstring& strText, _tstring& strKey, _tstring& strValue, TCHAR ch = _T('='));
 
-	void FindDirAllFile(LPCTSTR lpszDir, std::vector<std::string>& vcFile);
-	void FindDirAllDir(LPCTSTR lpszDir, std::vector<std::string>& vcFile);
+	void FindDirAllFile(LPCTSTR lpszDir, std::vector<_tstring>& vcFile);
+	void FindDirAllDir(LPCTSTR lpszDir, std::vector<_tstring>& vcFile);
 }

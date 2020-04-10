@@ -4,6 +4,15 @@
 
 namespace stock_wrapper
 {
+
+	enum stock_data_type_t
+	{
+		stock_data_type_error = 0,
+		stock_data_type_minute,
+		stock_data_type_day,
+
+	};
+
 #define minute_day_count 242
 #pragma pack(1)
 	// 日线数据
@@ -46,7 +55,93 @@ namespace stock_wrapper
 	};
 #pragma pack()
 
-	class DayDataArray : public xlf::FmtObjArray<_day_data_item_t>
+	class IStockDataArray
+	{
+	public:
+		virtual int GetStockDataSize() = 0;
+		virtual int ReadStockDataFromBuf(const char* buf, int len) = 0;
+		virtual int WriteStockDataToBuf(xlf::CBuffer& buf) = 0;
+		virtual void AppendStockDataArray(const IStockDataArray* pArray) = 0;
+		virtual void CloneStockDataArray(const IStockDataArray* pArray) = 0;
+	};
+
+	class MarketBaseData
+	{
+	public:
+		typedef std::map<Stock, IStockDataArray*> _data_map_t;
+		typedef _data_map_t::iterator _data_map_iterator_t;
+	public:
+		MarketBaseData();
+		virtual ~MarketBaseData();
+
+		virtual void Clear();
+		virtual void Init(uint32 uMarket, LPCTSTR lpszFilePath = NULL);
+		
+		// 从目录读写
+		void LoadFrom(LPCTSTR lpszDir = nullptr);
+		void SaveTo(LPCTSTR lpszDir = nullptr);
+
+		// 从当个文件中读写
+		void ReadCodeDataFromFile(LPCTSTR lpszFilePath);
+		void WriteCodeDataToFile(const Stock& code, IStockDataArray* pData, LPCTSTR lpszFile);
+
+		// 内存中解析数据
+		// 数据中有数据标志信息， bParseFlag ： code为空不为空时，跳过检查标志信息
+		int ReadCodeDataFromBufferWidthFlag(Stock& code, const unsigned char* buf, int len);
+		// 数据中无数据标志信息
+		int ReadCodeDataFromBuffer(const Stock& code, const unsigned char* buf, int len);
+
+		// 数据对象标记
+		bool ReadFlag(const unsigned char* buf, int len, Stock& code, int& readLen);
+		
+		
+		// 数据存取接口
+		IStockDataArray* GetData(const Stock& code, BOOL bCreate = FALSE);
+		void UpdateData(const Stock& code, const IStockDataArray* data);
+		void AppendData(const Stock& code, const IStockDataArray* data);
+
+		bool IsThisMarket(uint32 uMarket);
+
+		// 必须重写的虚函数
+		virtual bool IsThisDataFlag(LPCTSTR lpszFlag) { return false; }
+		virtual IStockDataArray* NewStockDataArray() { return nullptr; }
+		virtual stock_data_type_t GetMarketDataType() { return stock_data_type_error; }
+
+	protected:
+		_data_map_t m_mapData;
+		_tstring m_strFilePathRoot;
+		uint32 m_uMarket;
+
+	};
+
+	class MarketDataBasePool
+	{
+	public:
+		typedef std::vector<MarketBaseData*> _data_container_t;
+		typedef _data_container_t::iterator _data_iterator_t;
+	public:
+		MarketDataBasePool();
+		virtual ~MarketDataBasePool();
+
+		virtual void Clear();
+		virtual void Init(LPCTSTR lpszFileRoot);
+
+		void Read(uint32 uMarket);
+		void Write(uint32 uMarket);
+
+
+		MarketBaseData* GetData(uint32 uMarket, BOOL bCreate = FALSE);
+		void UpdateData(uint32 uMarket, const Stock& code, const IStockDataArray* data);
+
+	protected:
+		virtual MarketBaseData* NewMarketData() { return nullptr; }
+	protected:
+		_data_container_t m_data;
+		_tstring m_strRoot;
+	};
+
+
+	class DayDataArray : public xlf::FmtObjArray<_day_data_item_t>, public IStockDataArray
 	{
 	public:
 		long GetFirstDate() const;
@@ -54,162 +149,117 @@ namespace stock_wrapper
 
 		int FindIndexByDate();
 		void SortByDate();
-		void AppendData(const DayDataArray& data);
+
+		virtual int GetStockDataSize();
+		virtual int ReadStockDataFromBuf(const char* buf, int len);
+		virtual int WriteStockDataToBuf(xlf::CBuffer& buf);
+		virtual void AppendStockDataArray(const IStockDataArray* pArray);
+		virtual void CloneStockDataArray(const IStockDataArray* pArray);
 	};
 
-	class MinuteDataArray : public xlf::FmtObjArray<_minute_data_node_t>
+	class MarketDayData : public MarketBaseData
 	{
-	public:
-		void SortByDate();
-		_minute_data_node_t* FindByDate(long lDate);
-	};
-
-	class MarketMinuteData
-	{
-	public:
-		typedef std::map<Stock, MinuteDataArray*> _data_map_t;
-		typedef _data_map_t::iterator _data_map_iterator_t;
-	public:
-		MarketMinuteData();
-		virtual ~MarketMinuteData();
-
-		void Init(LPCTSTR lpszMarket, LPCTSTR lpszFilePath = NULL);
-
-		void Clear();
-
-		void LoadFrom(LPCTSTR lpszDir = nullptr);
-		void SaveTo(LPCTSTR lpszDir = nullptr);
-
-		static bool ReadFlag(const unsigned char* buf, int len, Stock& code, int& readLen);
-		void ReadCodeDataFromFile(LPCTSTR lpszFilePath);
-		// 数据中有数据标志信息， bParseFlag ： code为空不为空时，跳过检查标志信息
-		int ReadCodeDataFromBufferWidthFlag(Stock& code, const unsigned char* buf, int len);
-		// 数据中无数据标志信息
-		int ReadCodeDataFromBuffer(const Stock& code, const unsigned char* buf, int len);
-
-
-		MinuteDataArray* GetData(const Stock& code, BOOL bCreate = FALSE);
-		void UpdateData(const Stock& code, const MinuteDataArray& data);
-		void AppendData(const Stock& code, const MinuteDataArray& data);
-		void UpdateData(const Stock& code, const _minute_data_node_t& data);
-
-		bool IsThisMarket(LPCTSTR lpszMarket);
-
-		void Lock();
-		void Unlock();
-
-	protected:
-		_data_map_t m_mapData;
-		std::string m_strFilePathRoot;
-		std::string m_strMarket;
-
-	};
-
-
-	class MarketDayData
-	{
-	public:
-		typedef std::map<Stock, DayDataArray*> _data_map_t;
-		typedef _data_map_t::iterator _data_map_iterator_t;
 	public:
 		MarketDayData();
 		virtual ~MarketDayData();
 
-		void Init(LPCTSTR lpszMarket, LPCTSTR lpszFilePath = NULL);
-
-		void Clear();
-		void ReadFromFile(LPCTSTR lpszFile = NULL);
-		void WriteToFile(LPCTSTR lpszFile = NULL);
-		static bool ReadFlag(const unsigned char* buf, int len, Stock& code, int& readLen);
-		// 数据中有数据标志信息， bParseFlag ： code为空不为空时，跳过检查标志信息
-		int ReadCodeDataFromBufferWidthFlag(Stock& code, const unsigned char* buf, int len);
-		// 数据中无数据标志信息
-		int ReadCodeDataFromBuffer(const Stock& code, const unsigned char* buf, int len);
-
-
-		DayDataArray* GetData(const Stock& code, BOOL bCreate = FALSE);
-		void UpdateData(const Stock& code, const DayDataArray& data);
-		void AppendData(const Stock& code, const DayDataArray& data);
-
-		bool IsThisMarket(LPCTSTR lpszMarket);
-
-		void Lock();
-		void Unlock();
-
-	protected:
-		_data_map_t m_mapData;
-		std::string m_strFilePathRoot;
-		std::string m_strMarket;
 		
+		virtual bool IsThisDataFlag(LPCTSTR lpszFlag);
+		virtual IStockDataArray* NewStockDataArray();
+		virtual stock_data_type_t GetMarketDataType() { return stock_data_type_day; }
+
 	};
 
-	class MarketDayDataPool
+	class MarketDayDataPool : public MarketDataBasePool
 	{
-	public:
-		typedef std::map<std::string, MarketDayData*> _data_map_t;
-		typedef _data_map_t::iterator _data_map_iterator_t;
 	public:
 		MarketDayDataPool();
 		virtual ~MarketDayDataPool();
 
-		void Init(LPCTSTR lpszFileRoot);
-		void Read(LPCTSTR lpszMarket);
-		void Write(LPCTSTR lpszMarket);
-
-
-		MarketDayData* GetData(const std::string& strMarket, BOOL bCreate = FALSE);
-		void UpdateData(const std::string& strMarket, const Stock& code, const DayDataArray& data);
-
 	protected:
-		_data_map_t m_mapData;
-		std::string m_strRoot;
+		virtual MarketBaseData* NewMarketData();
 	};
 
-	class MarketMinuteDataPool
+
+
+	class MinuteDataArray : public xlf::FmtObjArray<_minute_data_node_t>, public IStockDataArray
 	{
 	public:
-		typedef std::map<std::string, MarketMinuteData*> _data_map_t;
-		typedef _data_map_t::iterator _data_map_iterator_t;
+		void SortByDate();
+		_minute_data_node_t* FindByDate(long lDate);
+
+		virtual int GetStockDataSize();
+		virtual int ReadStockDataFromBuf(const char* buf, int len);
+		virtual int WriteStockDataToBuf(xlf::CBuffer& buf);
+		virtual void AppendStockDataArray(const IStockDataArray* pArray);
+		virtual void CloneStockDataArray(const IStockDataArray* pArray);
+	};
+
+
+	class MarketMinuteData : public MarketBaseData
+	{
+	public:
+		MarketMinuteData();
+		virtual ~MarketMinuteData();
+
+		virtual bool IsThisDataFlag(LPCTSTR lpszFlag);
+		virtual IStockDataArray* NewStockDataArray();
+		virtual stock_data_type_t GetMarketDataType() { return stock_data_type_minute; }
+
+	};
+
+
+	class MarketMinuteDataPool: public MarketDataBasePool
+	{
 	public:
 		MarketMinuteDataPool();
 		virtual ~MarketMinuteDataPool();
 
-		void Init(LPCTSTR lpszFileRoot);
-		void Read(LPCTSTR lpszMarket);
-		void Write(LPCTSTR lpszMarket);
+	protected:
+		virtual MarketBaseData* NewMarketData();
+	};
 
 
-		MarketMinuteData* GetData(const std::string& strMarket, BOOL bCreate = FALSE);
-		void UpdateData(const std::string& strMarket, const Stock& code, const MinuteDataArray& data);
+	class TradeDate : public xlf::FmtObjArray<long>
+	{
+	public:
+		void SetFilePath(LPCTSTR lpszFilePath);
+		void Read();
+		void Write();
+
+		void SortDate();
+		void UpdateDate(const long* pDate, int len);
 
 	protected:
-		_data_map_t m_mapData;
-		std::string m_strRoot;
+		_tstring m_strFilePath;
 	};
 
-	enum stock_data_type_t
-	{
-		stock_data_type_error = 0,
-		stock_data_type_minute,
-		stock_data_type_day,
-		
-	};
 
 	class StockDataPool
 	{
 	public:
 		StockDataPool();
 		~StockDataPool();
+		
+		void Clear();
+		void ClearMarket(uint32 uMarket);
 
 		void InitDataPath(LPCTSTR lpszFilePath);
 		void LoadData();
-		void LoadMarketData(const std::string& strMarket);
+		void LoadMarketData(uint32 uMarket);
 
-		static StockDataPool* GetStokDataPool(bool bNew = true);
-	public:
+		static StockDataPool* Instance();
+
+		// 交易日
+		void GetTradeDate(TradeDate& tradeDate, uint32 uMarket = 0);
+		TradeDate* GetTradeDate(uint32 uMarket = 0);
+
+		// 分时数据
+		MinuteDataArray* GetMinuteDataArray(uint32 uMarket, const Stock& code, BOOL bCreate = FALSE);
+		void GetMinuteData(uint32 uMarket, const Stock& code, MinuteDataArray& ayData);
+		void GetMinuteData(uint32 uMarket, const Stock& code, long lDate, _minute_data_node_t& data);
+
 		static stock_data_type_t CheckStockDataType(const xlf::CBuffer& buf, Stock* pStock = NULL);
-		void GetMinuteData(const std::string& market, const Stock& code, MinuteDataArray& ayData);
-		void GetMinuteData(const std::string market, const Stock& code, long lDate, _minute_data_node_t& data);
 
 	protected:
 		void LoadTradeData();
@@ -218,6 +268,6 @@ namespace stock_wrapper
 		_tstring m_strConfigFilePath;
 		MarketMinuteDataPool* m_pMinuteDataPool;
 		MarketDayDataPool* m_pDayDataPool;
-		std::vector<long> m_vcTradeDate;
+		TradeDate m_tradeDate;
 	};
 }

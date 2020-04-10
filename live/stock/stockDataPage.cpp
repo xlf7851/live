@@ -5,8 +5,8 @@
 #include <tinyxml2.h>
 #include "hqDataQuery.h"
 #include "../Control/openFileDlg.h"
-#include "../stock/stockdata.h"
-#include "../Control/stockDataTable.h"
+#include "stockdata.h"
+#include "stockDataTable.h"
 
 
 
@@ -58,10 +58,6 @@ void CStockDataPageUI::OnNotify(TNotifyUI& msg)
 		{
 			OnLoadData();
 		}
-		else if (name.CompareNoCase(_T("btnStockhisdataPageOpenFile")) == 0)
-		{
-			OnOpenFile();
-		}
 		else if (name.CompareNoCase(_T("btnStockhisdataPageTestDayData")) == 0)
 		{
 			OnTestDayData();
@@ -87,17 +83,10 @@ void CStockDataPageUI::FindGetDataWindow()
 
 	if (m_dataHwnd)
 	{
-
-		//::PostMessage(m_dataHwnd, WM_COMMAND, 32892, 0);
-
 		stock_wrapper::StockArray ayCode;
-		ayCode.Add(_T("300033"));
+		//ayCode.AddStockCode(_T("300033"));
 		std::vector<DWORD> vcDataItem;
 		vcDataItem.push_back(10);
-
-	//	auto pClass = xlf::TSingleton<stock_wrapper::CHqDataQueryHandler>::Instance();
-
-		//xlf::TSingleton<stock_wrapper::CHqDataQueryHandler>::Instance();
 
 		stock_wrapper::CHqDataQueryHandler::GetHqDataQueryHandler().SetCopyDataDstHwnd(m_dataHwnd);
 		stock_wrapper::QueryHqData(ayCode, vcDataItem, 16384, 20200304, 0, NULL);
@@ -132,46 +121,16 @@ void CStockDataPageUI::OnLoadData()
 	LoadPoolData(strPath);
 }
 
-void CStockDataPageUI::OnOpenFile()
-{
-	COpenFileHelp openFileHelp;
-	if (!openFileHelp.OpenFile())
-	{
-		return;
-	}
-
-	CDuiString strPath = openFileHelp.GetFilePath();
-	if (strPath.IsEmpty())
-	{
-		return;
-	}
-
-	xlf::CBuffer buf;
-	xlf::ReadBufferFromFile(buf, strPath);
-	if (buf.GetSize() > 0)
-	{
-		stock_wrapper::Stock stock;
-		stock_wrapper::stock_data_type_t tp = stock_wrapper::StockDataPool::CheckStockDataType(buf, &stock);
-		if (tp == stock_wrapper::stock_data_type_minute)
-		{
-			UpdateStockText(stock);
-			stock_wrapper::MarketMinuteData minArray;
-			minArray.ReadCodeDataFromBufferWidthFlag(stock, buf.GetBuffer(), buf.GetSize());
-			ShowMinuteData(minArray, stock);
-		}
-		else if (tp == stock_wrapper::stock_data_type_day)
-		{
-			UpdateStockText(stock);
-			stock_wrapper::MarketDayData dayArray;
-			dayArray.ReadCodeDataFromBufferWidthFlag(stock, buf.GetBuffer(), buf.GetSize());
-			ShowDayData(dayArray, stock);
-		}
-	}
-}
 
 void CStockDataPageUI::LoadPoolData(LPCTSTR lpszFile)
 {
-
+	stock_wrapper::StockDataPool* pPool = stock_wrapper::StockDataPool::Instance();
+	if (pPool)
+	{
+		pPool->Clear();
+		pPool->InitDataPath(lpszFile);
+		pPool->LoadData();
+	}
 }
 
 void CStockDataPageUI::UpdateStockText(const stock_wrapper::Stock& stock)
@@ -189,7 +148,7 @@ void CStockDataPageUI::ShowDayData(stock_wrapper::MarketDayData& data, const sto
 		return;
 	}
 	//m_pDayDataTable->RemoveAll();
-	stock_wrapper::DayDataArray* pArray = data.GetData(stock);
+	stock_wrapper::DayDataArray* pArray = (stock_wrapper::DayDataArray*)data.GetData(stock);
 	if (pArray)
 	{
 		
@@ -240,7 +199,7 @@ void CStockDataPageUI::ShowMinuteData(stock_wrapper::MarketMinuteData& data, con
 	{
 		return;
 	}
-	stock_wrapper::MinuteDataArray* pArray = data.GetData(stock);
+	stock_wrapper::MinuteDataArray* pArray = (stock_wrapper::MinuteDataArray*)data.GetData(stock);
 	if (pArray)
 	{
 
@@ -257,27 +216,27 @@ void CStockDataPageUI::ShowMinuteData(stock_wrapper::MarketMinuteData& data, con
 
 void CStockDataPageUI::OnTestMinData()
 {
-	stock_wrapper::StockDataPool* stockDataPool = stock_wrapper::StockDataPool::GetStokDataPool();
+	stock_wrapper::StockDataPool* stockDataPool = stock_wrapper::StockDataPool::Instance();
 	if (stockDataPool == nullptr)
 	{
 		return;
 	}
 
-	std::string market = _T("USHA");
-	stock_wrapper::Stock stock = _T("000597");
-
-	stock_wrapper::MinuteDataArray ayMin;
-	stockDataPool->GetMinuteData(market, stock, ayMin);
-
-	stock_wrapper::_minute_data_node_t data;
-	stockDataPool->GetMinuteData(market, stock, 20200318, data);
+// 	std::string market = _T("USHA");
+// 	stock_wrapper::Stock stock = _T("000597");
+// 
+// 	stock_wrapper::MinuteDataArray ayMin;
+// 	stockDataPool->GetMinuteData(market, stock, ayMin);
+// 
+// 	stock_wrapper::_minute_data_node_t data;
+// 	stockDataPool->GetMinuteData(market, stock, 20200318, data);
 
 
 }
 
 void CStockDataPageUI::OnTestDayData()
 {
-	stock_wrapper::StockDataPool* stockDataPool = stock_wrapper::StockDataPool::GetStokDataPool();
+	stock_wrapper::StockDataPool* stockDataPool = stock_wrapper::StockDataPool::Instance();
 	if (stockDataPool == nullptr)
 	{
 		return;

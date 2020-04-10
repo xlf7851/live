@@ -181,7 +181,6 @@
     <ClInclude Include="control\controlGlobalFunc.h" />
     <ClInclude Include="control\openFileDlg.h" />
     <ClInclude Include="control\popupSliderWnd.h" />
-    <ClInclude Include="control\stockDataTable.h" />
     <ClInclude Include="frame\caption.h" />
     <ClInclude Include="frame\MainWnd.h" />
     <ClInclude Include="frame\toolbar.h" />
@@ -216,6 +215,7 @@
     <ClInclude Include="stock\stockArray.h" />
     <ClInclude Include="stock\stockdata.h" />
     <ClInclude Include="stock\stockDataPage.h" />
+    <ClInclude Include="stock\stockDataTable.h" />
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
@@ -234,7 +234,6 @@
     <ClCompile Include="control\controlGlobalFunc.cpp" />
     <ClCompile Include="control\openFileDlg.cpp" />
     <ClCompile Include="control\popupSliderWnd.cpp" />
-    <ClCompile Include="control\stockDataTable.cpp" />
     <ClCompile Include="frame\caption.cpp" />
     <ClCompile Include="frame\MainWnd.cpp" />
     <ClCompile Include="frame\toolbar.cpp" />
@@ -272,6 +271,7 @@
     <ClCompile Include="stock\stockArray.cpp" />
     <ClCompile Include="stock\stockdata.cpp" />
     <ClCompile Include="stock\stockDataPage.cpp" />
+    <ClCompile Include="stock\stockDataTable.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="live.rc" />

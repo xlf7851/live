@@ -49,26 +49,37 @@ static int CALLBACK BrowseCallbackProc(HWND hwnd, UINT uMsg, LPARAM lParam, LPAR
 bool COpenFileHelp::BrowseForFolder(DWORD dwFlags, HWND hParent)
 {
 	Clear();
-// 	TCHAR szPathName[MAX_PATH] = { 0 };
-// 
-// 	BROWSEINFO bInfo = { 0 };
-// 	static CDuiString strDefaultPath = _T("C:\\");
-// 	bInfo.hwndOwner = hParent; 
-// 	bInfo.ulFlags = dwFlags;
-// 	bInfo.lpfn = BrowseCallbackProc;
-// 	bInfo.lParam = (LPARAM)(LPCTSTR)(strDefaultPath);
-// 
-// 	LPITEMIDLIST lpDlist = NULL;
-// 	lpDlist = SHBrowseForFolder(&bInfo);
-// 	if (lpDlist)
-// 	{
-// 		SHGetPathFromIDList(lpDlist, szPathName);
-// 
-// 		strDefaultPath = szPathName;
-// 		m_strFilePath = szPathName;
-// 
-// 		return true;
-// 	}
+	TCHAR szPathName[MAX_PATH] = { 0 };
+
+	BROWSEINFO bInfo = { 0 };
+	static CDuiString strDefaultPath = _T("C:\\");
+	bInfo.hwndOwner = hParent; 
+	bInfo.ulFlags = dwFlags;
+	bInfo.lpfn = BrowseCallbackProc;
+	bInfo.lParam = (LPARAM)(LPCTSTR)(strDefaultPath);
+
+	LPITEMIDLIST lpDlist = NULL;
+	lpDlist = SHBrowseForFolder(&bInfo);
+	if (lpDlist)
+	{
+		SHGetPathFromIDList(lpDlist, szPathName);
+
+		m_strFilePath = szPathName;
+		int len = m_strFilePath.GetLength();
+		if (len > 0)
+		{
+			if (m_strFilePath.GetAt(len -1) != _T('\\'))
+			{
+				m_strFilePath += _T("\\");
+			}
+
+			strDefaultPath = m_strFilePath;
+
+			return true;
+		}
+
+		
+	}
 
 	return false;
 }

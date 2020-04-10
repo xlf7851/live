@@ -177,6 +177,11 @@ namespace xlf
 			m_nSize += len;
 		}
 
+		void Append(const FmtObjArray& src)
+		{
+			return Append(src.GetData(), src.GetSize());
+		}
+
 		typedef  int(*_sort_compare)(const void* , const void* );
 		void Sort(_sort_compare func)
 		{

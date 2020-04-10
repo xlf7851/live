@@ -452,7 +452,7 @@ namespace stock_wrapper
 
 			// stock
 			strTmp = json_utl::json_to_string(item["codes"]);
-			pItem->m_ayCode.Clear();
+			pItem->m_ayCode.ClearStockCode();
 			pItem->m_ayCode.FromString(strTmp.c_str(), strTmp.size(), ',');
 		}
 
@@ -560,7 +560,7 @@ namespace stock_wrapper
 		for (int i = 0; i < m_data.size(); i++)
 		{
 			_block_item_t* pItem = m_data[i];
-			if (nullptr == pItem || pItem->m_ayCode.GetSize() == 0)
+			if (nullptr == pItem || pItem->m_ayCode.GetStockCodeSize() == 0)
 			{
 				continue;
 			}
@@ -580,7 +580,7 @@ namespace stock_wrapper
 		for (int i = 0; i < m_data.size(); i++)
 		{
 			_block_item_t* pItem = m_data[i];
-			if (nullptr == pItem || pItem->m_ayCode.GetSize() == 0)
+			if (nullptr == pItem || pItem->m_ayCode.GetStockCodeSize() == 0)
 			{
 				continue;
 			}

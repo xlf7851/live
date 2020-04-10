@@ -33,8 +33,6 @@ using namespace DuiLib;
 #include "base/base.h"
 #include "global/global.h"
 #include "Control/controlGlobalFunc.h"
-#include "stock/stockArray.h"
-#include "stock/stockdata.h"
 #include "page/basePage.h"
 
 

@@ -180,9 +180,6 @@
     <ClInclude Include="control\openFileDlg.h">
       <Filter>control</Filter>
     </ClInclude>
-    <ClInclude Include="control\stockDataTable.h">
-      <Filter>control</Filter>
-    </ClInclude>
     <ClInclude Include="browser\browserwindow.h">
       <Filter>browser</Filter>
     </ClInclude>
@@ -208,6 +205,9 @@
       <Filter>stock</Filter>
     </ClInclude>
     <ClInclude Include="stock\stockDataPage.h">
+      <Filter>stock</Filter>
+    </ClInclude>
+    <ClInclude Include="stock\stockDataTable.h">
       <Filter>stock</Filter>
     </ClInclude>
   </ItemGroup>
@@ -317,9 +317,6 @@
     <ClCompile Include="control\openFileDlg.cpp">
       <Filter>control</Filter>
     </ClCompile>
-    <ClCompile Include="control\stockDataTable.cpp">
-      <Filter>control</Filter>
-    </ClCompile>
     <ClCompile Include="browser\browserwindow.cpp">
       <Filter>browser</Filter>
     </ClCompile>
@@ -348,6 +345,9 @@
       <Filter>stock</Filter>
     </ClCompile>
     <ClCompile Include="stock\stockDataPage.cpp">
+      <Filter>stock</Filter>
+    </ClCompile>
+    <ClCompile Include="stock\stockDataTable.cpp">
       <Filter>stock</Filter>
     </ClCompile>
   </ItemGroup>

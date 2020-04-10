@@ -167,12 +167,12 @@ namespace stock_wrapper
 			// code
 			tinyxml2::XMLElement* stockcode = doc.NewElement(_T("stockcode"));
 			root->InsertEndChild(stockcode);
-			for (int i = 0; i < codes.GetSize(); i++)
-			{
-				tinyxml2::XMLElement* codeItem = doc.NewElement(_T("item"));
-				stockcode->InsertEndChild(codeItem);
-				codeItem->SetText(codes.GetAt(i));
-			}
+// 			for (int i = 0; i < codes.GetSize(); i++)
+// 			{
+// 				tinyxml2::XMLElement* codeItem = doc.NewElement(_T("item"));
+// 				stockcode->InsertEndChild(codeItem);
+// 				//codeItem->SetText(codes.GetAt(i));
+// 			}
 
 			// datetime
 			tinyxml2::XMLElement* dataTime = doc.NewElement(_T("datetime"));

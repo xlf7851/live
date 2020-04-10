@@ -63,6 +63,25 @@ namespace xlf {
 		return GetData(nIndex);
 	}
 
+	void FmtStringArray::RemoveAt(int index)
+	{
+		if (index < 0 || index >= m_nSize)
+		{
+			return;
+		}
+
+		if (m_nSize == index+1)
+		{
+			m_nSize--;
+			return;
+		}
+		LPCTSTR p = GetAt(index);
+		LPCTSTR d = GetAt(index + 1);
+		int len = m_nSize - index - 1;
+		memmove((void*)p, d, len*m_nElemSize);
+		m_nSize--;
+	}
+
 	int FmtStringArray::GetSize() const
 	{
 		return m_nSize;
@@ -155,6 +174,12 @@ namespace xlf {
 
 	FmtStringArray& FmtStringArray::operator =(const FmtStringArray& src)
 	{
+		Clone(src);
+		return *this;
+	}
+
+	void FmtStringArray::Clone(const FmtStringArray& src)
+	{
 		Clear();
 		m_nElemSize = src.m_nElemSize;
 		m_nAddCount = src.m_nAddCount;
@@ -162,12 +187,10 @@ namespace xlf {
 		{
 			int nAlloc = src.m_nSize;
 			nAlloc = (nAlloc + m_nAddCount - 1) / m_nAddCount * m_nAddCount;
-			
+
 			Alloc(nAlloc);
 			m_nSize = src.m_nSize;
 			memcpy(m_data, src.m_data, sizeof(TCHAR) * m_nSize * m_nElemSize);
 		}
-
-		return *this;
 	}
 }

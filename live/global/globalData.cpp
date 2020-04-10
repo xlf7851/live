@@ -1,7 +1,6 @@
 #include "stdafx.h"
 #include "globalData.h"
 #include <TlHelp32.h>
-#include "../stock/stockdata.h"
 
 namespace xlf
 {
@@ -9,21 +8,17 @@ namespace xlf
 	{
 		m_hHqDataIpcDestHwnd = nullptr;
 		m_hHqDataIpcSrcHwnd = nullptr;
-		m_pStockDataPool = nullptr;
 	}
 
 	CGlobalData::~CGlobalData()
 	{
-		if (m_pStockDataPool)
-		{
-			delete m_pStockDataPool;
-		}
+		
 	}
 
 
 	void CGlobalData::Init()
 	{
-		InitStockDataPool();
+		
 		DoGlobalFunction(_T("hqDataIpcDestHwnd"));
 	}
 
@@ -155,20 +150,5 @@ namespace xlf
 		{
 			m_hHqDataIpcDestHwnd = vcHwnd[0].m_hWnd;
 		}
-	}
-
-
-	void CGlobalData::InitStockDataPool()
-	{
-		if (m_pStockDataPool)
-		{
-			return;
-		}
-
-		m_pStockDataPool = new stock_wrapper::StockDataPool;
-		_tstring strConfigRoot = global_funciton::GetConfigDir();
-		strConfigRoot += _T("stockhisdata\\");
-		m_pStockDataPool->InitDataPath(strConfigRoot.c_str());
-		m_pStockDataPool->LoadData();
 	}
 }

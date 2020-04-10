@@ -234,7 +234,7 @@ void CBlockcalcPageUI::OnExportStock()
 
 	stock_wrapper::StockArray ayCode;
 	pItem->m_data.QueryStock(dwBlockID, ayCode);
-	if (ayCode.GetSize() > 0)
+	if (ayCode.GetStockCodeSize() > 0)
 	{
 		std::string strName;
 		std::string query;
@@ -665,7 +665,7 @@ BOOL CBlockcalcPageUI::OnCalcBlockItemChange(CControlUI* pList)
 
 	if (dwBlockID != 0)
 	{
-		m_calcStock.Clear();
+		m_calcStock.ClearStockCode();
 		m_calcdata.QueryStock(dwBlockID, m_calcStock);
 		UpdateCodeToList(m_pCalcBlockStock, m_calcStock);
 	}
@@ -706,26 +706,26 @@ void CBlockcalcPageUI::UpdateCodeToList(CListUI* pList, const stock_wrapper::Sto
 	pList->SetDelayedDestroy(false);
 	pList->RemoveAll();
 
-	int nSize = ayCode.GetSize();
+	int nSize = ayCode.GetStockCodeSize();
 	for (int i = 0; i < nSize; i++)
 	{
-		LPCTSTR lspzCode = ayCode.GetAt(i);
-		if (lspzCode == nullptr || lspzCode[0] == 0)
-		{
-			continue;
-		}
-
-		CListLabelElementUI* pNew = new CListLabelElementUI;
-		pNew->SetOwner(pList);
-		pList->Add(pNew);
-		pNew->SetFixedHeight(24);
-		pNew->SetText(lspzCode);
+// 		LPCTSTR lspzCode = ayCode.GetAt(i);
+// 		if (lspzCode == nullptr || lspzCode[0] == 0)
+// 		{
+// 			continue;
+// 		}
+// 
+// 		CListLabelElementUI* pNew = new CListLabelElementUI;
+// 		pNew->SetOwner(pList);
+// 		pList->Add(pNew);
+// 		pNew->SetFixedHeight(24);
+// 		pNew->SetText(lspzCode);
 	}
 }
 
 void CBlockcalcPageUI::OnUnion()
 {
-	m_calcStock.Clear();
+	m_calcStock.ClearStockCode();
 	m_calcdata.UnionStock(m_calcStock);
 
 	UpdateCodeToList(m_pCalcBlockStock, m_calcStock);
@@ -733,7 +733,7 @@ void CBlockcalcPageUI::OnUnion()
 
 void CBlockcalcPageUI::OnInner()
 {
-	m_calcStock.Clear();
+	m_calcStock.ClearStockCode();
 	m_calcdata.InnerStock(m_calcStock);
 
 	UpdateCodeToList(m_pCalcBlockStock, m_calcStock);
@@ -743,7 +743,7 @@ void CBlockcalcPageUI::OnSub()
 {
  	if (m_calcdata.GetSize() > 1)
  	{
-		m_calcStock.Clear();
+		m_calcStock.ClearStockCode();
 		stock_wrapper::StockArray ayDst;
 		stock_wrapper::_block_item_t* first = m_calcdata.GetItem(0);
 		if (first)
@@ -785,7 +785,7 @@ void CBlockcalcPageUI::OnDeleteCalcBlock()
 
 void CBlockcalcPageUI::OnAddCalcStockTo()
 {
-	if (m_calcStock.GetSize() == 0)
+	if (m_calcStock.GetStockCodeSize() == 0)
 	{
 		return;
 	}
@@ -942,25 +942,25 @@ void CModifyBlockDlg::OnSearch()
 
 static void _FormatCodeShowString(stock_wrapper::StockArray& ayCode, CDuiString& strCodes, int nLineCodes = 7)
 {
-	int nSize = ayCode.GetSize();
+	int nSize = ayCode.GetStockCodeSize();
 	int nAdd = 0;
-	for (int i = 0; i < ayCode.GetSize(); i++)
+	for (int i = 0; i < ayCode.GetStockCodeSize(); i++)
 	{
-		LPCTSTR lpszCode = ayCode.GetAt(i);
-		if (lpszCode && lpszCode[0] != 0)
-		{
-			strCodes += lpszCode;
-			nAdd++;
-			if (nAdd == 7)
-			{
-				nAdd = 0;
-				strCodes += _T("\r\n");
-			}
-			else
-			{
-				strCodes += _T(" ");
-			}
-		}
+// 		LPCTSTR lpszCode = ayCode.GetAt(i);
+// 		if (lpszCode && lpszCode[0] != 0)
+// 		{
+// 			strCodes += lpszCode;
+// 			nAdd++;
+// 			if (nAdd == 7)
+// 			{
+// 				nAdd = 0;
+// 				strCodes += _T("\r\n");
+// 			}
+// 			else
+// 			{
+// 				strCodes += _T(" ");
+// 			}
+// 		}
 	}
 }
 

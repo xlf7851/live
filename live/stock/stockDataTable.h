@@ -1,4 +1,5 @@
 #pragma once
+#include "stockdata.h"
 
 namespace stock_wrapper
 {

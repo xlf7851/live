@@ -553,9 +553,9 @@ namespace xlf
 	{
 		return _tcscmp(lpszFile, _T(".")) == 0 || _tcscmp(lpszFile, _T("..")) == 0;
 	}
-	void _FindDirAllFile(LPCTSTR lpszDir, std::vector<std::string>& vcFile, bool bFile)
+	void _FindDirAllFile(LPCTSTR lpszDir, std::vector<_tstring>& vcFile, bool bFile)
 	{
-		std::string strPath = lpszDir;
+		_tstring strPath = lpszDir;
 		strPath += _T("*.*");
 
 		WIN32_FIND_DATA pNextInfo;
@@ -587,12 +587,12 @@ namespace xlf
 		//CloseHandle(hFile);
 	}
 
-	void FindDirAllFile(LPCTSTR lpszDir, std::vector<std::string>& vcFile)
+	void FindDirAllFile(LPCTSTR lpszDir, std::vector<_tstring>& vcFile)
 	{
 		_FindDirAllFile(lpszDir, vcFile, true);
 	}
 
-	void FindDirAllDir(LPCTSTR lpszDir, std::vector<std::string>& vcFile)
+	void FindDirAllDir(LPCTSTR lpszDir, std::vector<_tstring>& vcFile)
 	{
 		_FindDirAllFile(lpszDir, vcFile, false);
 	}
