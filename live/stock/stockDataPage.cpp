@@ -127,9 +127,7 @@ void CStockDataPageUI::LoadPoolData(LPCTSTR lpszFile)
 	stock_wrapper::StockDataPool* pPool = stock_wrapper::StockDataPool::Instance();
 	if (pPool)
 	{
-		pPool->Clear();
-		pPool->InitDataPath(lpszFile);
-		pPool->LoadData();
+	
 	}
 }
 
@@ -147,72 +145,9 @@ void CStockDataPageUI::ShowDayData(stock_wrapper::MarketDayData& data, const sto
 	{
 		return;
 	}
-	//m_pDayDataTable->RemoveAll();
-	stock_wrapper::DayDataArray* pArray = (stock_wrapper::DayDataArray*)data.GetData(stock);
-	if (pArray)
-	{
-		
-		CDuiString strLog;
-		strLog.Format(_T("%s day data:\r\n"), (LPCTSTR)stock);
-		for (int i = 0; i < pArray->GetSize(); i++)
-		{
-// 			stock_wrapper::_day_data_item_t* pItem = pArray->GetAt(i);
-// 			CListTextElementUI* pLabelItem = new CListTextElementUI;
-// 			//pLabelItem->SetOwner(m_pDayDataTable);
-// 			m_pDayDataTable->Add(pLabelItem);
-// 
-// 			CDuiString strItem;
-// 			strItem.Format(_T("%d"), pItem->m_lDate);
-// 			pLabelItem->SetText(0, strItem);
-// 
-// 			strItem.Format(_T("%.2lf"), pItem->m_open);
-// 			pLabelItem->SetText(1, strItem);
-// 
-// 			strItem.Format(_T("%.2lf"), pItem->m_close);
-// 			pLabelItem->SetText(2, strItem);
-// 
-// 			strItem.Format(_T("%.2lf"), pItem->m_vol);
-// 			pLabelItem->SetText(3, strItem);
-// 
-// 			strItem.Format(_T("%.2lf"), pItem->m_money);
-// 			pLabelItem->SetText(4, strItem);
-// 
-// 			strItem.Format(_T("%.2lf"), pItem->m_change);
-// 			pLabelItem->SetText(5, strItem);
-// 
-// 			strItem.Format(_T("%.2lf"), pItem->m_high);
-// 			pLabelItem->SetText(6, strItem);
-// 
-// 			strItem.Format(_T("%.2lf"), pItem->m_low);
-// 			pLabelItem->SetText(7, strItem);
-// 
-// 			strItem.Format(_T("%.2lf"), pItem->m_outVol);
-// 			pLabelItem->SetText(8, strItem);
-		}
-
-	}
+	
 }
 
-void CStockDataPageUI::ShowMinuteData(stock_wrapper::MarketMinuteData& data, const stock_wrapper::Stock& stock)
-{
-	if (m_pDayDataTable == NULL)
-	{
-		return;
-	}
-	stock_wrapper::MinuteDataArray* pArray = (stock_wrapper::MinuteDataArray*)data.GetData(stock);
-	if (pArray)
-	{
-
-		CDuiString strLog;
-		strLog.Format(_T("%s minute data:\r\n"), (LPCTSTR)stock);
-		for (int i = 0; i < pArray->GetSize(); i++)
-		{
-			stock_wrapper::_minute_data_node_t* node = pArray->GetAt(i);
-			long lData = node->m_lDate;
-		}
-
-	}
-}
 
 void CStockDataPageUI::OnTestMinData()
 {
@@ -221,17 +156,6 @@ void CStockDataPageUI::OnTestMinData()
 	{
 		return;
 	}
-
-// 	std::string market = _T("USHA");
-// 	stock_wrapper::Stock stock = _T("000597");
-// 
-// 	stock_wrapper::MinuteDataArray ayMin;
-// 	stockDataPool->GetMinuteData(market, stock, ayMin);
-// 
-// 	stock_wrapper::_minute_data_node_t data;
-// 	stockDataPool->GetMinuteData(market, stock, 20200318, data);
-
-
 }
 
 void CStockDataPageUI::OnTestDayData()

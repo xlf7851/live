@@ -2,17 +2,18 @@
 #include "../base/fmtobj.h"
 #include "stockArray.h"
 
+#define STOCK_DATA_TYPE_NOW			0x00000000
+#define STOCK_DATA_TYPE_MINUTE		0x00001000
+#define STOCK_DATA_TYPE_TRACE		0x00002000
+#define STOCK_DATA_TYPE_DAY			0x00003000
+#define STOCK_DATA_TYPE_NONE		0x0000FFFF
+
+#define STOCK_DATA_BASE_TYPE_MASK	0x0000F000
+#define STOCK_DATA_BASE_TYPE(x)		(x&STOCK_DATA_BASE_TYPE_MASK)
+#define IS_STOCK_DATA_TYPE_NONE(x)	(x==STOCK_DATA_TYPE_NONE)
+
 namespace stock_wrapper
 {
-
-	enum stock_data_type_t
-	{
-		stock_data_type_error = 0,
-		stock_data_type_minute,
-		stock_data_type_day,
-
-	};
-
 #define minute_day_count 242
 #pragma pack(1)
 	// 日线数据
@@ -61,87 +62,15 @@ namespace stock_wrapper
 		virtual int GetStockDataSize() = 0;
 		virtual int ReadStockDataFromBuf(const char* buf, int len) = 0;
 		virtual int WriteStockDataToBuf(xlf::CBuffer& buf) = 0;
+		virtual void ClearStockDataArray() = 0;
 		virtual void AppendStockDataArray(const IStockDataArray* pArray) = 0;
 		virtual void CloneStockDataArray(const IStockDataArray* pArray) = 0;
-	};
-
-	class MarketBaseData
-	{
-	public:
-		typedef std::map<Stock, IStockDataArray*> _data_map_t;
-		typedef _data_map_t::iterator _data_map_iterator_t;
-	public:
-		MarketBaseData();
-		virtual ~MarketBaseData();
-
-		virtual void Clear();
-		virtual void Init(uint32 uMarket, LPCTSTR lpszFilePath = NULL);
-		
-		// 从目录读写
-		void LoadFrom(LPCTSTR lpszDir = nullptr);
-		void SaveTo(LPCTSTR lpszDir = nullptr);
-
-		// 从当个文件中读写
-		void ReadCodeDataFromFile(LPCTSTR lpszFilePath);
-		void WriteCodeDataToFile(const Stock& code, IStockDataArray* pData, LPCTSTR lpszFile);
-
-		// 内存中解析数据
-		// 数据中有数据标志信息， bParseFlag ： code为空不为空时，跳过检查标志信息
-		int ReadCodeDataFromBufferWidthFlag(Stock& code, const unsigned char* buf, int len);
-		// 数据中无数据标志信息
-		int ReadCodeDataFromBuffer(const Stock& code, const unsigned char* buf, int len);
-
-		// 数据对象标记
-		bool ReadFlag(const unsigned char* buf, int len, Stock& code, int& readLen);
-		
-		
-		// 数据存取接口
-		IStockDataArray* GetData(const Stock& code, BOOL bCreate = FALSE);
-		void UpdateData(const Stock& code, const IStockDataArray* data);
-		void AppendData(const Stock& code, const IStockDataArray* data);
-
-		bool IsThisMarket(uint32 uMarket);
-
-		// 必须重写的虚函数
-		virtual bool IsThisDataFlag(LPCTSTR lpszFlag) { return false; }
-		virtual IStockDataArray* NewStockDataArray() { return nullptr; }
-		virtual stock_data_type_t GetMarketDataType() { return stock_data_type_error; }
-
-	protected:
-		_data_map_t m_mapData;
-		_tstring m_strFilePathRoot;
-		uint32 m_uMarket;
-
-	};
-
-	class MarketDataBasePool
-	{
-	public:
-		typedef std::vector<MarketBaseData*> _data_container_t;
-		typedef _data_container_t::iterator _data_iterator_t;
-	public:
-		MarketDataBasePool();
-		virtual ~MarketDataBasePool();
-
-		virtual void Clear();
-		virtual void Init(LPCTSTR lpszFileRoot);
-
-		void Read(uint32 uMarket);
-		void Write(uint32 uMarket);
-
-
-		MarketBaseData* GetData(uint32 uMarket, BOOL bCreate = FALSE);
-		void UpdateData(uint32 uMarket, const Stock& code, const IStockDataArray* data);
-
-	protected:
-		virtual MarketBaseData* NewMarketData() { return nullptr; }
-	protected:
-		_data_container_t m_data;
-		_tstring m_strRoot;
+		virtual void GetStockDataType() = 0;
+		virtual LPVOID GetInterface(LPCTSTR pstrName) = 0;
 	};
 
 
-	class DayDataArray : public xlf::FmtObjArray<_day_data_item_t>, public IStockDataArray
+	class DayDataArray : public xlf::FmtObjArray<_day_data_item_t>
 	{
 	public:
 		long GetFirstDate() const;
@@ -157,32 +86,9 @@ namespace stock_wrapper
 		virtual void CloneStockDataArray(const IStockDataArray* pArray);
 	};
 
-	class MarketDayData : public MarketBaseData
-	{
-	public:
-		MarketDayData();
-		virtual ~MarketDayData();
-
-		
-		virtual bool IsThisDataFlag(LPCTSTR lpszFlag);
-		virtual IStockDataArray* NewStockDataArray();
-		virtual stock_data_type_t GetMarketDataType() { return stock_data_type_day; }
-
-	};
-
-	class MarketDayDataPool : public MarketDataBasePool
-	{
-	public:
-		MarketDayDataPool();
-		virtual ~MarketDayDataPool();
-
-	protected:
-		virtual MarketBaseData* NewMarketData();
-	};
 
 
-
-	class MinuteDataArray : public xlf::FmtObjArray<_minute_data_node_t>, public IStockDataArray
+	class MinuteDataArray : public xlf::FmtObjArray<_minute_data_node_t>
 	{
 	public:
 		void SortByDate();
@@ -195,79 +101,96 @@ namespace stock_wrapper
 		virtual void CloneStockDataArray(const IStockDataArray* pArray);
 	};
 
+	
 
-	class MarketMinuteData : public MarketBaseData
+
+	
+
+	class StockTypeDataNode
 	{
 	public:
-		MarketMinuteData();
-		virtual ~MarketMinuteData();
+		StockTypeDataNode();
+		virtual ~StockTypeDataNode();
 
-		virtual bool IsThisDataFlag(LPCTSTR lpszFlag);
-		virtual IStockDataArray* NewStockDataArray();
-		virtual stock_data_type_t GetMarketDataType() { return stock_data_type_minute; }
+		virtual void Init(uint32 u32Type);
+		uint32 GetStockDataType();
 
-	};
-
-
-	class MarketMinuteDataPool: public MarketDataBasePool
-	{
-	public:
-		MarketMinuteDataPool();
-		virtual ~MarketMinuteDataPool();
+		// 数据存取接口
+		IStockDataArray* GetStockDataArray(bool bNew = false);
 
 	protected:
-		virtual MarketBaseData* NewMarketData();
+		uint32 m_u32StockDataType;
+		IStockDataArray* m_data;
 	};
 
-
-	class TradeDate : public xlf::FmtObjArray<long>
+	class StockDataNode
 	{
 	public:
-		void SetFilePath(LPCTSTR lpszFilePath);
-		void Read();
-		void Write();
+		typedef std::vector<StockTypeDataNode*> _data_container_t;
+		typedef _data_container_t::iterator _data_iterator_t;
 
-		void SortDate();
-		void UpdateDate(const long* pDate, int len);
+	public:
+		StockDataNode();
+		virtual ~StockDataNode();
 
+		void Relase();
+		void Init(const Stock& code);
+		Stock GetStock() const;
+
+		IStockDataArray* GetStockDataArray(uint32 u32Type, bool bNew = false);
+		StockTypeDataNode* GetStockTypeDataNode(uint32 uType, bool bNew = false);
 	protected:
-		_tstring m_strFilePath;
+		Stock m_stock;
+		_data_container_t m_data;
+
 	};
 
+	class StockDataMarketNode
+	{
+	public:
+		typedef std::map<Stock, StockDataNode*> _data_container_t;
+		typedef _data_container_t::iterator _data_iterator_t;
+
+	public:
+		StockDataMarketNode();
+		virtual ~StockDataMarketNode();
+
+		void Release();
+		void Init(uint32 uMarket);
+		uint32 GetMarket();
+
+		IStockDataArray* GetStockDataArray(const Stock& code, uint32 u32Type, bool bNew = false);
+		StockDataNode* GetStockDataNode(const Stock& stock, bool bNew = false);
+	
+	protected:
+		uint32 m_uMarket;
+		_data_container_t m_data;
+	};
 
 	class StockDataPool
 	{
 	public:
+		typedef std::vector<StockDataMarketNode*> _data_container_t;
+		typedef _data_container_t::iterator _data_iterator_t;
+	public:
 		StockDataPool();
 		~StockDataPool();
-		
-		void Clear();
-		void ClearMarket(uint32 uMarket);
 
-		void InitDataPath(LPCTSTR lpszFilePath);
-		void LoadData();
-		void LoadMarketData(uint32 uMarket);
-
+		// 获取对象实例
 		static StockDataPool* Instance();
+		
+		void Release();
+	
 
-		// 交易日
-		void GetTradeDate(TradeDate& tradeDate, uint32 uMarket = 0);
-		TradeDate* GetTradeDate(uint32 uMarket = 0);
+		// 获取数据接口
+		IStockDataArray* GetStockDataArray(const StockCode& code, uint32 u32StockDataType, bool bNew = false);
+		
 
-		// 分时数据
-		MinuteDataArray* GetMinuteDataArray(uint32 uMarket, const Stock& code, BOOL bCreate = FALSE);
-		void GetMinuteData(uint32 uMarket, const Stock& code, MinuteDataArray& ayData);
-		void GetMinuteData(uint32 uMarket, const Stock& code, long lDate, _minute_data_node_t& data);
-
-		static stock_data_type_t CheckStockDataType(const xlf::CBuffer& buf, Stock* pStock = NULL);
+		
+	protected:
+		StockDataMarketNode* GetMarketNode(uint32 uMarket, bool bNew = false);
 
 	protected:
-		void LoadTradeData();
-	protected:
-		_tstring m_strRoot;
-		_tstring m_strConfigFilePath;
-		MarketMinuteDataPool* m_pMinuteDataPool;
-		MarketDayDataPool* m_pDayDataPool;
-		TradeDate m_tradeDate;
+		_data_container_t m_dataContaienr; // 数据容器
 	};
 }

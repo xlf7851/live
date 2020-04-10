@@ -29,7 +29,6 @@ protected:
 	void LoadPoolData(LPCTSTR lpszFile);
 	void ShowDayData(stock_wrapper::MarketDayData& data, const stock_wrapper::Stock& stock);
 	void UpdateStockText(const stock_wrapper::Stock& stock);
-	void ShowMinuteData(stock_wrapper::MarketMinuteData& data, const stock_wrapper::Stock& stock);
 	void OnTestDayData();
 	void OnTestMinData();
 protected:
