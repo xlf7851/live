@@ -5,20 +5,11 @@
 
 namespace stock_wrapper
 {
-
-
-	
-	static IStockDataArray* _CreateStockDataArrayObject(uint32 u32Type)
+	IStockDataArray* _GlobalCreateStockDataArrayObject(uint32 uStockType)
 	{
-		return nullptr;
+		return StockDataPool::CreateStockDataArrayObject(uStockType);
 	}
-	
 
-
-
-
-
-	
 	long DayDataArray::GetFirstDate() const
 	{
 		long lDate = 0;
@@ -82,6 +73,11 @@ namespace stock_wrapper
 		return WriteToBuf(buf);
 	}
 
+	void DayDataArray::ClearStockDataArray()
+	{
+		Clear();
+	}
+
 	void DayDataArray::AppendStockDataArray(const IStockDataArray* pArray)
 	{
 		if (pArray)
@@ -100,8 +96,20 @@ namespace stock_wrapper
 		}
 	}
 
+	uint32 DayDataArray::GetStockDataType()
+	{
+		return  STOCK_DATA_TYPE_DAY;
+	}
 
+	void* DayDataArray::GetInterface(LPCTSTR pstrName)
+	{
+		if (_tcsicmp(pstrName, _T("DayDataArray")) == 0)
+		{
+			return this;
+		}
 
+		return nullptr;
+	}
 
 
 
@@ -149,6 +157,11 @@ namespace stock_wrapper
 		return WriteToBuf(buf);
 	}
 
+	void MinuteDataArray::ClearStockDataArray()
+	{
+		Clear();
+	}
+
 	void MinuteDataArray::AppendStockDataArray(const IStockDataArray* pArray)
 	{
 		if (pArray)
@@ -167,6 +180,20 @@ namespace stock_wrapper
 		}
 	}
 
+	uint32 MinuteDataArray::GetStockDataType()
+	{
+		return  STOCK_DATA_TYPE_MINUTE;
+	}
+
+	void* MinuteDataArray::GetInterface(LPCTSTR pstrName)
+	{
+		if (_tcsicmp(pstrName, _T("MinuteDataArray")) == 0)
+		{
+			return this;
+		}
+
+		return nullptr;
+	}
 
 	
 	
@@ -196,7 +223,7 @@ namespace stock_wrapper
 	{
 		if (m_data == nullptr && bNew)
 		{
-			m_data = _CreateStockDataArrayObject(m_u32StockDataType);
+			m_data = _GlobalCreateStockDataArrayObject(m_u32StockDataType);
 		}
 		return m_data;
 	}
@@ -365,12 +392,45 @@ namespace stock_wrapper
 
 	IStockDataArray* StockDataPool::GetStockDataArray(const StockCode& code, uint32 u32StockDataType, bool bNew)
 	{
-		StockDataMarketNode* pMarketNode = GetMarketNode(u32StockDataType);
+		StockDataMarketNode* pMarketNode = GetMarketNode(u32StockDataType, bNew);
 		if (pMarketNode)
 		{
 			return pMarketNode->GetStockDataArray(code.GetStock(), u32StockDataType, bNew);
 		}
 
 		return nullptr;
+	}
+
+	IStockDataArray* StockDataPool::CreateStockDataArrayObject(uint32 u32Type)
+	{
+		IStockDataArray* pObj = nullptr;
+		switch (u32Type)
+		{
+		case STOCK_DATA_TYPE_DAY:
+			pObj = new DayDataArray;
+			break;
+		case STOCK_DATA_TYPE_MINUTE:
+			pObj = new MinuteDataArray;
+			break;
+		default:
+			break;
+		}
+		return pObj;
+	}
+
+	bool StockDataPool::HandleDataFromBuffer(const StockCode& code, uint32 uDataType, const char* buf, int len)
+	{
+		if (buf == nullptr || len <= 0 || code.Empty())
+		{
+			return false;
+		}
+		int nRead = 0;
+		IStockDataArray* pArray = StockDataPool::Instance()->GetStockDataArray(code, uDataType, true);
+		if (pArray)
+		{
+			nRead = pArray->ReadStockDataFromBuf((char*)buf, len);
+		}
+
+		return nRead > 0;
 	}
 }

@@ -65,12 +65,12 @@ namespace stock_wrapper
 		virtual void ClearStockDataArray() = 0;
 		virtual void AppendStockDataArray(const IStockDataArray* pArray) = 0;
 		virtual void CloneStockDataArray(const IStockDataArray* pArray) = 0;
-		virtual void GetStockDataType() = 0;
+		virtual uint32 GetStockDataType() = 0;
 		virtual LPVOID GetInterface(LPCTSTR pstrName) = 0;
 	};
 
 
-	class DayDataArray : public xlf::FmtObjArray<_day_data_item_t>
+	class DayDataArray : public xlf::FmtObjArray<_day_data_item_t>, public IStockDataArray
 	{
 	public:
 		long GetFirstDate() const;
@@ -82,13 +82,16 @@ namespace stock_wrapper
 		virtual int GetStockDataSize();
 		virtual int ReadStockDataFromBuf(const char* buf, int len);
 		virtual int WriteStockDataToBuf(xlf::CBuffer& buf);
+		virtual void ClearStockDataArray();
 		virtual void AppendStockDataArray(const IStockDataArray* pArray);
 		virtual void CloneStockDataArray(const IStockDataArray* pArray);
+		virtual uint32 GetStockDataType();
+		virtual void* GetInterface(LPCTSTR pstrName);
 	};
 
 
 
-	class MinuteDataArray : public xlf::FmtObjArray<_minute_data_node_t>
+	class MinuteDataArray : public xlf::FmtObjArray<_minute_data_node_t>, public IStockDataArray
 	{
 	public:
 		void SortByDate();
@@ -97,13 +100,12 @@ namespace stock_wrapper
 		virtual int GetStockDataSize();
 		virtual int ReadStockDataFromBuf(const char* buf, int len);
 		virtual int WriteStockDataToBuf(xlf::CBuffer& buf);
+		virtual void ClearStockDataArray();
 		virtual void AppendStockDataArray(const IStockDataArray* pArray);
 		virtual void CloneStockDataArray(const IStockDataArray* pArray);
+		virtual uint32 GetStockDataType();
+		virtual void* GetInterface(LPCTSTR pstrName);
 	};
-
-	
-
-
 	
 
 	class StockTypeDataNode
@@ -184,7 +186,10 @@ namespace stock_wrapper
 
 		// 获取数据接口
 		IStockDataArray* GetStockDataArray(const StockCode& code, uint32 u32StockDataType, bool bNew = false);
-		
+		static IStockDataArray* CreateStockDataArrayObject(uint32 u32Type);
+
+		// 存储数据
+		bool HandleDataFromBuffer(const StockCode& code, uint32 uDataType, const char* buf, int len);
 
 		
 	protected:

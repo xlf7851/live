@@ -144,6 +144,8 @@ namespace stock_wrapper {
 		{
 			m_uMarket = uMarket;
 			m_stock = stock;
+
+			return *this;
 		}
 
 

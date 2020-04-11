@@ -7,6 +7,7 @@
 #include "../Control/openFileDlg.h"
 #include "stockdata.h"
 #include "stockDataTable.h"
+#include "stockdataFile.h"
 
 
 
@@ -124,11 +125,7 @@ void CStockDataPageUI::OnLoadData()
 
 void CStockDataPageUI::LoadPoolData(LPCTSTR lpszFile)
 {
-	stock_wrapper::StockDataPool* pPool = stock_wrapper::StockDataPool::Instance();
-	if (pPool)
-	{
-	
-	}
+	stock_wrapper::CLoadThsStockFile::Load(lpszFile);
 }
 
 void CStockDataPageUI::UpdateStockText(const stock_wrapper::Stock& stock)
