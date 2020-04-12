@@ -80,11 +80,55 @@ namespace xlf
 		m_nAlloc = nNewSize;
 	}
 
-	void CBuffer::Append(const void* pbuf, int nLen)
+	unsigned char* CBuffer::Append(const void* pbuf, int nLen)
 	{
 		int nNewSize = m_nSize + nLen;
 		Reserve(nNewSize);
+		unsigned char* p = m_data + m_nSize;
 		memcpy(m_data + m_nSize, pbuf, nLen);
 		m_nSize = nNewSize;
+
+		return p;
+	}
+
+	void CBuffer::AppendChar(TCHAR c)
+	{
+		Append(&c, sizeof(TCHAR));
+	}
+
+	void CBuffer::AppendNullChar()
+	{
+		static TCHAR sz[1] = { 0 };
+		Append(sz, sizeof(TCHAR));
+	}
+
+	void CBuffer::AppendUInt32(uint32 val)
+	{
+		Append(&val, sizeof(uint32));
+	}
+
+	void CBuffer::AppendString(const _tstring& str)
+	{
+		if (str.size() > 0)
+		{
+			Append(str.c_str(), str.size() * sizeof(TCHAR));
+		}
+
+		AppendNullChar();
+	}
+
+	void CBuffer::AppendStringEx(const _tstring& str, bool bAppendNull)
+	{
+		uint32 size = str.size()*sizeof(TCHAR);
+		AppendUInt32(bAppendNull ? size : size + sizeof(TCHAR));
+		if (size > 0)
+		{
+			Append(str.c_str(), size * sizeof(TCHAR));
+		}
+		
+		if (bAppendNull)
+		{
+			AppendNullChar();
+		}
 	}
 }

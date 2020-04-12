@@ -179,6 +179,7 @@
     <ClInclude Include="browser\browserModule.h" />
     <ClInclude Include="browser\browserwindow.h" />
     <ClInclude Include="control\controlGlobalFunc.h" />
+    <ClInclude Include="control\modifyTextDlg.h" />
     <ClInclude Include="control\openFileDlg.h" />
     <ClInclude Include="control\popupSliderWnd.h" />
     <ClInclude Include="frame\caption.h" />
@@ -208,8 +209,6 @@
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="stock\block.h" />
     <ClInclude Include="stock\blockAsk.h" />
-    <ClInclude Include="stock\blockcalc.h" />
-    <ClInclude Include="stock\blockcalcPage.h" />
     <ClInclude Include="stock\hqDataQuery.h" />
     <ClInclude Include="stock\market.h" />
     <ClInclude Include="stock\stockArray.h" />
@@ -217,6 +216,7 @@
     <ClInclude Include="stock\stockdataFile.h" />
     <ClInclude Include="stock\stockDataPage.h" />
     <ClInclude Include="stock\stockDataTable.h" />
+    <ClInclude Include="stock\stockDefine.h" />
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
@@ -233,6 +233,7 @@
     <ClCompile Include="browser\browserModule.cpp" />
     <ClCompile Include="browser\browserwindow.cpp" />
     <ClCompile Include="control\controlGlobalFunc.cpp" />
+    <ClCompile Include="control\modifyTextDlg.cpp" />
     <ClCompile Include="control\openFileDlg.cpp" />
     <ClCompile Include="control\popupSliderWnd.cpp" />
     <ClCompile Include="frame\caption.cpp" />
@@ -265,8 +266,6 @@
     </ClCompile>
     <ClCompile Include="stock\block.cpp" />
     <ClCompile Include="stock\blockAsk.cpp" />
-    <ClCompile Include="stock\blockcalc.cpp" />
-    <ClCompile Include="stock\blockcalcPage.cpp" />
     <ClCompile Include="stock\hqDataQuery.cpp" />
     <ClCompile Include="stock\market.cpp" />
     <ClCompile Include="stock\stockArray.cpp" />

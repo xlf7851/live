@@ -50,6 +50,22 @@ namespace xlf
 			return m_data + nIndex;
 		}
 
+		bool RemoveAt(int index)
+		{
+			if (index < 0 || index >= m_nSize)
+			{
+				return false;
+			}
+
+			if (index < m_nSize - 1 && m_nSize > 1)
+			{
+				memmove(m_data + index, m_data + index + 1, sizeof(_Type) * m_nSize-1-index);
+			}
+			m_nSize--;
+
+			return true;
+		}
+
 		int GetSize() const
 		{
 			return m_nSize;
@@ -241,5 +257,15 @@ namespace xlf
 		_Type* m_data;
 		int	 m_nSize;				// 数组大小
 		int	  m_nAlloc;			// 分配的元素个数
+	};
+
+	class CUnt32Array : public xlf::FmtObjArray<uint32>
+	{
+	public:
+		int FindValue(uint32 value) const;
+		bool RemoveValue(uint32 value);
+		void SortValue();
+
+	
 	};
 }

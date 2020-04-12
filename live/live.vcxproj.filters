@@ -117,9 +117,6 @@
     <ClInclude Include="stock\block.h">
       <Filter>stock</Filter>
     </ClInclude>
-    <ClInclude Include="stock\blockcalc.h">
-      <Filter>stock</Filter>
-    </ClInclude>
     <ClInclude Include="stock\market.h">
       <Filter>stock</Filter>
     </ClInclude>
@@ -201,9 +198,6 @@
     <ClInclude Include="ImageLive\bmpData.h">
       <Filter>ImageLive</Filter>
     </ClInclude>
-    <ClInclude Include="stock\blockcalcPage.h">
-      <Filter>stock</Filter>
-    </ClInclude>
     <ClInclude Include="stock\stockDataPage.h">
       <Filter>stock</Filter>
     </ClInclude>
@@ -212,6 +206,12 @@
     </ClInclude>
     <ClInclude Include="stock\stockdataFile.h">
       <Filter>stock</Filter>
+    </ClInclude>
+    <ClInclude Include="stock\stockDefine.h">
+      <Filter>stock</Filter>
+    </ClInclude>
+    <ClInclude Include="control\modifyTextDlg.h">
+      <Filter>control</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -267,9 +267,6 @@
       <Filter>global</Filter>
     </ClCompile>
     <ClCompile Include="stock\block.cpp">
-      <Filter>stock</Filter>
-    </ClCompile>
-    <ClCompile Include="stock\blockcalc.cpp">
       <Filter>stock</Filter>
     </ClCompile>
     <ClCompile Include="stock\market.cpp">
@@ -344,9 +341,6 @@
     <ClCompile Include="ImageLive\bmpData.cpp">
       <Filter>ImageLive</Filter>
     </ClCompile>
-    <ClCompile Include="stock\blockcalcPage.cpp">
-      <Filter>stock</Filter>
-    </ClCompile>
     <ClCompile Include="stock\stockDataPage.cpp">
       <Filter>stock</Filter>
     </ClCompile>
@@ -355,6 +349,9 @@
     </ClCompile>
     <ClCompile Include="stock\stockdataFile.cpp">
       <Filter>stock</Filter>
+    </ClCompile>
+    <ClCompile Include="control\modifyTextDlg.cpp">
+      <Filter>control</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

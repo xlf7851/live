@@ -68,9 +68,9 @@ namespace stock_wrapper
 		}
 
 		int i = 0;
-		while (str[i] != 0 && str[i] == _T(':'))
+		while (str[i] != 0 && str[i] != _T(':'))
 		{
-			break;
+			i++;
 		}
 
 		if (str[i] == 0) // 没有市场
@@ -87,7 +87,7 @@ namespace stock_wrapper
 			}
 		}
 
-		return Empty();
+		return !Empty();
 
 	}
 
@@ -214,12 +214,12 @@ namespace stock_wrapper
 		unsigned short slen = *((unsigned short*)data);
 		if (slen == 0)
 		{
-			return nReadLen;
+			return 0;
 		}
 
 		if (nLen - nReadLen < slen) // 字节不够，数据错误
 		{
-			return nLen;
+			return 0;
 		}
 
 		nReadLen += slen;
@@ -227,7 +227,7 @@ namespace stock_wrapper
 		int nElemBufferSize = m_nElemSize * sizeof(TCHAR);
 		if (slen % nElemBufferSize != 0)
 		{
-			return nReadLen;
+			return 0;
 		}
 
 		// copy

@@ -3,6 +3,8 @@
 #include "buffer.h"
 #include "file.h"
 
+
+
 namespace xlf
 {
 	int Utf8ToUnicode(const char* buf, int len, wchar_t* outbuf, int outbuflen)
@@ -595,5 +597,103 @@ namespace xlf
 	void FindDirAllDir(LPCTSTR lpszDir, std::vector<_tstring>& vcFile)
 	{
 		_FindDirAllFile(lpszDir, vcFile, false);
+	}
+
+	void MakeDir(LPCTSTR lpszDir)
+	{
+		if (!(GetFileAttributes(lpszDir) & FILE_ATTRIBUTE_DIRECTORY))
+		{
+			CreateDirectory(lpszDir, NULL);
+		}
+	}
+
+
+	int ReadUInt32FromBuffer(const char* & data, int& len, uint32& ret)
+	{
+		int nRead = sizeof(uint32);
+		if (len < nRead)
+		{
+			return 0;
+		}
+
+		ret = *((uint32*)data);
+		data += len + nRead;
+		len -= nRead;
+
+		return nRead;
+	}
+
+	// 返回读取的字节长度，包括字符串结束符，如果没有结束符，str为空，返回值为size
+	int ReadStringFromBuffer(const char*& data, int& len, _tstring& str)
+	{
+		str.clear();
+		int i = 0;
+		const TCHAR* p = (const TCHAR*)data;
+		while (i < len)
+		{
+			if (p[i] == 0)
+			{
+				int l = i / sizeof(TCHAR);
+				if (l > 0)
+				{
+					str.assign(p, l);
+				}
+				
+				i += sizeof(TCHAR);
+				break;
+			}
+			i += sizeof(TCHAR);
+		}
+		data += i;
+		len -= i;
+
+		return i;
+	}
+
+	int ReadStringFromBufferEx(const char*& data, int& len, _tstring& str)
+	{
+		str.clear();
+		uint32 n = 0;
+		int nRead = ReadUInt32FromBuffer(data, len, n);
+		if (nRead <= 0 || n > len)
+		{
+			return 0;
+		}
+		nRead += n;
+		if (n > 0)
+		{
+			const TCHAR* p = (const TCHAR*)data;
+			n = n / sizeof(TCHAR);
+			if (p[n] == 0)
+			{
+				n--;
+			}
+			str.assign(p, n);
+		}
+
+		return nRead;
+	}
+
+	void InitXlfBinaryFileHeader(_xlf_common_binary_file_header_t* header, uint32 flag, int version /* = 0 */, int nHeadSize /* = 0 */)
+	{
+		if (nHeadSize <= 0)
+		{
+			nHeadSize = sizeof(_xlf_common_binary_file_header_t);
+		}
+
+		memset(header, 0, nHeadSize);
+		header->m_nSize = nHeadSize;
+		header->m_nFlag = flag;
+		header->m_version = version;
+		header->m_ntotal = nHeadSize;
+	}
+
+	bool IsErrorXlfBinaryFileHeader(_xlf_common_binary_file_header_t* header, uint32 flag, int total, int version, int nHeadSize)
+	{
+		if (nHeadSize <= 0)
+		{
+			nHeadSize = sizeof(_xlf_common_binary_file_header_t);
+		}
+		return header->m_nSize != nHeadSize || header->m_nFlag != flag || header->m_ntotal > total ||header->m_version != version;
 	}
 }

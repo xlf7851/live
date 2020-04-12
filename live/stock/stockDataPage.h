@@ -1,5 +1,57 @@
 #pragma once
 #include "stockDataTable.h"
+#include "stockDefine.h"
+#include "stockArray.h"
+
+class CBlockGroupTabContainerUI : public CHorizontalLayoutUI
+{
+	DECLARE_DUICONTROL(CBlockGroupTabContainerUI)
+public:
+	CBlockGroupTabContainerUI();
+	~CBlockGroupTabContainerUI();
+
+	virtual LPCTSTR GetClass() const;
+	virtual LPVOID GetInterface(LPCTSTR pstrName);
+
+	void BuildGroup(std::vector<uint32>& vcID, std::vector<_tstring>& vcName);
+	void AddGroupItem(uint32 id, _tstring& name);
+	void SelectedGroup(uint32 id);
+
+protected:
+};
+
+
+class CBlockListItemUI : public CListLabelElementUI
+{
+public:
+	void DoEvent(TEventUI& event);
+
+	void InitBlockInfo(const _block_draw_item_it& item);
+
+protected:
+	_block_draw_item_it m_blockInfo;
+};
+
+
+class CBlockListUI : public CListUI
+{
+	DECLARE_DUICONTROL(CBlockListUI)
+public:
+	CBlockListUI();
+	~CBlockListUI();
+
+	virtual LPCTSTR GetClass() const;
+	virtual LPVOID GetInterface(LPCTSTR pstrName);
+
+	void BuildList(uint32 uGroupID);
+	void ClearList();
+
+	void AddBlock(_block_draw_item_it* pItem);
+	void AddBlock(uint32 uid, LPCTSTR lpszName, uint32 uParam = 0, int nCnt = 0);
+
+protected:
+	uint32 m_uGroupID;
+};
 
 typedef  CBasePageUI _StockDataPageUIBase;
 namespace stock_wrapper
@@ -21,20 +73,36 @@ public:
 	virtual void OnNotify(TNotifyUI& msg);
 	virtual void InitPage();
 protected:
-	void AddLog(LPCTSTR lpszLog);
-	void FindGetDataWindow();
 	void OnLoadData();
+	bool OnSelectGroup(CControlUI* pControl);
+
+	// block
+	void OnNewBlock();
+
+
+	// stock
+	void OnImport();
 
 protected:
 	void LoadPoolData(LPCTSTR lpszFile);
-	void ShowDayData(stock_wrapper::MarketDayData& data, const stock_wrapper::Stock& stock);
-	void UpdateStockText(const stock_wrapper::Stock& stock);
-	void OnTestDayData();
-	void OnTestMinData();
-protected:
-	HWND m_dataHwnd;
-	CRichEditUI* m_pLogEdit;
 
-	CStockDataTableUI* m_pDayDataTable;
-	CLabelUI* m_pStockLabel;
+	// list group
+	void BuildGroup();
+	void BuildBlockList();
+
+	// block
+	void DoNewBlock(LPCTSTR lpszName);
+
+	// stock
+	void UpdateStockList(const stock_wrapper::StockArray& ayStock);
+	
+protected:
+	// block group container ctrl
+	CBlockGroupTabContainerUI* m_pGroupContainerUI;
+	// blocklist
+	CBlockListUI* m_pBlockList;
+	uint32 m_uCurrentBlockGroupID;
+
+	// stocklist
+	CListUI* m_pStockTable;
 };

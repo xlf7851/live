@@ -5,605 +5,684 @@
 #include "../base/buffer.h"
 #include <json.h>
 #include "../base/jsonutl.h"
+#include "stockDefine.h"
 
 namespace stock_wrapper
 {
-	CBlockList::CBlockList()
-	{
 
+BlockCacheManager::BlockCacheManager()
+{
+
+}
+
+BlockCacheManager::~BlockCacheManager()
+{
+	Release();
+}
+
+static BlockCacheManager* g_blockCacheManagerInstance = nullptr;
+BlockCacheManager* BlockCacheManager::Instance()
+{
+	if (g_blockCacheManagerInstance == nullptr)
+	{
+		g_blockCacheManagerInstance = new BlockCacheManager;
 	}
 
-	CBlockList::CBlockList(const CBlockList& src)
+	return g_blockCacheManagerInstance;
+}
+
+void BlockCacheManager::Release()
+{
+	for (_data_container_t::iterator it = m_data.begin(); it != m_data.end(); it++)
 	{
-		*this = src;
+		delete it->second;
+	}
+	m_data.clear();
+}
+
+void BlockCacheManager::Init(LPCTSTR lpszFilePath /* = nullptr */)
+{
+	if (lpszFilePath && lpszFilePath[0] != 0)
+	{
+		m_strFilePath = lpszFilePath;
 	}
 
-	CBlockList::~CBlockList()
+	if (m_strFilePath.empty())
 	{
-		Clear();
+		m_strFilePath = global_funciton::GetConfigDir();
+		m_strFilePath += STOCK_CONFIG_BLOCK_CACHE_PATH;
 	}
 
-	CBlockList& CBlockList::operator=(const CBlockList& src)
+	Build();
+}
+
+void BlockCacheManager::Build()
+{
+	if (m_strFilePath.empty())
 	{
-		Clear();
-		for (int i = 0; i < src.m_data.size(); i++)
+		return;
+	}
+
+	Release();
+
+	m_data.rehash(100);
+
+	xlf::CBuffer buf;
+	xlf::ReadBufferFromFile(buf, m_strFilePath.c_str());
+	if (buf.GetSize() == 0)
+	{
+		return;
+	}
+
+	ReadFromBuffer((char*)buf.GetBuffer(), buf.GetSize());
+}
+
+
+int BlockCacheManager::ReadFromBuffer(char* buf, int len)
+{
+	int nHeadSize = sizeof(_xlf_common_binary_file_header_t);
+	if (len < nHeadSize)
+	{
+		return 0;
+	}
+	_xlf_common_binary_file_header_t* header = (_xlf_common_binary_file_header_t*)buf;
+	
+	if (xlf::IsErrorXlfBinaryFileHeader(header, GET_XLF_BINARY_FILE_HEAD_FLAG(g_szBlockCacheFileFlag), len))
+	{
+		return 0;
+	}
+
+	len -= nHeadSize;
+	buf += nHeadSize;
+
+	int nTotal = nHeadSize;
+	
+	while (len > 0)
+	{
+		BlockCacheItem* pNewItem = new BlockCacheItem;
+		int nRead = pNewItem->ReadFromBuffer(buf, len);
+		if (nRead == 0)
 		{
-			_block_item_t* pItem = src.m_data[i];
-			if (nullptr == pItem)
-			{
-				continue;
-			}
-
-			_block_item_t* pNew = new _block_item_t;
-			*pNew = *pItem;
-			m_data.push_back(pNew);
+			delete pNewItem;
+			break;
 		}
 
-		return *this;
+		m_data[pNewItem->GetBlockID()] = pNewItem;
+
+		nTotal += nRead;
 	}
 
-	void CBlockList::Init(LPCTSTR lpszFilePath /* = nullptr */)
+	return nTotal;
+}
+
+int BlockCacheManager::WriteToBuffer(xlf::CBuffer & buf)
+{
+	_xlf_common_binary_file_header_t header;
+	xlf::InitXlfBinaryFileHeader(&header, GET_XLF_BINARY_FILE_HEAD_FLAG(g_szBlockCacheFileFlag));
+	_xlf_common_binary_file_header_t* pHeaderInBuf = (_xlf_common_binary_file_header_t*)buf.Append(&header, sizeof(_xlf_common_binary_file_header_t));
+	int nOldSize = buf.GetSize();
+	for (_data_container_t::iterator it = m_data.begin(); it != m_data.end(); it++)
+	{
+		BlockCacheItem* pItem = it->second;
+		if (pItem == nullptr || pItem->GetBlockID() == 0)
+		{
+			continue;
+		}
+
+		pItem->WriteToBuf(buf);
+	}
+
+	pHeaderInBuf->m_ntotal += buf.GetSize() - nOldSize;
+
+	return pHeaderInBuf->m_ntotal;
+}
+
+uint32 BlockCacheManager::NewBlockID()
+{
+	static uint32 s_firstid = BLOCK_ID_SELF_BEGIN;
+	uint32 dwID = s_firstid;
+	bool bFirst = true;
+	do
+	{
+		if (dwID >= BLOCK_ID_SELF_END)
+		{
+			if (!bFirst)
+			{
+				dwID = 0;
+				break;
+			}
+			dwID = BLOCK_ID_SELF_BEGIN;
+			bFirst = false;
+		}
+
+		if (FindBlockItem(dwID) == nullptr)
+		{
+			s_firstid = dwID + 1;
+			break;
+		}
+		dwID++;
+	} while (true);
+
+	return dwID;
+}
+
+BlockCacheItem* BlockCacheManager::FindBlockItem(uint32 uid)
+{
+	return _FindBlockCacheItem(uid, false);
+}
+
+BlockCacheItem* BlockCacheManager::_FindBlockCacheItem(uint32 uid, bool bNew)
+{
+	BlockCacheItem* pFind = nullptr;
+	_data_container_t::iterator it = m_data.find(uid);
+	if (it != m_data.end())
+	{
+		pFind = it->second;
+	}
+
+	if (pFind == nullptr && bNew)
+	{
+		pFind = _AddBlockCacheItem(uid);
+	}
+
+	return pFind;
+}
+
+BlockCacheItem* BlockCacheManager::_AddBlockCacheItem(uint32 uid)
+{
+	BlockCacheItem* pFind = new BlockCacheItem;
+	pFind->SetBlockID(uid);
+	m_data[uid] = pFind;
+	return pFind;
+}
+
+uint32 BlockCacheManager::NewBlock(const _tstring& name, const _tstring& query, uint32 uParam)
+{
+	uint32 u32BlockID = NewBlockID();
+	if (u32BlockID == 0)
+	{
+		return u32BlockID;
+	}
+
+	BlockCacheItem* pNew = _AddBlockCacheItem(u32BlockID);
+	pNew->SetBlockName(name);
+	if (!query.empty())
+	{
+		pNew->SetQuery(query);
+	}
+	pNew->SetBlockParam(uParam);
+	
+	return u32BlockID;
+}
+
+bool BlockCacheManager::ModifyBlock(uint32 dwBlockID, const _tstring& name, const _tstring& query)
+{
+	BlockCacheItem* pFind = _FindBlockCacheItem(dwBlockID);
+	if (pFind == nullptr)
+	{
+		return false;
+	}
+
+	if (!name.empty())
+	{
+		pFind->SetBlockName(name);
+	}
+	
+	if (!query.empty())
+	{
+		pFind->SetQuery(query);
+	}
+
+	return true;
+}
+
+bool BlockCacheManager::DeleteBlock(uint32 dwBlockID)
+{
+	_data_container_t::iterator it = m_data.find(dwBlockID);
+	if (it != m_data.end())
+	{
+		m_data.erase(it);
+
+		return true;
+	}
+	return false;
+}
+
+bool BlockCacheManager::QueryBlock(uint32 dwBlockID, _tstring* strName, _tstring* strQuery, uint32* pParam, StockArray* ayCode, int* codesize)
+{
+	BlockCacheItem* pFind = _FindBlockCacheItem(dwBlockID);
+	if (pFind)
+	{
+		if (strName)
+		{
+			pFind->GetBlockName(*strName);
+		}
+		
+		if (strQuery)
+		{
+			pFind->GetQuery(*strQuery);
+		}
+		
+		if (pParam)
+		{
+			*pParam = pFind->GetBlockParam();
+		}
+
+		if (ayCode)
+		{
+			pFind->GetStockArray(*ayCode);
+		}
+
+		if (codesize)
+		{
+			*codesize = pFind->GetStockArraySize();
+		}
+
+		return true;
+	}
+
+	return false;
+}
+
+bool BlockCacheManager::QueryStock(uint32 dwBlockID, stock_wrapper::StockArray& ayStock)
+{
+	BlockCacheItem* pFind = _FindBlockCacheItem(dwBlockID);
+	if (pFind)
+	{
+		pFind->GetStockArray(ayStock);
+		return true;
+	}
+
+	return false;
+}
+
+bool BlockCacheManager::UpdateStock(uint32 dwBlockID, const StockArray& ayStock)
+{
+	BlockCacheItem* pFind = _FindBlockCacheItem(dwBlockID);
+	if (pFind)
+	{
+		pFind->SetStockArray(ayStock);
+		return TRUE;
+	}
+
+	return FALSE;
+}
+
+
+
+	int BlockGroup::ReadFromBuffer(const char* buf, int len)
+	{
+		int nTotal = 0;
+		int nRead = xlf::ReadUInt32FromBuffer(buf, len, m_uGroupID);
+		if (nRead == 0)
+		{
+			return 0;
+		}
+		nTotal += nRead;
+		nRead = xlf::ReadUInt32FromBuffer(buf, len, m_uOption);
+		if (nRead == 0)
+		{
+			return 0;
+		}
+		nTotal += nRead;
+		nRead = m_ayBlockID.ReadFromBuf(buf, len);
+		if (nRead == 0)
+		{
+			return 0;
+		}
+
+		nTotal += nRead;
+
+		return nTotal;
+	}
+
+	int BlockGroup::WriteToBuffer(xlf::CBuffer & buf)
+	{
+		int old = buf.GetSize();
+		buf.AppendUInt32(m_uGroupID);
+		buf.AppendUInt32(m_uOption);
+		m_ayBlockID.WriteToBuf(buf);
+
+		return buf.GetSize() - old;
+	}
+
+	BlockGroupManager::BlockGroupManager()
+	{
+
+	}
+
+	BlockGroupManager::~BlockGroupManager()
+	{
+		Release();
+	}
+
+	void BlockGroupManager::Release()
+	{
+		for (_dataIterator_t it = m_data.begin(); it != m_data.end(); it++)
+		{
+			delete *it;
+		}
+
+		m_data.clear();
+	}
+
+	static BlockGroupManager* g_blockGroupManagerInstance = nullptr;
+	BlockGroupManager*  BlockGroupManager::Instance()
+	{
+		if (g_blockGroupManagerInstance == nullptr)
+		{
+			g_blockGroupManagerInstance = new BlockGroupManager;
+			g_blockGroupManagerInstance->Init();
+		}
+
+		return g_blockGroupManagerInstance;
+	}
+
+	void BlockGroupManager::Init(LPCTSTR lpszFilePath)
 	{
 		if (lpszFilePath && lpszFilePath[0] != 0)
 		{
 			m_strFilePath = lpszFilePath;
-			Read();
 		}
+
+		if (m_strFilePath.empty())
+		{
+			m_strFilePath = global_funciton::GetConfigDir();
+			m_strFilePath += STOCK_CONFIG_BLOCK_GROUP_PATH;
+		}
+
+		xlf::MakeDir(m_strFilePath.c_str());
+	
+		Load();
 	}
 
-	void CBlockList::SaveToFile(LPCTSTR lpszFilePath)
+	void BlockGroupManager::Load(LPCTSTR lpszFilePath)
 	{
-		std::string strFilePath;
+		_tstring strPath;
 		if (lpszFilePath && lpszFilePath[0] != 0)
 		{
-			strFilePath = lpszFilePath;
+			strPath = lpszFilePath;
 		}
 		else
 		{
-			strFilePath = m_strFilePath;
+			strPath = m_strFilePath;
 		}
 
-		if (m_strFilePath.empty())
+		if (strPath.empty())
 		{
 			return;
 		}
 
-		Write(strFilePath);
-	}
+		Release();
 
-	void CBlockList::Clear()
-	{
-		for (int i = 0; i < m_data.size(); i++)
-		{
-			delete m_data[i];
-		}
-		m_data.clear();
-	}
-
-	
-	BOOL CBlockList::GetBlockIDList(std::vector<DWORD>& vcID)
-	{
-		vcID.clear();
-		for (int i = 0; i < m_data.size(); i++)
-		{
-			if (m_data[i])
-			{
-				vcID.push_back(m_data[i]->m_dwBlockID);
-			}
-		}
-
-		return vcID.size() > 0;
-	}
-
-	int CBlockList::GetSize() const
-	{
-		return m_data.size();
-	}
-
-	_block_item_t* CBlockList::GetItem(int nIndex) const
-	{
-		if (nIndex >= 0 && nIndex < m_data.size())
-		{
-			return m_data[nIndex];
-		}
-
-		return nullptr;
-	}
-
-#define BLOCK_CACHE_BUF_SIZE 1024*1024
-
-#define BLOCK_FLAG_SIZE 6
-	static const char g_szFlag[BLOCK_FLAG_SIZE] = { 'b','l','o','c','k',0 };
-
-	static bool _matchFlag(char* pData)
-	{
-		for (int i = 0; i < BLOCK_FLAG_SIZE; i++)
-		{
-			if (g_szFlag[i] != pData[i])
-			{
-				return false;
-			}
-		}
-
-		return true;
-	}
-
-	static bool _ParseBlockItem(char* data, int nLen, _block_item_t& item, int& nReadLen)
-	{
-		int nSLen = nLen;
-		nReadLen = 0;
-		int nSize = sizeof(DWORD);
-		if (nLen < nSize)
-		{
-			nReadLen = nSLen;
-			return false;
-		}
-		nReadLen += nSize;
-		item.m_dwBlockID = *((DWORD*)data);
-		nLen -= nSize;
-		char* p = data + nSize;
-
-		// name
-		nSize = sizeof(unsigned char);
-		if (nLen < nSize)
-		{
-			nReadLen = nSLen;
-			return false;
-		}
-		nLen -= nSize;
-		nReadLen += nSize;
-		int nDataSize = *((unsigned char*)p);
-		p += nSize;
-		nSize = nDataSize;
-		if (nLen < nSize)
-		{
-			nReadLen = nSLen;
-			return false;
-		}
-		if (nSize > 0)
-		{
-			TCHAR* name = (TCHAR*)p;
-			item.m_strName.assign(name, nSize / sizeof(TCHAR));
-
-			nReadLen += nSize;
-			nLen -= nSize;
-			p += nSize;
-		}
+		xlf::CBuffer buf;
+		xlf::ReadBufferFromFile(buf, strPath.c_str());
 		
-
-		//query
-		nSize = sizeof(unsigned short);
-		if (nLen < nSize)
-		{
-			nReadLen = nSLen;
-			return false;
-		}
-		nLen -= nSize;
-		nReadLen += nSize;
-		nDataSize = *((unsigned short*)p);
-		p += nSize;
-		nSize = nDataSize;
-		if (nLen < nSize)
-		{
-			nReadLen = nSLen;
-			return false;
-		}
-		if (nSize > 0)
-		{
-			TCHAR* query = (TCHAR*)p;
-			item.m_strQuery.assign(query, nSize / sizeof(TCHAR));
-
-			nReadLen += nSize;
-			nLen -= nSize;
-			p += nSize;
-		}
-
-		//codes
-		int nReadCodeLen = item.m_ayCode.ReadFromBuf(p, nLen);
-		nReadLen += nReadCodeLen;
-
-		return true;
-	}
-
-	void CBlockList::Read()
-	{
-		if (m_strFilePath.empty())
-		{
-			return;
-		}
-
-		xlf::CTFile file;
-		if (!file.Open(m_strFilePath.c_str()))
-		{
-			return;
-		}
-
-		int nLen = file.GetFileLength();
-		if (nLen < BLOCK_FLAG_SIZE)
-		{
-			return;
-		}
-
-		char* pData = new char[nLen];
-		file.Read(pData, nLen);
-
-		if (!_matchFlag(pData))
-		{
-			delete pData;
-			return;
-		}
-
-		nLen -= BLOCK_FLAG_SIZE;
-		char* pCur = pData + BLOCK_FLAG_SIZE;
-		while (nLen > 0)
-		{
-			int nReadLen = 0;
-			_block_item_t* pNew = new _block_item_t;
-			bool bRead = _ParseBlockItem(pCur, nLen, *pNew, nReadLen);
-			pCur += nReadLen;
-			nLen -= nReadLen;
-
-			if (bRead)
-			{
-				m_data.push_back(pNew);
-			}
-			else
-			{
-				delete pNew;
-			}
-		}
-		
-		delete pData;
-	}
-
-	void CBlockList::Write(std::string& strFilePath)
-	{
-		if (strFilePath.empty())
-		{
-			return;
-		}
+		ReadFromBuffer((const char*)buf.GetBuffer(), buf.GetSize());
 
 		if (m_data.size() == 0)
+		{
+			CreateDefault();
+		}
+	}
+
+	void BlockGroupManager::Save(LPCTSTR lpszFilePath/* =nullptr */)
+	{
+		_tstring strPath;
+		if (lpszFilePath && lpszFilePath[0] != 0)
+		{
+			strPath = lpszFilePath;
+		}
+		else
+		{
+			strPath = m_strFilePath;
+		}
+
+		if (strPath.empty())
 		{
 			return;
 		}
 
 		xlf::CBuffer buf;
-		buf.Reserve(BLOCK_CACHE_BUF_SIZE);
+		WriteToBuffer(buf);
 
-		// 前6个字节是标志
-		buf.Append((unsigned char*)g_szFlag, sizeof(char)*6);
-
-		for (int i = 0; i < m_data.size(); i++)
+		if (buf.GetSize() > 0)
 		{
-			_block_item_t* pItem = m_data[i];
-			if (nullptr == pItem || pItem->m_dwBlockID == 0 || pItem->m_strName.empty())
+			xlf::WriteBufferToFile(buf, strPath.c_str());
+		}
+	}
+
+	int BlockGroupManager::ReadFromBuffer(const char* buf, int len)
+	{
+		int nHeadSize = sizeof(_xlf_common_binary_file_header_t);
+		if (len < nHeadSize)
+		{
+			return 0;
+		}
+		_xlf_common_binary_file_header_t* header = (_xlf_common_binary_file_header_t*)buf;
+
+		if (xlf::IsErrorXlfBinaryFileHeader(header, GET_XLF_BINARY_FILE_HEAD_FLAG(g_szBlockGroupFileFlag), len))
+		{
+			return 0;
+		}
+
+		len -= nHeadSize;
+		buf += nHeadSize;
+
+		int nTotal = nHeadSize;
+
+		while (len > 0)
+		{
+			BlockGroup* pNewItem = new BlockGroup;
+			int nRead = pNewItem->ReadFromBuffer(buf, len);
+			if (nRead == 0)
+			{
+				delete pNewItem;
+				break;
+			}
+
+			m_data.push_back(pNewItem);
+
+			nTotal += nRead;
+		}
+
+		return nTotal;
+	}
+
+
+	int BlockGroupManager::WriteToBuffer(xlf::CBuffer & buf)
+	{
+		_xlf_common_binary_file_header_t header;
+		xlf::InitXlfBinaryFileHeader(&header, GET_XLF_BINARY_FILE_HEAD_FLAG(g_szBlockGroupFileFlag));
+		_xlf_common_binary_file_header_t* pHeaderInBuf = (_xlf_common_binary_file_header_t*)buf.Append(&header, sizeof(_xlf_common_binary_file_header_t));
+		int nOldSize = buf.GetSize();
+		for (_dataIterator_t it = m_data.begin(); it != m_data.end(); it++)
+		{
+			BlockGroup *pItem = *it;
+			if (pItem == nullptr || pItem->GetGroupID() == 0)
 			{
 				continue;
 			}
 
-			// 前4个字节是id
-			buf.Append((unsigned char*)&pItem->m_dwBlockID, sizeof(DWORD));
-
-			// 名称，用字节表示长度
-			unsigned char cLen = pItem->m_strName.size()* sizeof(TCHAR);
-			buf.Append((unsigned char*)&cLen, sizeof(unsigned char));
-			if (cLen > 0)
-			{
-				buf.Append((unsigned char*)pItem->m_strName.c_str(), cLen);
-			}
-			
-			// 问句，2个字节表示长度
-			unsigned short sLen = pItem->m_strQuery.size() * sizeof(TCHAR);
-			buf.Append((unsigned char*)&sLen, sizeof(unsigned short));
-			if (sLen > 0)
-			{
-				buf.Append((unsigned char*)pItem->m_strQuery.c_str(), sLen);
-			}
-			
-			// 代码
-			pItem->m_ayCode.WriteToBuf(buf);
+			pItem->WriteToBuffer(buf);
 		}
 
-		xlf::CTFile file;
-		if (!file.Open(strFilePath.c_str(), xlf::CTFile::mode_write | xlf::CTFile::mode_create))
-		{
-			return;
-		}
- 		file.Write((void*)buf.GetBuffer(), buf.GetSize());
+		pHeaderInBuf->m_ntotal += buf.GetSize() - nOldSize;
+
+		return pHeaderInBuf->m_ntotal;
 	}
 
-	_block_item_t* CBlockList::_AddItem(DWORD dwBlockID)
+	void BlockGroupManager::CreateDefault()
 	{
-		_block_item_t* pFind = _FindByID(dwBlockID);
-		if (pFind == nullptr)
+		static uint32 ids[] = { BLOCK_GROUP_ID_SELF, BLOCK_GROUP_ID_STRATEGY };
+		static LPCTSTR names[] = { _T("自选板块"), _T("策略板块") };
+		int nCount = _countof(ids);
+		for (int i = 0; i < nCount; i++)
 		{
-			pFind = new _block_item_t;
-			pFind->m_dwBlockID = dwBlockID;
-			m_data.push_back(pFind);
+			BlockGroup* pList = NewGroup(ids[i]);
+			if (pList)
+			{
+				pList->SetGroupName(names[i]);
+			}
+		}
+	}
+
+	BlockGroup* BlockGroupManager::NewGroup(uint32 groupid)
+	{
+		BlockGroup* pList = new BlockGroup;
+		if (pList)
+		{
+			m_data.push_back(pList);
+			pList->SetGroupID(groupid);
+		}
+
+		return pList;
+	}
+
+	uint32 BlockGroupManager::NewGroupID()
+	{
+		static uint32 s_firstid = BLOCK_GROUP_BEGIN;
+		uint32 uGroupid = s_firstid;
+		bool bFirst = true;
+		do
+		{
+			if (uGroupid >= BLOCK_GROUP_END)
+			{
+				if (!bFirst)
+				{
+					uGroupid = 0;
+					break;
+				}
+				uGroupid = BLOCK_GROUP_BEGIN;
+				bFirst = false;
+			}
+
+			if (FindGroup(uGroupid, false) == nullptr)
+			{
+				s_firstid = uGroupid + 1;
+				break;
+			}
+			uGroupid++;
+		} while (true);
+
+		return uGroupid;
+	}
+
+	BlockGroup* BlockGroupManager::FindGroup(uint32 groupid, bool bNew)
+	{
+		BlockGroup* pFind = nullptr;
+		for (_dataIterator_t it = m_data.begin(); it != m_data.end(); it++)
+		{
+			BlockGroup* p = *it;
+			if (p && p->GetGroupID() == groupid)
+			{
+				pFind = p;
+				break;
+			}
+		}
+
+		if (pFind == nullptr && bNew)
+		{
+			pFind = NewGroup(groupid);
 		}
 
 		return pFind;
 	}
 
-	_block_item_t* CBlockList::_FindByID(DWORD dwBlockID)
+	void BlockGroupManager::GetAllBlockGroupIDAndName(std::vector<uint32>& vcGroup, std::vector<_tstring>& vcName)
 	{
-		for (int i = 0; i < m_data.size(); i++)
+		for (_dataIterator_t it = m_data.begin(); it != m_data.end(); it++)
 		{
-			if (m_data[i] && m_data[i]->m_dwBlockID == dwBlockID)
+			BlockGroup* pList = *it;
+			if (pList)
 			{
-				return m_data[i];
+				vcGroup.push_back(pList->GetGroupID());
+				vcName.push_back(pList->GetGroupName());
 			}
 		}
-
-		return nullptr;
 	}
 
-	_block_item_t* CBlockList::_FindByName(LPCTSTR lspzName)
+
+	void BlockGroupManager::GetBlockDrawItemListInfo(uint32 groupid, std::vector<_block_draw_item_it *>& vcDrawInfo)
 	{
-		for (int i = 0; i < m_data.size(); i++)
-		{
-			if (m_data[i] && m_data[i]->m_strName == lspzName)
-			{
-				return m_data[i];
-			}
-		}
-
-		return nullptr;
-	}
-
-	static int _FindInArray(DWORD value, std::vector<DWORD>& ay)
-	{
-		for (int i = 0; i < ay.size(); i++)
-		{
-			if (value == ay[i])
-			{
-				return i;
-			}
-		}
-
-		return -1;
-	}
-
-	DWORD CBlockList::_NewID()
-	{
-		std::vector<DWORD> vcID;
-		GetBlockIDList(vcID);
-
-		static DWORD s_firstid = 0x23;
-		DWORD dwID = s_firstid;
-		do 
-		{
-			if (_FindInArray(dwID, vcID) < 0)
-			{
-				s_firstid = dwID + 1;
-				break;
-			}
-			dwID++;
-		} while (true);
-
-		return dwID;
-	}
-
-	void CBlockList::ImportFromJson(LPCTSTR lspzFilePath)
-	{
-		xlf::CTFile file;
-		if (!file.Open(lspzFilePath, xlf::CTFile::mode_read))
-		{
-			return;
-		}
-
-		int nLen = file.GetFileLength();
-		std::string strData;
-		strData.reserve(nLen + 1);
-		file.Read((void*)strData.c_str(), nLen);
-		strData.resize(nLen);
 		
-		Json::Value jsRoot;
-		Json::Reader reader;
-		if (!reader.parse(strData, jsRoot) || jsRoot.isNull() || !jsRoot.isArray())
-		{
-			return;
-		}
-
-		string strTmp;
-		xlf::CBuffer buf;
-		int nSize = jsRoot.size();
-		for (int i = 0; i < nSize; i++)
-		{
-			Json::Value& item = jsRoot[i];
-			if (!item.isObject())
-			{
-				continue;
-			}
-			// name
-			strTmp = json_utl::json_to_string(item["name"]);
-			if (strTmp.empty())
-			{
-				continue;
-			}
-			buf.Clear();
-			if (!xlf::Base64Decode(strTmp.c_str(), strTmp.size(), buf))
-			{
-				continue;
-			}
-			strTmp.assign((char*)buf.GetBuffer(), buf.GetSize());
-			_block_item_t* pItem = _FindByName(strTmp.c_str());
-			if (pItem == nullptr)
-			{
-				DWORD dwNewID = _NewID();
-				pItem = new _block_item_t;
-				pItem->m_dwBlockID = dwNewID;
-				m_data.push_back(pItem);
-			}
-			pItem->m_strName = strTmp;
-
-			// query
-			strTmp = json_utl::json_to_string(item["query"]);
-			if (!strTmp.empty())
-			{
-				buf.Clear();
-				if (xlf::Base64Decode(strTmp.c_str(), strTmp.size(), buf))
-				{
-					strTmp.assign((char*)buf.GetBuffer(), buf.GetSize());
-				}
-			}
-			pItem->m_strQuery = strTmp;
-
-			// stock
-			strTmp = json_utl::json_to_string(item["codes"]);
-			pItem->m_ayCode.ClearStockCode();
-			pItem->m_ayCode.FromString(strTmp.c_str(), strTmp.size(), ',');
-		}
-
-
 	}
 
-	DWORD CBlockList::New(LPCTSTR lpszName, LPCTSTR lpszQury /* = nullptr */)
+	uint32 BlockGroupManager::AddGroup(const _tstring& strName, uint32 option)
 	{
-		DWORD dwBlockID = _NewID();
-		if (dwBlockID == 0)
+		uint32 groupid = NewGroupID();
+		if (groupid == 0)
 		{
-			return dwBlockID;
+			return 0;
 		}
 
-		_block_item_t* pNew = new _block_item_t;
-		m_data.push_back(pNew);
-		pNew->m_dwBlockID = dwBlockID;
-		pNew->m_strName = lpszName;
-		if (lpszQury)
+		BlockGroup* pNew = NewGroup(groupid);
+		if (pNew == nullptr)
 		{
-			pNew->m_strQuery = lpszQury;
+			return 0;
 		}
 
-		return dwBlockID;
+		pNew->SetGroupOption(option);
+		pNew->SetGroupName(strName.c_str());
+
+		return groupid;
 	}
 
-	BOOL CBlockList::Modify(DWORD dwBlockID, LPCTSTR lpszName, LPCTSTR lpszQuery)
+	bool BlockGroupManager::QueryGroup(uint32 groupid, _tstring* name, BlockIDArray* ayid , uint32* option)
 	{
-		_block_item_t* pFind = _FindByID(dwBlockID);
-		if (pFind == nullptr)
+		BlockGroup* pGroup = FindGroup(groupid);
+		if (pGroup)
 		{
-			return FALSE;
-		}
-
-		pFind->m_strName = lpszName;
-		if (lpszQuery)
-		{
-			pFind->m_strQuery = lpszQuery;
-		}
-
-		return TRUE;
-	}
-
-	BOOL CBlockList::Delete(DWORD dwBlockID)
-	{
-		for (_block_array_t::iterator it = m_data.begin(); it != m_data.end(); it++)
-		{
-			_block_item_t* pItem = *it;
-			if (pItem && pItem->m_dwBlockID == dwBlockID)
+			if (name)
 			{
-				m_data.erase(it);
-				return TRUE;
-			}
-		}
-
-		return FALSE;
-
-	}
-
-	BOOL CBlockList::Query(DWORD dwBlockID, std::string& strName, std::string& strQuery)
-	{
-		_block_item_t* pFind = _FindByID(dwBlockID);
-		if (pFind == nullptr)
-		{
-			return FALSE;
-		}
-
-		strName = pFind->m_strName;
-		strQuery = pFind->m_strQuery;
-
-		return TRUE;
-	}
-
-	BOOL CBlockList::QueryStock(DWORD dwBlockID, StockArray& ayStock)
-	{
-		_block_item_t* pFind = _FindByID(dwBlockID);
-		if (pFind)
-		{
-			ayStock = pFind->m_ayCode;
-			return TRUE;
-		}
-
-		return FALSE;
-	}
-
-	BOOL CBlockList::UpdateStock(DWORD dwBlockID, const StockArray& ayStock)
-	{
-		_block_item_t* pFind = _FindByID(dwBlockID);
-		if (pFind)
-		{
-			pFind->m_ayCode = ayStock;
-			return TRUE;
-		}
-
-		return FALSE;
-	}
-
-	void CBlockList::UnionStock(StockArray& ayStock) const
-	{
-		if (m_data.size() == 0)
-		{
-			return;
-		}
-
-		for (int i = 0; i < m_data.size(); i++)
-		{
-			_block_item_t* pItem = m_data[i];
-			if (nullptr == pItem || pItem->m_ayCode.GetStockCodeSize() == 0)
-			{
-				continue;
+				*name = pGroup->GetGroupName();
 			}
 
-			ayStock.Union(pItem->m_ayCode);
-		}
-	}
-
-	void CBlockList::InnerStock(StockArray& ayStock) const
-	{
-		if (m_data.size() == 0)
-		{
-			return;
-		}
-
-		bool bFirst = false;
-		for (int i = 0; i < m_data.size(); i++)
-		{
-			_block_item_t* pItem = m_data[i];
-			if (nullptr == pItem || pItem->m_ayCode.GetStockCodeSize() == 0)
+			if (ayid)
 			{
-				continue;
+				pGroup->GetBlockArray(*ayid);
 			}
 
-			if (!bFirst)
+			if (option)
 			{
-				bFirst = true;
-				ayStock = pItem->m_ayCode;
-				continue;
+				*option = pGroup->GetGroupOption();
 			}
 
-			ayStock.Inner(pItem->m_ayCode);
+			return true;
+		}
+		return false;
+	}
+	
+	void BlockGroupManager::GetBlockArray(uint32 groupid, BlockIDArray& ayBlock)
+	{
+		QueryGroup(groupid, nullptr, &ayBlock);
+	}
+
+	void BlockGroupManager::SetBlockArray(uint32 groupid, const BlockIDArray& ayBlock)
+	{
+		BlockGroup* pGroup = FindGroup(groupid);
+		if (pGroup)
+		{
+			pGroup->SetBlockArray(ayBlock);
 		}
 	}
 
-	void CBlockList::SubStock(const CBlockList& ayList, StockArray& ayStock) const
+	void BlockGroupManager::AddBlock(uint32 groupid, uint32 uID)
 	{
-		UnionStock(ayStock);
-
-		StockArray aySrc;
-		ayList.UnionStock(aySrc);
-
-		ayStock.Sub(aySrc);
-
+		BlockGroup* pGroup = FindGroup(groupid);
+		if (pGroup)
+		{
+			pGroup->AddBlock(uID);
+		}
 	}
+
+	void BlockGroupManager::DeleteBlock(uint32 groupid, uint32 uID)
+	{
+		BlockGroup* pGroup = FindGroup(groupid);
+		if (pGroup)
+		{
+			pGroup->DeleteBlock(uID);
+		}
+	}
+
 }
