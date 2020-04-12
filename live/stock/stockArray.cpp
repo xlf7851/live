@@ -195,7 +195,7 @@ namespace stock_wrapper
 		return xlf::FmtStringArray::WriteToBuffer(buf);
 	}
 
-	bool StockArray::ReadFromBuffer(const char* &data, int nLen)
+	bool StockArray::ReadFromBuffer(const char* &data, int &nLen)
 	{
 		return xlf::FmtStringArray::ReadFromBuffer(data, nLen);
 	}

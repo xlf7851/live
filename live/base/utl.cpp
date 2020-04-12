@@ -647,7 +647,7 @@ namespace xlf
 		data += nRead;
 		len -= nRead;
 
-		return false;
+		return true;
 	}
 
 	bool ReadUInt32FromBuffer(const char*& data, int& len, uint32& ret)
@@ -663,7 +663,7 @@ namespace xlf
 		data += nRead;
 		len -= nRead;
 
-		return false;
+		return true;
 	}
 
 	bool ReadStringFromBuffer(const char*& data, int& len, _tstring& str)

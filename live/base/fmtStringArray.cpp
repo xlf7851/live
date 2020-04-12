@@ -210,7 +210,7 @@ namespace xlf {
 		}
 	}
 
-	bool FmtStringArray::ReadFromBuffer(const char* &data, int nLen)
+	bool FmtStringArray::ReadFromBuffer(const char* &data, int& nLen)
 	{
 		if (m_nElemSize <= 0)
 		{
@@ -243,9 +243,13 @@ namespace xlf {
 		}
 
 		// copy
-		int nAllocSize = (nSize + 7) / 8 * 8;
-		Alloc(nAllocSize);
-		memcpy(m_data, data, nNeed);
+		if (nNeed > 0)
+		{
+			int nAllocSize = (nSize + 7) / 8 * 8;
+			Alloc(nAllocSize);
+			memcpy(m_data, data, nNeed);
+		}
+		
 		m_nSize = nSize;
 
 		return true;

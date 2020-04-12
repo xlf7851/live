@@ -28,7 +28,7 @@ namespace xlf
 		void SetCapacity(int nSize);
 
 		virtual void WriteToBuffer(xlf::CBuffer& buf);
-		virtual bool ReadFromBuffer(const char* &data, int nLen);
+		virtual bool ReadFromBuffer(const char* &data, int& nLen);
 
 	protected:
 		void CheckAlloc(int nAddElemCount = 1);
