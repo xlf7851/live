@@ -10,6 +10,12 @@ int CFunctionCall::Call(const CFunctionCallItem& callinfo)
 		return function_call_error_name;
 	}
 
+	function_call_error_code errorCode = function_call_error_unknow;
+	if (CFunctinCallerManager::Instance()->FunctionCallHandle(strFuncName, callinfo, errorCode))
+	{
+		return errorCode;
+	}
+
 	if (_tcsicmp(strFuncName.c_str(), FUNCTION_CALL_CallName_SwitchPage) == 0)	// ÇÐ»»Ò³Ãæ
 	{
 		_tstring strXml = callinfo.GetParamValue(FUNCTION_CALL_PARAM_xmlres);

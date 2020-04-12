@@ -1,6 +1,5 @@
 #pragma once
 #include "stockDataTable.h"
-#include "stockDefine.h"
 #include "stockArray.h"
 
 class CBlockGroupTabContainerUI : public CHorizontalLayoutUI

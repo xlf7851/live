@@ -216,7 +216,6 @@
     <ClInclude Include="stock\stockdataFile.h" />
     <ClInclude Include="stock\stockDataPage.h" />
     <ClInclude Include="stock\stockDataTable.h" />
-    <ClInclude Include="stock\stockDefine.h" />
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>

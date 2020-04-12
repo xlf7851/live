@@ -36,10 +36,6 @@ LPCTSTR CMainWnd::GetWindowClassName() const
 
 void CMainWnd::InitWindow()
 {
-	auto gb = xlf::TSingleton<xlf::CGlobalData>::Instance();
-	gb->Init();
-	gb->SetHqDataIpcSrcHwnd(GetHWND());
-
 	CControlUI* pControl = m_pm.GetRoot();
 	if (pControl && _tcsicmp(pControl->GetClass(), _T("VerticalLayoutUI")) == 0)
 	{

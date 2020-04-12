@@ -2,35 +2,30 @@
 
 // 定义一些全局变量
 
-namespace stock_wrapper
+
+class CInitGlobalData
 {
-	class StockDataPool;
-}
+public:
+	// 初始化一些全局对象实例，不应有消耗大量时间的对象构造
+	static void InitGlobalInstance();
 
-namespace xlf
+	// 初始化工作，
+	static void DoWork();
+
+};
+
+class CGlobalData
 {
-	
-	class CGlobalData
-	{
-	public:
-		CGlobalData();
-		~CGlobalData();
+public:
+	CGlobalData();
+	~CGlobalData();
 
-		HWND GetHqDataIpcSrcHwnd() { return m_hHqDataIpcSrcHwnd; }
-		void SetHqDataIpcSrcHwnd(HWND hHwnd) { m_hHqDataIpcSrcHwnd = hHwnd; }
+	static CGlobalData* Instance();
 
-		HWND GetHqDataIpcDestHwnd() { return m_hHqDataIpcDestHwnd; }
-		void SetHqDataIpcDestHwnd(HWND hHwnd) { m_hHqDataIpcDestHwnd = hHwnd; }
+public:
+	void Init();
+	void DoGlobalFunction(LPCTSTR lpszFunc);
+protected:
 
-		
-	public:
-		void Init();
-		void DoGlobalFunction(LPCTSTR lpszFunc);
-	protected:
-		void DoSetHqDataIpcDestHwnd();
-	protected:
-		HWND m_hHqDataIpcSrcHwnd;		
-		HWND m_hHqDataIpcDestHwnd;
-		
-	};
-}
+
+};

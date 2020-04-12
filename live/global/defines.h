@@ -1,13 +1,16 @@
 #pragma once
 
-/* 自定义消息
-*/
+////////////////////////////////////////////////////////////////////////////////////////
+// begin 自定义消息
 #define UWM_BEGIN (WM_USER + 0x1234)
 #define UWM_SHOW_PAGE	(UWM_BEGIN + 0x0001)
 #define UWM_SKIN_CHANGED (UWM_BEGIN + 0x0002)
 #define UWM_HTTP_REVEIVE (UWM_BEGIN + 0X0003)
 #define UWM_BLOCK_ASK_RET	(UWM_BEGIN + 0x0004)
 
+
+////////////////////////////////////////////////////////////////////////////////////////
+// begin duilib control
 /* 控件自定义消息
 */
 
@@ -50,7 +53,8 @@
 #define DUI_CUSTOM_CTRL_INTERFACE_BlockGroupTabContainer	(_T("BlockGroupTabContainer"))
 #define DUI_CUSTOM_CTRL_INTERFACE_BlockList				(_T("BlockList"))
 
-
+////////////////////////////////////////////////////////////////////////////////////////
+// begin function call
 // 功能调用,XML中调用参数以a:b,c:d格式输入，解析成map
 #define FUNCTION_CALL_CallName						_T("functoncallname")
 #define FUNCTION_CALL_CallParam						_T("functioncallparam")
@@ -77,8 +81,9 @@ enum function_call_error_code
 };
 
 
-typedef xlf::CUnt32Array BlockIDArray;
 
+////////////////////////////////////////////////////////////////////////////////////////
+// begin binary file header
 // 通用的二进制文件头
 #pragma pack(1)
 struct _xlf_common_binary_file_header_t
@@ -97,3 +102,39 @@ struct _xlf_common_binary_file_header_t
 // 二进制文件头标志,统一使用4字节
 const char g_szBlockCacheFileFlag[4] = { 'X','L','F','A' };	// 板块缓存文件
 const char g_szBlockGroupFileFlag[4] = { 'X','L','F','B' };	// 板块分组文件
+
+
+
+////////////////////////////////////////////////////////////////////////////////////////
+// begin stock and block define 
+typedef xlf::CUnt32Array BlockIDArray;
+
+// block group id define
+#define BLOCK_GROUP_ID_SELF			0x0001
+#define BLOCK_GROUP_ID_STRATEGY 	0x0002
+#define BLOCK_GROUP_BEGIN			0x0010
+#define BLOCK_GROUP_END				0x8FFF
+
+
+// block id define
+#define BLOCK_ID_SELF_BEGIN			0x0001
+#define BLOCK_ID_SELF_END			0x8fff
+
+#define STOCK_CONFIG_ROOT_PATH				(_T("stock\\"))
+#define STOCK_CONFIG_BLOCK_CACHE_PATH		(_T("stock\\blockcache.dat"))
+#define STOCK_CONFIG_BLOCK_GROUP_PATH		(_T("stock\\blockgroup.dat"))
+
+
+struct _block_draw_item_it
+{
+	uint32 m_u32BlockID;
+	std::string m_strName;
+	int m_nStockCnt;
+	uint32 m_uParam;
+	_block_draw_item_it()
+	{
+		m_u32BlockID = 0;
+		m_uParam = 0;
+	}
+};
+

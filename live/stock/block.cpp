@@ -5,14 +5,13 @@
 #include "../base/buffer.h"
 #include <json.h>
 #include "../base/jsonutl.h"
-#include "stockDefine.h"
 
 namespace stock_wrapper
 {
 
 BlockCacheManager::BlockCacheManager()
 {
-
+	
 }
 
 BlockCacheManager::~BlockCacheManager()
@@ -372,7 +371,6 @@ bool BlockCacheManager::UpdateStock(uint32 dwBlockID, const StockArray& ayStock)
 		if (g_blockGroupManagerInstance == nullptr)
 		{
 			g_blockGroupManagerInstance = new BlockGroupManager;
-			g_blockGroupManagerInstance->Init();
 		}
 
 		return g_blockGroupManagerInstance;

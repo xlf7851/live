@@ -6,6 +6,7 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include "browser/browserModule.h"
+#include "global/globalData.h"
 
 
 
@@ -101,6 +102,11 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPSTR /*l
 
 	//curl初始化
 	curl_global_init(CURL_GLOBAL_ALL);
+
+	// 全局数据初始化
+	CInitGlobalData::InitGlobalInstance();
+
+	CInitGlobalData::DoWork();
 
 	//_TestOpenGL();
 	/*

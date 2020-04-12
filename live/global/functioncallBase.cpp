@@ -100,3 +100,36 @@ void CFunctionCallItem::ParseParam(LPCTSTR lpszParam)
 
 }
 
+CFunctinCallerManager* CFunctinCallerManager::Instance()
+{
+	static CFunctinCallerManager* s_instance = nullptr;
+	if (s_instance == nullptr)
+	{
+		s_instance = new CFunctinCallerManager;
+	}
+
+	return s_instance;
+}
+
+void CFunctinCallerManager::RegisterFunctionCaller(const _tstring& name, IFuntionCaller* caller)
+{
+	m_callerContainer[name] = caller;
+}
+
+void CFunctinCallerManager::UnregitserFunctinCaller(const _tstring& name)
+{
+	m_callerContainer.erase(name);
+}
+
+bool CFunctinCallerManager::FunctionCallHandle(const _tstring& funcName, const CFunctionCallItem& callParam, function_call_error_code& error)
+{
+	_dataContianer_t::iterator it = m_callerContainer.find(funcName);
+	if (it != m_callerContainer.end() && it->second)
+	{
+		error = it->second->FunctionCallHandle(funcName, callParam);
+		return true;
+	}
+
+	return false;
+}
+

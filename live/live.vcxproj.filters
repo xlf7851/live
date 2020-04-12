@@ -207,9 +207,6 @@
     <ClInclude Include="stock\stockdataFile.h">
       <Filter>stock</Filter>
     </ClInclude>
-    <ClInclude Include="stock\stockDefine.h">
-      <Filter>stock</Filter>
-    </ClInclude>
     <ClInclude Include="control\modifyTextDlg.h">
       <Filter>control</Filter>
     </ClInclude>
