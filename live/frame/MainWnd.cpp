@@ -36,6 +36,7 @@ LPCTSTR CMainWnd::GetWindowClassName() const
 
 void CMainWnd::InitWindow()
 {
+	
 	CControlUI* pControl = m_pm.GetRoot();
 	if (pControl && _tcsicmp(pControl->GetClass(), _T("VerticalLayoutUI")) == 0)
 	{
@@ -51,6 +52,9 @@ void CMainWnd::InitWindow()
 	InitToolbar();
 	InitBody();
 	StartPage();
+
+	// TIMER
+	::SetTimer(GetHWND(), TIMER_ID_WRITE_FILE_CACHE, 10000, nullptr);
 }
 
 void CMainWnd::Notify( TNotifyUI& msg )
@@ -187,6 +191,15 @@ LRESULT CMainWnd::HandleCustomMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, B
 		if (stock_wrapper::CHqDataQueryHandler::GetHqDataQueryHandler().OnCopyData(wParam, lParam))
 		{
 
+		}
+		break;
+	case WM_TIMER:
+		{
+			if (wParam == TIMER_ID_WRITE_FILE_CACHE)
+			{
+				bHandled = true;
+				CGlobalData::OnTimer(wParam);
+			}
 		}
 		break;
 	default:

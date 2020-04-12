@@ -11,7 +11,7 @@ namespace stock_wrapper
 
 BlockCacheManager::BlockCacheManager()
 {
-	
+	m_bModify = false;
 }
 
 BlockCacheManager::~BlockCacheManager()
@@ -52,7 +52,35 @@ void BlockCacheManager::Init(LPCTSTR lpszFilePath /* = nullptr */)
 		m_strFilePath += STOCK_CONFIG_BLOCK_CACHE_PATH;
 	}
 
+	xlf::MakeDir(m_strFilePath.c_str());
+
 	Build();
+}
+
+void BlockCacheManager::Save(LPCTSTR lpszFilePath /* = nullptr */)
+{
+	_tstring strPath;
+	if (lpszFilePath && lpszFilePath[0] != 0)
+	{
+		strPath = lpszFilePath;
+	}
+	else if (IsModify())
+	{
+		strPath = m_strFilePath;
+	}
+
+	if (strPath.empty())
+	{
+		return;
+	}
+
+	SetModify(false);
+	xlf::CBuffer buf;
+	WriteToBuffer(buf);
+	if (buf.GetSize() > 0)
+	{
+		xlf::WriteBufferToFile(buf, strPath.c_str());
+	}
 }
 
 void BlockCacheManager::Build()
@@ -73,53 +101,70 @@ void BlockCacheManager::Build()
 		return;
 	}
 
-	ReadFromBuffer((char*)buf.GetBuffer(), buf.GetSize());
+	
+	int len = buf.GetSize();
+	if (len > 0)
+	{
+		const char* p = (char*)buf.GetBuffer();
+		ReadFromBuffer(p, len);
+	}
+	
+
+	SetModify(false);
 }
 
 
-int BlockCacheManager::ReadFromBuffer(char* buf, int len)
+void BlockCacheManager::SetModify(bool bModify)
+{
+	m_bModify = bModify;
+}
+
+bool BlockCacheManager::IsModify()
+{
+	return m_bModify;
+}
+
+bool BlockCacheManager::ReadFromBuffer(const char* &buf, int& len)
 {
 	int nHeadSize = sizeof(_xlf_common_binary_file_header_t);
 	if (len < nHeadSize)
 	{
-		return 0;
+		return false;
 	}
 	_xlf_common_binary_file_header_t* header = (_xlf_common_binary_file_header_t*)buf;
 	
 	if (xlf::IsErrorXlfBinaryFileHeader(header, GET_XLF_BINARY_FILE_HEAD_FLAG(g_szBlockCacheFileFlag), len))
 	{
-		return 0;
+		return false;
 	}
 
 	len -= nHeadSize;
 	buf += nHeadSize;
-
-	int nTotal = nHeadSize;
 	
+	bool bRet = true;
 	while (len > 0)
 	{
 		BlockCacheItem* pNewItem = new BlockCacheItem;
-		int nRead = pNewItem->ReadFromBuffer(buf, len);
-		if (nRead == 0)
+		if (!pNewItem->ReadFromBuffer(buf, len))
 		{
+			bRet = false;
 			delete pNewItem;
 			break;
 		}
+		
 
 		m_data[pNewItem->GetBlockID()] = pNewItem;
-
-		nTotal += nRead;
 	}
 
-	return nTotal;
+	return bRet;
 }
 
-int BlockCacheManager::WriteToBuffer(xlf::CBuffer & buf)
+void BlockCacheManager::WriteToBuffer(xlf::CBuffer & buf)
 {
 	_xlf_common_binary_file_header_t header;
 	xlf::InitXlfBinaryFileHeader(&header, GET_XLF_BINARY_FILE_HEAD_FLAG(g_szBlockCacheFileFlag));
 	_xlf_common_binary_file_header_t* pHeaderInBuf = (_xlf_common_binary_file_header_t*)buf.Append(&header, sizeof(_xlf_common_binary_file_header_t));
-	int nOldSize = buf.GetSize();
+	
 	for (_data_container_t::iterator it = m_data.begin(); it != m_data.end(); it++)
 	{
 		BlockCacheItem* pItem = it->second;
@@ -128,12 +173,9 @@ int BlockCacheManager::WriteToBuffer(xlf::CBuffer & buf)
 			continue;
 		}
 
-		pItem->WriteToBuf(buf);
+		pItem->WriteToBuffer(buf);
 	}
 
-	pHeaderInBuf->m_ntotal += buf.GetSize() - nOldSize;
-
-	return pHeaderInBuf->m_ntotal;
 }
 
 uint32 BlockCacheManager::NewBlockID()
@@ -211,6 +253,8 @@ uint32 BlockCacheManager::NewBlock(const _tstring& name, const _tstring& query, 
 	}
 	pNew->SetBlockParam(uParam);
 	
+	SetModify(true);
+
 	return u32BlockID;
 }
 
@@ -232,6 +276,8 @@ bool BlockCacheManager::ModifyBlock(uint32 dwBlockID, const _tstring& name, cons
 		pFind->SetQuery(query);
 	}
 
+	SetModify(true);
+
 	return true;
 }
 
@@ -242,6 +288,7 @@ bool BlockCacheManager::DeleteBlock(uint32 dwBlockID)
 	{
 		m_data.erase(it);
 
+		SetModify(true);
 		return true;
 	}
 	return false;
@@ -301,48 +348,47 @@ bool BlockCacheManager::UpdateStock(uint32 dwBlockID, const StockArray& ayStock)
 	if (pFind)
 	{
 		pFind->SetStockArray(ayStock);
-		return TRUE;
+
+		SetModify(true);
+		return true;
 	}
 
-	return FALSE;
+	return false;
 }
 
 
 
-	int BlockGroup::ReadFromBuffer(const char* buf, int len)
+	bool BlockGroup::ReadFromBuffer(const char*& buf, int& len)
 	{
-		int nTotal = 0;
-		int nRead = xlf::ReadUInt32FromBuffer(buf, len, m_uGroupID);
-		if (nRead == 0)
+		if (!xlf::ReadUInt32FromBuffer(buf, len, m_uGroupID))
 		{
-			return 0;
+			return false;
 		}
-		nTotal += nRead;
-		nRead = xlf::ReadUInt32FromBuffer(buf, len, m_uOption);
-		if (nRead == 0)
+		
+		if (!xlf::ReadUInt32FromBuffer(buf, len, m_uOption))
 		{
-			return 0;
+			return false;
 		}
-		nTotal += nRead;
-		nRead = m_ayBlockID.ReadFromBuf(buf, len);
-		if (nRead == 0)
+		
+		if (!xlf::ReadStringFromBuffer(buf, len, m_strGroupName))
 		{
-			return 0;
+			return false;
 		}
-
-		nTotal += nRead;
-
-		return nTotal;
+		
+		if (!m_ayBlockID.ReadFromBuffer(buf, len))
+		{
+			return false;
+		}
+		
+		return true;
 	}
 
-	int BlockGroup::WriteToBuffer(xlf::CBuffer & buf)
+	void BlockGroup::WriteToBuffer(xlf::CBuffer & buf)
 	{
-		int old = buf.GetSize();
 		buf.AppendUInt32(m_uGroupID);
 		buf.AppendUInt32(m_uOption);
-		m_ayBlockID.WriteToBuf(buf);
-
-		return buf.GetSize() - old;
+		buf.AppendString(m_strGroupName);
+		m_ayBlockID.WriteToBuffer(buf);
 	}
 
 	BlockGroupManager::BlockGroupManager()
@@ -416,12 +462,29 @@ bool BlockCacheManager::UpdateStock(uint32 dwBlockID, const StockArray& ayStock)
 		xlf::CBuffer buf;
 		xlf::ReadBufferFromFile(buf, strPath.c_str());
 		
-		ReadFromBuffer((const char*)buf.GetBuffer(), buf.GetSize());
+		if (buf.GetSize() > 0)
+		{
+			int len = buf.GetSize();
+			const char* p = (char*)buf.GetBuffer();
+			ReadFromBuffer(p, len);
+		}
 
 		if (m_data.size() == 0)
 		{
 			CreateDefault();
 		}
+
+		SetModify(false);
+	}
+
+	void BlockGroupManager::SetModify(bool bModify)
+	{
+		m_bModify = bModify;
+	}
+
+	bool BlockGroupManager::IsModify()
+	{
+		return m_bModify;
 	}
 
 	void BlockGroupManager::Save(LPCTSTR lpszFilePath/* =nullptr */)
@@ -431,7 +494,7 @@ bool BlockCacheManager::UpdateStock(uint32 dwBlockID, const StockArray& ayStock)
 		{
 			strPath = lpszFilePath;
 		}
-		else
+		else if (IsModify())
 		{
 			strPath = m_strFilePath;
 		}
@@ -441,6 +504,8 @@ bool BlockCacheManager::UpdateStock(uint32 dwBlockID, const StockArray& ayStock)
 			return;
 		}
 
+		SetModify(false);
+
 		xlf::CBuffer buf;
 		WriteToBuffer(buf);
 
@@ -448,52 +513,50 @@ bool BlockCacheManager::UpdateStock(uint32 dwBlockID, const StockArray& ayStock)
 		{
 			xlf::WriteBufferToFile(buf, strPath.c_str());
 		}
+
 	}
 
-	int BlockGroupManager::ReadFromBuffer(const char* buf, int len)
+	bool BlockGroupManager::ReadFromBuffer(const char*& buf, int& len)
 	{
 		int nHeadSize = sizeof(_xlf_common_binary_file_header_t);
 		if (len < nHeadSize)
 		{
-			return 0;
+			return false;
 		}
 		_xlf_common_binary_file_header_t* header = (_xlf_common_binary_file_header_t*)buf;
 
 		if (xlf::IsErrorXlfBinaryFileHeader(header, GET_XLF_BINARY_FILE_HEAD_FLAG(g_szBlockGroupFileFlag), len))
 		{
-			return 0;
+			return false;
 		}
 
 		len -= nHeadSize;
 		buf += nHeadSize;
 
-		int nTotal = nHeadSize;
-
+		bool bRet = true;
 		while (len > 0)
 		{
 			BlockGroup* pNewItem = new BlockGroup;
-			int nRead = pNewItem->ReadFromBuffer(buf, len);
-			if (nRead == 0)
+			if (!pNewItem->ReadFromBuffer(buf, len))
 			{
+				bRet = false;
 				delete pNewItem;
 				break;
 			}
 
 			m_data.push_back(pNewItem);
-
-			nTotal += nRead;
 		}
 
-		return nTotal;
+		return bRet;
 	}
 
 
-	int BlockGroupManager::WriteToBuffer(xlf::CBuffer & buf)
+	void BlockGroupManager::WriteToBuffer(xlf::CBuffer & buf)
 	{
 		_xlf_common_binary_file_header_t header;
 		xlf::InitXlfBinaryFileHeader(&header, GET_XLF_BINARY_FILE_HEAD_FLAG(g_szBlockGroupFileFlag));
 		_xlf_common_binary_file_header_t* pHeaderInBuf = (_xlf_common_binary_file_header_t*)buf.Append(&header, sizeof(_xlf_common_binary_file_header_t));
-		int nOldSize = buf.GetSize();
+	
 		for (_dataIterator_t it = m_data.begin(); it != m_data.end(); it++)
 		{
 			BlockGroup *pItem = *it;
@@ -504,10 +567,6 @@ bool BlockCacheManager::UpdateStock(uint32 dwBlockID, const StockArray& ayStock)
 
 			pItem->WriteToBuffer(buf);
 		}
-
-		pHeaderInBuf->m_ntotal += buf.GetSize() - nOldSize;
-
-		return pHeaderInBuf->m_ntotal;
 	}
 
 	void BlockGroupManager::CreateDefault()
@@ -600,12 +659,6 @@ bool BlockCacheManager::UpdateStock(uint32 dwBlockID, const StockArray& ayStock)
 		}
 	}
 
-
-	void BlockGroupManager::GetBlockDrawItemListInfo(uint32 groupid, std::vector<_block_draw_item_it *>& vcDrawInfo)
-	{
-		
-	}
-
 	uint32 BlockGroupManager::AddGroup(const _tstring& strName, uint32 option)
 	{
 		uint32 groupid = NewGroupID();
@@ -623,6 +676,7 @@ bool BlockCacheManager::UpdateStock(uint32 dwBlockID, const StockArray& ayStock)
 		pNew->SetGroupOption(option);
 		pNew->SetGroupName(strName.c_str());
 
+		SetModify(true);
 		return groupid;
 	}
 
@@ -662,6 +716,7 @@ bool BlockCacheManager::UpdateStock(uint32 dwBlockID, const StockArray& ayStock)
 		if (pGroup)
 		{
 			pGroup->SetBlockArray(ayBlock);
+			SetModify(true);
 		}
 	}
 
@@ -671,6 +726,7 @@ bool BlockCacheManager::UpdateStock(uint32 dwBlockID, const StockArray& ayStock)
 		if (pGroup)
 		{
 			pGroup->AddBlock(uID);
+			SetModify(true);
 		}
 	}
 
@@ -680,6 +736,7 @@ bool BlockCacheManager::UpdateStock(uint32 dwBlockID, const StockArray& ayStock)
 		if (pGroup)
 		{
 			pGroup->DeleteBlock(uID);
+			SetModify(true);
 		}
 	}
 

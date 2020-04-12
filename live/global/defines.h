@@ -8,6 +8,9 @@
 #define UWM_HTTP_REVEIVE (UWM_BEGIN + 0X0003)
 #define UWM_BLOCK_ASK_RET	(UWM_BEGIN + 0x0004)
 
+////////////////////////////////////////////////////////////////////////////////////////
+// begin 主窗口定时器
+#define TIMER_ID_WRITE_FILE_CACHE 20200412
 
 ////////////////////////////////////////////////////////////////////////////////////////
 // begin duilib control
@@ -123,18 +126,4 @@ typedef xlf::CUnt32Array BlockIDArray;
 #define STOCK_CONFIG_ROOT_PATH				(_T("stock\\"))
 #define STOCK_CONFIG_BLOCK_CACHE_PATH		(_T("stock\\blockcache.dat"))
 #define STOCK_CONFIG_BLOCK_GROUP_PATH		(_T("stock\\blockgroup.dat"))
-
-
-struct _block_draw_item_it
-{
-	uint32 m_u32BlockID;
-	std::string m_strName;
-	int m_nStockCnt;
-	uint32 m_uParam;
-	_block_draw_item_it()
-	{
-		m_u32BlockID = 0;
-		m_uParam = 0;
-	}
-};
 

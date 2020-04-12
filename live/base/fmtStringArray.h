@@ -27,6 +27,9 @@ namespace xlf
 		bool Empty();
 		void SetCapacity(int nSize);
 
+		virtual void WriteToBuffer(xlf::CBuffer& buf);
+		virtual bool ReadFromBuffer(const char* &data, int nLen);
+
 	protected:
 		void CheckAlloc(int nAddElemCount = 1);
 		void Alloc(int nSize);
@@ -38,7 +41,7 @@ namespace xlf
 	protected:
 		TCHAR* m_data;
 		int	 m_nSize;				// 数组大小
-		int	   m_nAlloc;			// 分配的元素个数
+		int	 m_nAlloc;			// 分配的元素个数
 			
 		int m_nAddCount;			// 每次分配增加的个数
 		int m_nElemSize;			// 每个元素的大小

@@ -51,6 +51,16 @@ CGlobalData* CGlobalData::Instance()
 	return g_instance;
 }
 
+void CGlobalData::OnTimer(UINT uEventID)
+{
+	if (uEventID == TIMER_ID_WRITE_FILE_CACHE)
+	{
+		stock_wrapper::BlockCacheManager::Instance()->Save();
+		stock_wrapper::BlockGroupManager::Instance()->Save();
+	}
+	
+}
+
 
 void CGlobalData::Init()
 {

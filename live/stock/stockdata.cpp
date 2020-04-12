@@ -16,7 +16,7 @@ namespace stock_wrapper
 		int nSize = GetSize();
 		if (nSize > 0)
 		{
-			_day_data_item_t* pData = GetAt(nSize - 1);
+			_day_data_item_t* pData = GetPtr(nSize - 1);
 			if (pData)
 			{
 				lDate = pData->m_lDate;
@@ -32,7 +32,7 @@ namespace stock_wrapper
 		int nSize = GetSize();
 		if (nSize > 0)
 		{
-			_day_data_item_t* pData = GetAt(0);
+			_day_data_item_t* pData = GetPtr(0);
 			if (pData)
 			{
 				lDate = pData->m_lDate;
@@ -63,14 +63,14 @@ namespace stock_wrapper
 		return GetSize();
 	}
 
-	int DayDataArray::ReadStockDataFromBuf(const char* buf, int len)
+	bool DayDataArray::ReadStockDataFromBuf(const char*& buf, int& len)
 	{
-		return ReadFromBuf(buf, len);
+		return ReadFromBuffer(buf, len);
 	}
 
-	int DayDataArray::WriteStockDataToBuf(xlf::CBuffer& buf)
+	void DayDataArray::WriteStockDataToBuf(xlf::CBuffer& buf)
 	{
-		return WriteToBuf(buf);
+		WriteToBuffer(buf);
 	}
 
 	void DayDataArray::ClearStockDataArray()
@@ -111,10 +111,6 @@ namespace stock_wrapper
 		return nullptr;
 	}
 
-
-
-
-
 	static int _compareFenshiByDate(const void* src, const void* dst)
 	{
 		_minute_data_node_t* f = (_minute_data_node_t*)src;
@@ -132,7 +128,7 @@ namespace stock_wrapper
 		int nSize = GetSize();
 		for (int i = 0; i < nSize; i++)
 		{
-			_minute_data_node_t* pItem = GetAt(i);
+			_minute_data_node_t* pItem = GetPtr(i);
 			if (pItem->m_lDate = lDate)
 			{
 				return pItem;
@@ -147,14 +143,14 @@ namespace stock_wrapper
 		return GetSize();
 	}
 
-	int MinuteDataArray::ReadStockDataFromBuf(const char* buf, int len)
+	bool MinuteDataArray::ReadStockDataFromBuf(const char* &buf, int& len)
 	{
-		return ReadFromBuf(buf, len);
+		return ReadFromBuffer(buf, len);
 	}
 
-	int MinuteDataArray::WriteStockDataToBuf(xlf::CBuffer& buf)
+	void MinuteDataArray::WriteStockDataToBuf(xlf::CBuffer& buf)
 	{
-		return WriteToBuf(buf);
+		WriteToBuffer(buf);
 	}
 
 	void MinuteDataArray::ClearStockDataArray()
@@ -428,7 +424,8 @@ namespace stock_wrapper
 		IStockDataArray* pArray = StockDataPool::Instance()->GetStockDataArray(code, uDataType, true);
 		if (pArray)
 		{
-			nRead = pArray->ReadStockDataFromBuf((char*)buf, len);
+			const char* p = buf;
+			nRead = pArray->ReadStockDataFromBuf(p, len);
 		}
 
 		return nRead > 0;

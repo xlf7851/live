@@ -20,6 +20,8 @@ public:
 	CGlobalData();
 	~CGlobalData();
 
+	static void OnTimer(UINT uEventID);
+
 	static CGlobalData* Instance();
 
 public:

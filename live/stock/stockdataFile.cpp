@@ -137,10 +137,10 @@ namespace stock_wrapper
 			return;
 		}
 
-		unsigned char* pBuf = buf.GetBuffer();
+		const char* pBuf = (char*)buf.GetBuffer();
 		int len = buf.GetSize();
 		_tstring str;
-		int nRead = _ReadString(pBuf, len, str);
+		int nRead = _ReadString((unsigned const char*)pBuf, len, str);
 		if (nRead <= 0)
 		{
 			return;
@@ -149,7 +149,7 @@ namespace stock_wrapper
 		pBuf += nRead;
 		len -= nRead;
 
-		ReadFromBuf((const char*)pBuf, len);
+		ReadFromBuffer(pBuf, len);
 	}
 
 	void TradeDate::Write()
@@ -167,7 +167,7 @@ namespace stock_wrapper
 		strFlag += sz;
 		buf.Append(strFlag.c_str(), strFlag.size());
 		_AppendZero(buf);
-		WriteToBuf(buf);
+		WriteToBuffer(buf);
 
 		xlf::WriteBufferToFile(buf, m_strFilePath.c_str());
 

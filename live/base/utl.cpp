@@ -599,79 +599,98 @@ namespace xlf
 		_FindDirAllFile(lpszDir, vcFile, false);
 	}
 
-	void MakeDir(LPCTSTR lpszDir)
+	static void _MkDir(LPCTSTR lpszDir)
 	{
-		if (!(GetFileAttributes(lpszDir) & FILE_ATTRIBUTE_DIRECTORY))
+		DWORD dwRet = GetFileAttributes(lpszDir);
+		if (INVALID_FILE_ATTRIBUTES == dwRet || !(dwRet & FILE_ATTRIBUTE_DIRECTORY))
 		{
 			CreateDirectory(lpszDir, NULL);
 		}
 	}
 
+	inline static bool _IsDirChar(TCHAR c)
+	{
+		return c == _T('\\') || c == _T('/');
+	}
 
-	int ReadUInt32FromBuffer(const char* & data, int& len, uint32& ret)
+	void MakeDir(LPCTSTR lpszDir)
+	{
+		if (lpszDir == nullptr || lpszDir[0] == 0)
+		{
+			return;
+		}
+		int i = 0;
+		char* p = (char*)lpszDir;
+		while (p[i] != 0)
+		{
+			if (_IsDirChar(p[i]))
+			{
+				p[i] = 0;
+				_MkDir(lpszDir);
+				p[i] = _T('\\');
+			}
+			i++;
+		}
+		
+	}
+
+	bool ReadUInt16FromBuffer(const char*& data, int& len, uint16& ret)
+	{
+		int nRead = sizeof(uint16);
+		if (len < nRead)
+		{
+			return false;
+		}
+
+		ret = *((uint16*)data);
+
+		data += nRead;
+		len -= nRead;
+
+		return false;
+	}
+
+	bool ReadUInt32FromBuffer(const char*& data, int& len, uint32& ret)
 	{
 		int nRead = sizeof(uint32);
 		if (len < nRead)
 		{
-			return 0;
+			return false;
 		}
 
 		ret = *((uint32*)data);
-		data += len + nRead;
+
+		data += nRead;
 		len -= nRead;
 
-		return nRead;
+		return false;
 	}
 
-	// 返回读取的字节长度，包括字符串结束符，如果没有结束符，str为空，返回值为size
-	int ReadStringFromBuffer(const char*& data, int& len, _tstring& str)
-	{
-		str.clear();
-		int i = 0;
-		const TCHAR* p = (const TCHAR*)data;
-		while (i < len)
-		{
-			if (p[i] == 0)
-			{
-				int l = i / sizeof(TCHAR);
-				if (l > 0)
-				{
-					str.assign(p, l);
-				}
-				
-				i += sizeof(TCHAR);
-				break;
-			}
-			i += sizeof(TCHAR);
-		}
-		data += i;
-		len -= i;
-
-		return i;
-	}
-
-	int ReadStringFromBufferEx(const char*& data, int& len, _tstring& str)
+	bool ReadStringFromBuffer(const char*& data, int& len, _tstring& str)
 	{
 		str.clear();
 		uint32 n = 0;
 		int nRead = ReadUInt32FromBuffer(data, len, n);
 		if (nRead <= 0 || n > len)
 		{
-			return 0;
+			return false;
 		}
-		nRead += n;
+
+		const TCHAR* p = (const TCHAR*)data;
+		len -= n;
+		data += n;
+		
 		if (n > 0)
 		{
-			const TCHAR* p = (const TCHAR*)data;
 			n = n / sizeof(TCHAR);
-			if (p[n] == 0)
+			if (p[n-1] == 0)
 			{
 				n--;
 			}
 			str.assign(p, n);
 		}
 
-		return nRead;
+		return true;
 	}
 
 	void InitXlfBinaryFileHeader(_xlf_common_binary_file_header_t* header, uint32 flag, int version /* = 0 */, int nHeadSize /* = 0 */)

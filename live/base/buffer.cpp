@@ -102,25 +102,20 @@ namespace xlf
 		Append(sz, sizeof(TCHAR));
 	}
 
+	void CBuffer::AppendUInt16(uint16 val)
+	{
+		Append(&val, sizeof(uint16));
+	}
+
 	void CBuffer::AppendUInt32(uint32 val)
 	{
 		Append(&val, sizeof(uint32));
 	}
 
-	void CBuffer::AppendString(const _tstring& str)
-	{
-		if (str.size() > 0)
-		{
-			Append(str.c_str(), str.size() * sizeof(TCHAR));
-		}
-
-		AppendNullChar();
-	}
-
-	void CBuffer::AppendStringEx(const _tstring& str, bool bAppendNull)
+	void CBuffer::AppendString(const _tstring& str, bool bAppendNull)
 	{
 		uint32 size = str.size()*sizeof(TCHAR);
-		AppendUInt32(bAppendNull ? size : size + sizeof(TCHAR));
+		AppendUInt32(bAppendNull ? size + sizeof(TCHAR) : size);
 		if (size > 0)
 		{
 			Append(str.c_str(), size * sizeof(TCHAR));
@@ -130,5 +125,15 @@ namespace xlf
 		{
 			AppendNullChar();
 		}
+	}
+
+	void CBuffer::AppendString2(const _tstring& str)
+	{
+		if (str.size() > 0)
+		{
+			Append(str.c_str(), str.size() * sizeof(TCHAR));
+		}
+
+		AppendNullChar();
 	}
 }

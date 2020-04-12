@@ -159,11 +159,6 @@ namespace xlf {
 
 	int FmtStringArray::GetDataBufferSize()
 	{
-		if (nullptr == m_data || m_nSize <= 0)
-		{
-			return 0;
-		}
-
 		return m_nSize * m_nElemSize * sizeof(TCHAR);
 	}
 
@@ -193,4 +188,68 @@ namespace xlf {
 			memcpy(m_data, src.m_data, sizeof(TCHAR) * m_nSize * m_nElemSize);
 		}
 	}
+
+	void FmtStringArray::WriteToBuffer(xlf::CBuffer& buf)
+	{
+		if (m_nElemSize <= 0)
+		{
+			return;
+		}
+		// 每个元素的字符串长度
+		uint16 val = m_nElemSize;
+		buf.AppendUInt16(val);
+
+		// 数组的长度
+		val = m_nSize;
+		buf.AppendUInt16(val);
+
+		if (val > 0)
+		{
+			TCHAR* pBuf = GetDataBuffer();
+			buf.Append((unsigned char*)pBuf, GetDataBufferSize());
+		}
+	}
+
+	bool FmtStringArray::ReadFromBuffer(const char* &data, int nLen)
+	{
+		if (m_nElemSize <= 0)
+		{
+			return false;
+		}
+
+		Clear();
+
+		uint16 elemSize = 0;
+		if (!ReadUInt16FromBuffer(data, nLen, elemSize))
+		{
+			return false;
+		}
+
+		if (elemSize != m_nElemSize)
+		{
+			return false;
+		}
+
+		uint16 nSize = 0;
+		if (!ReadUInt16FromBuffer(data, nLen, nSize))
+		{
+			return false;
+		}
+
+		int nNeed = nSize * m_nElemSize * sizeof(TCHAR);
+		if (nNeed > nLen)
+		{
+			return false;
+		}
+
+		// copy
+		int nAllocSize = (nSize + 7) / 8 * 8;
+		Alloc(nAllocSize);
+		memcpy(m_data, data, nNeed);
+		m_nSize = nSize;
+
+		return true;
+
+	}
+
 }

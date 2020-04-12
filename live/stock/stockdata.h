@@ -60,8 +60,8 @@ namespace stock_wrapper
 	{
 	public:
 		virtual int GetStockDataSize() = 0;
-		virtual int ReadStockDataFromBuf(const char* buf, int len) = 0;
-		virtual int WriteStockDataToBuf(xlf::CBuffer& buf) = 0;
+		virtual bool ReadStockDataFromBuf(const char*& buf, int& len) = 0;
+		virtual void WriteStockDataToBuf(xlf::CBuffer& buf) = 0;
 		virtual void ClearStockDataArray() = 0;
 		virtual void AppendStockDataArray(const IStockDataArray* pArray) = 0;
 		virtual void CloneStockDataArray(const IStockDataArray* pArray) = 0;
@@ -80,8 +80,8 @@ namespace stock_wrapper
 		void SortByDate();
 
 		virtual int GetStockDataSize();
-		virtual int ReadStockDataFromBuf(const char* buf, int len);
-		virtual int WriteStockDataToBuf(xlf::CBuffer& buf);
+		virtual bool ReadStockDataFromBuf(const char*& buf, int& len);
+		virtual void WriteStockDataToBuf(xlf::CBuffer& buf);
 		virtual void ClearStockDataArray();
 		virtual void AppendStockDataArray(const IStockDataArray* pArray);
 		virtual void CloneStockDataArray(const IStockDataArray* pArray);
@@ -98,8 +98,8 @@ namespace stock_wrapper
 		_minute_data_node_t* FindByDate(long lDate);
 
 		virtual int GetStockDataSize();
-		virtual int ReadStockDataFromBuf(const char* buf, int len);
-		virtual int WriteStockDataToBuf(xlf::CBuffer& buf);
+		virtual bool ReadStockDataFromBuf(const char*& buf, int& len);
+		virtual void WriteStockDataToBuf(xlf::CBuffer& buf);
 		virtual void ClearStockDataArray();
 		virtual void AppendStockDataArray(const IStockDataArray* pArray);
 		virtual void CloneStockDataArray(const IStockDataArray* pArray);

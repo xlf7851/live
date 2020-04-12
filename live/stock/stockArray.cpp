@@ -190,55 +190,14 @@ namespace stock_wrapper
 		}
 	}
 
-	void StockArray::WriteToBuf(xlf::CBuffer& buf)
+	void StockArray::WriteToBuffer(xlf::CBuffer& buf)
 	{
-		// 前2个字节表示字节数
-		unsigned short sLen = GetDataBufferSize();
-		buf.Append((unsigned char*)&sLen, sizeof(unsigned short));
-		if (sLen > 0)
-		{
-			TCHAR* pBuf = GetDataBuffer();
-			buf.Append((unsigned char*)pBuf, sLen);
-		}
+		return xlf::FmtStringArray::WriteToBuffer(buf);
 	}
 
-	int StockArray::ReadFromBuf(const char* data, int nLen)
+	bool StockArray::ReadFromBuffer(const char* &data, int nLen)
 	{
-		Clear();
-		if (data == nullptr || nLen < sizeof(unsigned short))
-		{
-			return 0;
-		}
-
-		int nReadLen = sizeof(unsigned short);
-		unsigned short slen = *((unsigned short*)data);
-		if (slen == 0)
-		{
-			return 0;
-		}
-
-		if (nLen - nReadLen < slen) // 字节不够，数据错误
-		{
-			return 0;
-		}
-
-		nReadLen += slen;
-		// 检查是否是整数倍
-		int nElemBufferSize = m_nElemSize * sizeof(TCHAR);
-		if (slen % nElemBufferSize != 0)
-		{
-			return 0;
-		}
-
-		// copy
-		int nSize = slen / nElemBufferSize;
-		int nAllocSize = (nSize + 7) / 8 * 8;
-		Alloc(nAllocSize);
-		memcpy(m_data, data + sizeof(unsigned short), slen);
-		m_nSize = nSize;
-
-		return nReadLen;
-		
+		return xlf::FmtStringArray::ReadFromBuffer(data, nLen);
 	}
 
 	int _Compare(const void* src,const void* dst)

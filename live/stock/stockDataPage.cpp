@@ -77,15 +77,26 @@ void CBlockGroupTabContainerUI::SelectedGroup(uint32 id)
 	}
 }
 
+CBlockListItemUI::CBlockListItemUI()
+{
+	m_uBlockID = 0;
+}
+
 void CBlockListItemUI::DoEvent(TEventUI& event)
 {
 	CListLabelElementUI::DoEvent(event);
 }
 
-void CBlockListItemUI::InitBlockInfo(const _block_draw_item_it& item)
+void CBlockListItemUI::SetBlockID(uint32 uid)
 {
-	m_blockInfo = item;
-	SetText(m_blockInfo.m_strName.c_str());
+	m_uBlockID = uid;
+}
+
+void CBlockListItemUI::InitControl()
+{
+	_tstring strName;
+	stock_wrapper::BlockCacheManager::Instance()->QueryBlock(m_uBlockID, &strName);
+	SetText(strName.c_str());
 }
 
 
@@ -124,35 +135,20 @@ void CBlockListUI::BuildList(uint32 uGroupID)
 {
 	m_uGroupID = uGroupID;
 	ClearList();
-	std::vector<_block_draw_item_it*> vcDrawItem;
-	stock_wrapper::BlockGroupManager::Instance()->GetBlockDrawItemListInfo(m_uGroupID, vcDrawItem);
-	for (int i = 0; i < vcDrawItem.size(); i++)
+	BlockIDArray ayBlock;
+	stock_wrapper::BlockGroupManager::Instance()->GetBlockArray(m_uGroupID, ayBlock);
+	for (int i = 0; i < ayBlock.GetSize(); i++)
 	{
-		_block_draw_item_it* pItem = vcDrawItem[i];
-		AddBlock(pItem);
-		delete pItem;
+		AddBlock(ayBlock[i]);
 	}
 }
 
-void CBlockListUI::AddBlock(_block_draw_item_it* pItem)
+void CBlockListUI::AddBlock(uint32 uid)
 {
-	if (nullptr == pItem)
-	{
-		return;
-	}
 	CBlockListItemUI* pControl = new CBlockListItemUI;
-	pControl->InitBlockInfo(*pItem);
+	pControl->SetBlockID(uid);
+	pControl->InitControl();
 	Add(pControl);
-}
-
-void CBlockListUI::AddBlock(uint32 uid, LPCTSTR lpszName, uint32 uParam, int nCnt)
-{
-	_block_draw_item_it drawItem;
-	drawItem.m_u32BlockID = uid;
-	drawItem.m_uParam = uParam;
-	drawItem.m_nStockCnt = nCnt;
-	drawItem.m_strName = lpszName;
-	AddBlock(&drawItem);
 }
 
 
@@ -315,9 +311,11 @@ void CStockDataPageUI::DoNewBlock(LPCTSTR lpszName)
 		return;
 	}
 
+	stock_wrapper::BlockGroupManager::Instance()->AddBlock(m_uCurrentBlockGroupID, uid);
+
 	if (m_pBlockList)
 	{
-		m_pBlockList->AddBlock(uid, lpszName);
+		m_pBlockList->AddBlock(uid);
 	}
 
 }

@@ -34,20 +34,35 @@ namespace xlf
 			return *this;
 		}
 
+		_Type& operator[](int index)
+		{
+			return GetAt(index);
+		}
+
+		const _Type& operator[](int index) const
+		{
+			return GetAt(index);
+		}
+
 	public:
 		_Type* Add(const _Type& obj)
 		{
 			CheckAlloc(1);
-			_Type* pData = GetAt(m_nSize);
+			_Type* pData = GetPtr(m_nSize);
 			memcpy(pData, &obj, GetElemSize());
 			m_nSize++;
 
 			return pData;
 		}
 
-		_Type* GetAt(int nIndex) const
+		_Type& GetAt(int nIndex)
 		{
-			return m_data + nIndex;
+			return m_data[nIndex];
+		}
+
+		const _Type& GetAt(int nIndex) const
+		{
+			return m_data[nIndex];
 		}
 
 		bool RemoveAt(int index)
@@ -111,73 +126,63 @@ namespace xlf
 			}
 		}
 
-		int WriteToBuf(CBuffer& buf)
+		virtual void WriteToBuffer(CBuffer& buf)
 		{
-			int len = 0;
 			// 元素的大小
 			int nElem = GetElemSize();
 			buf.Append((unsigned char*)&nElem, sizeof(int));
-			len += sizeof(int);
 
 			// 数组长度
-			len += m_nSize;
 			buf.Append((unsigned char*)&m_nSize, sizeof(int));
-			len += sizeof(int);
-
+			
 			// 数据部分
 			if (m_nSize > 0)
 			{
-				int nDatalen = m_nSize * GetElemSize();
-				buf.Append((unsigned char*)m_data, nDatalen);
-				len += nDatalen;
+				buf.Append((unsigned char*)m_data, m_nSize * GetElemSize());
 			}
-
-
-			return len;
 		}
 
-		int ReadFromBuf(const char* buf, int len)
+		virtual bool ReadFromBuffer(const char*& buf, int& len)
 		{
-			int nReadLen = 0;
 			if (buf == nullptr || len < sizeof(int))
 			{
-				return 0;
+				return false;
 			}
 
 			// 元素的大小
 			int nElem = *((int*)buf);
 			if (nElem != GetElemSize())
 			{
-				return 0;
+				return false;
 			}
-			nReadLen += sizeof(int);
 			buf += sizeof(int);
 			len -= sizeof(int);
 
 			if (len < sizeof(int))
 			{
-				return 0;
+				return false;
 			}
 			// 数组的大小
 			int nArrayLen = *((int*)buf);
-			nReadLen += sizeof(int);
 			len -= sizeof(int);
 			buf += sizeof(int);
 
-			if (nArrayLen * nElem > len)
+			int nDataLen = nArrayLen * nElem;
+			if (nDataLen > len)
 			{
-				return 0;
+				return false;
 			}
 
 			// 数据部分
 			if (nArrayLen > 0)
 			{
 				Append((const _Type*)(buf), nArrayLen);
-			}
-			
-			nReadLen += nArrayLen * nElem;
 
-			return nReadLen;
+				len -= nDataLen;
+				buf += nDataLen;
+			}
+
+			return true;
 		}
 
 		void Append(const _Type* obj, int len)
@@ -188,7 +193,7 @@ namespace xlf
 			}
 
 			CheckAlloc(len);
-			_Type* pLast = GetAt(m_nSize);
+			_Type* pLast = GetPtr(m_nSize);
 			memcpy(pLast, obj, len * GetElemSize());
 			m_nSize += len;
 		}
@@ -252,6 +257,12 @@ namespace xlf
 		{
 			return sizeof(_Type);
 		}
+
+		_Type* GetPtr(int index) const
+		{
+			return m_data + index;
+		}
+		
 
 	protected:
 		_Type* m_data;

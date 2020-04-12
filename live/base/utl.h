@@ -56,10 +56,10 @@ namespace xlf
 	void FindDirAllDir(LPCTSTR lpszDir, std::vector<_tstring>& vcFile);
 	void MakeDir(LPCTSTR lpszDir);
 
-	int ReadUInt32FromBuffer(const char* & data, int& len, uint32& ret);
+	bool ReadUInt16FromBuffer(const char* & data, int& len, uint16& ret);
+	bool ReadUInt32FromBuffer(const char* & data, int& len, uint32& ret);
 	// 返回读取的字节长度，包括字符串结束符，如果没有结束符，str为空，返回值为size
-	int ReadStringFromBuffer(const char*& data, int& len, _tstring& str);
-	int ReadStringFromBufferEx(const char*& data, int& len, _tstring& str);
+	bool ReadStringFromBuffer(const char*& data, int& len, _tstring& str);
 
 	void InitXlfBinaryFileHeader(_xlf_common_binary_file_header_t* header, uint32 flag, int version = 0, int nHeadSize = 0);
 	bool IsErrorXlfBinaryFileHeader(_xlf_common_binary_file_header_t* header, uint32 flag, int total, int version = 0, int nHeadSize = 0);

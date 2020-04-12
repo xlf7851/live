@@ -281,43 +281,35 @@ public:
 		m_strQuery.clear();
 	}
 
-	int ReadFromBuffer(const char* buf, int len)
+	bool ReadFromBuffer(const char*& buf, int& len)
 	{
 		Clear();
-		int nReadLen = xlf::ReadUInt32FromBuffer(buf, len, m_u32BlockID);
-		if (nReadLen == 0)
+		if (!xlf::ReadUInt32FromBuffer(buf, len, m_u32BlockID))
 		{
-			return 0;
+			return false;
 		}
 	
-		int nRead = xlf::ReadUInt32FromBuffer(buf, len, m_uParam);
-		if (nRead == 0)
+		if (!xlf::ReadUInt32FromBuffer(buf, len, m_uParam))
 		{
-			return 0;
+			return false;
 		}
-		nReadLen += nRead;
-
+	
 		// name
-		nRead = xlf::ReadStringFromBufferEx(buf, len, m_strName);
-		if (nRead == 0)
+		if (!xlf::ReadStringFromBuffer(buf, len, m_strName))
 		{
-			return 0;
+			return false;
 		}
-		nReadLen += nRead;
-
 
 		//query
-		nRead = xlf::ReadStringFromBufferEx(buf, len, m_strQuery);
-		if (nRead == 0)
+		if (!xlf::ReadStringFromBuffer(buf, len, m_strQuery))
 		{
-			return 0;
+			return false;
 		}
-		nReadLen += nRead;
-	
-		return nReadLen;
+		
+		return true;
 	}
 
-	void WriteToBuf(xlf::CBuffer& buf)
+	void WriteToBuffer(xlf::CBuffer& buf)
 	{
 		// 前4个字节是id
 		buf.AppendUInt32(m_u32BlockID);
@@ -326,10 +318,10 @@ public:
 		buf.AppendUInt32(m_uParam);
 
 		// 名称
-		buf.AppendStringEx(m_strName);
+		buf.AppendString(m_strName);
 
 		// 问句
-		buf.AppendStringEx(m_strQuery);
+		buf.AppendString(m_strQuery);
 	}
 
 	uint32 GetBlockID() const
@@ -400,31 +392,26 @@ public:
 		m_ayCode.ClearStockCode();
 	}
 
-	int ReadFromBuffer(const char* buf, int len)
+	bool ReadFromBuffer(const char*& buf, int& len)
 	{
 		Clear();
-		int nReadLen = m_property.ReadFromBuffer(buf, len);
-		if (nReadLen == 0)
+		if (!m_property.ReadFromBuffer(buf, len))
 		{
-			return 0;
+			return false;
 		}
 
-		buf += nReadLen;
-		len -= nReadLen;
-		nReadLen += m_ayCode.ReadFromBuf(buf, len);
-		
-		return nReadLen;
+		return m_ayCode.ReadFromBuffer(buf, len);
 	}
 
-	void WriteToBuf(xlf::CBuffer& buf)
+	void WriteToBuffer(xlf::CBuffer& buf)
 	{
 		if (m_property.GetBlockID() == 0)
 		{
 			return;
 		}
 
-		m_property.WriteToBuf(buf);
-		m_ayCode.WriteToBuf(buf);
+		m_property.WriteToBuffer(buf);
+		m_ayCode.WriteToBuffer(buf);
 	}
 
 	uint32 GetBlockID() const
@@ -515,14 +502,16 @@ public:
 
 	static BlockCacheManager* Instance();
 
-	
-
 	void Release();
 	void Init(LPCTSTR lpszFilePath = nullptr);
+	void Save(LPCTSTR lpszFilePath = nullptr);
 	void Build();
 
-	
-	BlockCacheItem* FindBlockItem(uint32 uid);
+	bool ReadFromBuffer(const char* &buf, int& len);
+	void WriteToBuffer(xlf::CBuffer & buf);
+
+	bool IsModify();
+
 
 	uint32 NewBlock(const _tstring& name, const _tstring& query = _tstring(_T("")), uint32 uParam = 0);
 	bool ModifyBlock(uint32 dwBlockID, const _tstring& name, const _tstring& query = _tstring(_T("")));
@@ -533,17 +522,19 @@ public:
 	bool UpdateStock(uint32 dwBlockID, const StockArray& ayStock);
 
 protected:
-	int ReadFromBuffer(char* buf, int len);
-	int WriteToBuffer(xlf::CBuffer & buf);
+	BlockCacheItem* FindBlockItem(uint32 uid);
 	BlockCacheItem* _FindBlockCacheItem(uint32 uid, bool bNew = false);
 	BlockCacheItem* _AddBlockCacheItem(uint32 uid);
 	uint32 NewBlockID();
 
+	void SetModify(bool bModify);
 
 
 protected:
 	_data_container_t m_data;
 	_tstring m_strFilePath;
+
+	bool m_bModify;
 };
 
 
@@ -575,8 +566,8 @@ public:
 
 	}
 
-	int ReadFromBuffer(const char* buf, int len);
-	int WriteToBuffer(xlf::CBuffer & buf);
+	bool ReadFromBuffer(const char*& buf, int& len);
+	void WriteToBuffer(xlf::CBuffer & buf);
 
 	uint32 GetGroupID() const
 	{
@@ -655,16 +646,16 @@ protected:
 
 		void Load(LPCTSTR lpszFilePath = nullptr);
 		void Save(LPCTSTR lpszFilePath=nullptr);
-		int ReadFromBuffer(const char* buf, int len);
-		int WriteToBuffer(xlf::CBuffer & buf);
+		bool ReadFromBuffer(const char* &buf, int& len);
+		void WriteToBuffer(xlf::CBuffer & buf);
 
 		static BlockGroupManager* Instance();
 
 		void Init(LPCTSTR lpszFilePath = nullptr);
 		void Release();
+		bool IsModify();
 
 		void GetAllBlockGroupIDAndName(std::vector<uint32>& vcGroup, std::vector<_tstring>& vcName);
-		void GetBlockDrawItemListInfo(uint32 groupid, std::vector<_block_draw_item_it*>& vcDrawInfo);
 
 		uint32 AddGroup(const _tstring& strName, uint32 option = 0);
 		bool QueryGroup(uint32 groupid, _tstring* name, BlockIDArray* ayid = nullptr, uint32* option = nullptr);
@@ -674,15 +665,15 @@ protected:
 		void DeleteBlock(uint32 groupid, uint32 uID);
 		
 	protected:
-		
 		void CreateDefault();
 		BlockGroup* FindGroup(uint32 groupid, bool bNew = false);
 		BlockGroup* NewGroup(uint32 groupid);
 		uint32 NewGroupID();
+		void SetModify(bool bModify);
 
 	protected:
 		std::string m_strFilePath;
 		_dataContainer_t m_data;
-
+		bool m_bModify;
 	};
 }

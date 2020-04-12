@@ -23,12 +23,15 @@ protected:
 class CBlockListItemUI : public CListLabelElementUI
 {
 public:
+	CBlockListItemUI();
+
 	void DoEvent(TEventUI& event);
 
-	void InitBlockInfo(const _block_draw_item_it& item);
+	void SetBlockID(uint32 uid);
+	void InitControl();
 
 protected:
-	_block_draw_item_it m_blockInfo;
+	uint32 m_uBlockID;
 };
 
 
@@ -45,8 +48,7 @@ public:
 	void BuildList(uint32 uGroupID);
 	void ClearList();
 
-	void AddBlock(_block_draw_item_it* pItem);
-	void AddBlock(uint32 uid, LPCTSTR lpszName, uint32 uParam = 0, int nCnt = 0);
+	void AddBlock(uint32 uid);
 
 protected:
 	uint32 m_uGroupID;

@@ -223,8 +223,8 @@ namespace stock_wrapper {
 
 		void FromString(LPCTSTR lpszCodes, int nLen, TCHAR ch = _T(','));
 		void ToString(_tstring& strCodes, TCHAR c = _T(','));
-		void WriteToBuf(xlf::CBuffer& buf);
-		int ReadFromBuf(const char* data, int nLen);
+		void WriteToBuffer(xlf::CBuffer& buf);
+		bool ReadFromBuffer(const char* &data, int nLen);
 
 		void Sort();
 		void Union(const StockArray& src);
