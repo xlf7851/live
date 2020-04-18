@@ -210,6 +210,12 @@
     <ClInclude Include="control\modifyTextDlg.h">
       <Filter>control</Filter>
     </ClInclude>
+    <ClInclude Include="base\baseobject.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="stock\synCode.h">
+      <Filter>stock</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -349,6 +355,12 @@
     </ClCompile>
     <ClCompile Include="control\modifyTextDlg.cpp">
       <Filter>control</Filter>
+    </ClCompile>
+    <ClCompile Include="base\baseobject.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="stock\synCode.cpp">
+      <Filter>stock</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

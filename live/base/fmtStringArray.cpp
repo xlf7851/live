@@ -248,6 +248,8 @@ namespace xlf {
 			int nAllocSize = (nSize + 7) / 8 * 8;
 			Alloc(nAllocSize);
 			memcpy(m_data, data, nNeed);
+			data += nNeed;
+			nLen -= nNeed;
 		}
 		
 		m_nSize = nSize;

@@ -8,6 +8,7 @@
 #include "../mathGraphic/glwindow.h"
 #include "../stock/stockDataPage.h"
 #include "../stock/stockDataTable.h"
+#include "../stock/synCode.h"
 #include "../browser/browserwindow.h"
 #include "../mathGraphic/glwindow.h"
 #include "../ImageLive/imageShowPage.h"
@@ -23,6 +24,7 @@ CCustomControlFactory::CCustomControlFactory()
 	REGIST_DUICONTROL(CGLPageUI);
 	REGIST_DUICONTROL(CBlockGroupTabContainerUI);
 	REGIST_DUICONTROL(CBlockListUI);
+	REGIST_DUICONTROL(CCodeLayoutUI);
 	REGIST_DUICONTROL(CStockDataPageUI);
 	REGIST_DUICONTROL(CStockDataTableUI);
 	REGIST_DUICONTROL(CStockDataTableHeaderUI);

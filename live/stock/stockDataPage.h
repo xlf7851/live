@@ -25,9 +25,13 @@ class CBlockListItemUI : public CListLabelElementUI
 public:
 	CBlockListItemUI();
 
+	virtual LPCTSTR GetClass() const;
+	virtual LPVOID GetInterface(LPCTSTR pstrName);
+
 	void DoEvent(TEventUI& event);
 
 	void SetBlockID(uint32 uid);
+	uint32 GetBlockID();
 	void InitControl();
 
 protected:
@@ -35,7 +39,7 @@ protected:
 };
 
 
-class CBlockListUI : public CListUI
+class CBlockListUI : public CListUI, public INotifyUI
 {
 	DECLARE_DUICONTROL(CBlockListUI)
 public:
@@ -45,13 +49,26 @@ public:
 	virtual LPCTSTR GetClass() const;
 	virtual LPVOID GetInterface(LPCTSTR pstrName);
 
+	virtual void DoInit();
+	void Notify(TNotifyUI& msg);
+
 	void BuildList(uint32 uGroupID);
 	void ClearList();
 
 	void AddBlock(uint32 uid);
 
+	uint32 GetCurrentBlockID();
+	void SelectEdDefault();
+
+	CBlockListItemUI* GetSelectedBlockItem();
+	CBlockListItemUI* GetBlockItemAt(int index);
+
+protected:
+	void OnSelectEdBlock();
+
 protected:
 	uint32 m_uGroupID;
+	uint32 m_uCurrentBlockID;
 };
 
 typedef  CBasePageUI _StockDataPageUIBase;
@@ -79,10 +96,12 @@ protected:
 
 	// block
 	void OnNewBlock();
+	void OnSelectedBlock(uint32 blockid);
 
 
 	// stock
 	void OnImport();
+	void OnSaveStock();
 
 protected:
 	void LoadPoolData(LPCTSTR lpszFile);
@@ -96,6 +115,10 @@ protected:
 
 	// stock
 	void UpdateStockList(const stock_wrapper::StockArray& ayStock);
+	void UpdateStockCountText();
+
+	stock_wrapper::StockArray& GetCurrentCodeList();
+	uint32 GetCurrentBlock(uint32& groupid);
 	
 protected:
 	// block group container ctrl
@@ -106,4 +129,10 @@ protected:
 
 	// stocklist
 	CListUI* m_pStockTable;
+
+	// 
+	stock_wrapper::StockArray m_aySrcStockCode;
+	stock_wrapper::StockArray m_ayResultCode;
+
+	CLabelUI* m_pStockCountUI;
 };

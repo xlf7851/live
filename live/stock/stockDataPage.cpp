@@ -11,6 +11,8 @@
 #include "stockdataFile.h"
 #include "block.h"
 
+#define BLOCK_CONTROL_EVENT_SELECTED_BLOCK (_T("BLOCK_CONTROL_EVENT_SELECTED_BLOCK"))
+
 IMPLEMENT_DUICONTROL(CBlockGroupTabContainerUI)
 CBlockGroupTabContainerUI::CBlockGroupTabContainerUI()
 {
@@ -82,6 +84,22 @@ CBlockListItemUI::CBlockListItemUI()
 	m_uBlockID = 0;
 }
 
+LPCTSTR CBlockListItemUI::GetClass() const
+{
+	return DUI_CUSTOM_CTRL_CLASS_BlockListItem;
+}
+
+LPVOID CBlockListItemUI::GetInterface(LPCTSTR pstrName)
+{
+	if (_tcsicmp(pstrName, DUI_CUSTOM_CTRL_INTERFACE_BlockListItem) == 0)
+	{
+		return static_cast<CBlockListItemUI*>(this);
+	}
+
+	return CListLabelElementUI::GetInterface(pstrName);
+}
+
+
 void CBlockListItemUI::DoEvent(TEventUI& event)
 {
 	CListLabelElementUI::DoEvent(event);
@@ -90,6 +108,11 @@ void CBlockListItemUI::DoEvent(TEventUI& event)
 void CBlockListItemUI::SetBlockID(uint32 uid)
 {
 	m_uBlockID = uid;
+}
+
+uint32 CBlockListItemUI::GetBlockID()
+{
+	return m_uBlockID;
 }
 
 void CBlockListItemUI::InitControl()
@@ -104,11 +127,15 @@ IMPLEMENT_DUICONTROL(CBlockListUI)
 CBlockListUI::CBlockListUI()
 {
 	m_uGroupID = 0;
+	m_uCurrentBlockID = 0;
 }
 
 CBlockListUI::~CBlockListUI()
 {
-
+	if (m_pManager)
+	{
+		m_pManager->RemoveNotifier(this);
+	}
 }
 
 LPCTSTR CBlockListUI::GetClass() const
@@ -126,6 +153,32 @@ LPVOID CBlockListUI::GetInterface(LPCTSTR pstrName)
 	return CListUI::GetInterface(pstrName);
 }
 
+void CBlockListUI::DoInit()
+{
+	CListUI::DoInit();
+	if (m_pManager)
+	{
+		m_pManager->AddNotifier(this);
+	}
+}
+
+void CBlockListUI::Notify(TNotifyUI& msg)
+{
+	if (!(msg.pSender == this || control_utl::IsChildControl(this, msg.pSender)))
+	{
+		return;
+	}
+
+	CDuiString strName = msg.pSender->GetName();
+	if (msg.sType.CompareNoCase(DUI_MSGTYPE_ITEMSELECT) == 0)
+	{
+		if (msg.pSender == this)
+		{
+			OnSelectEdBlock();
+		}
+	}
+}
+
 void CBlockListUI::ClearList()
 {
 	RemoveAll();
@@ -134,6 +187,7 @@ void CBlockListUI::ClearList()
 void CBlockListUI::BuildList(uint32 uGroupID)
 {
 	m_uGroupID = uGroupID;
+	m_uCurrentBlockID = 0;
 	ClearList();
 	BlockIDArray ayBlock;
 	stock_wrapper::BlockGroupManager::Instance()->GetBlockArray(m_uGroupID, ayBlock);
@@ -141,6 +195,8 @@ void CBlockListUI::BuildList(uint32 uGroupID)
 	{
 		AddBlock(ayBlock[i]);
 	}
+
+	SelectEdDefault();
 }
 
 void CBlockListUI::AddBlock(uint32 uid)
@@ -151,6 +207,52 @@ void CBlockListUI::AddBlock(uint32 uid)
 	Add(pControl);
 }
 
+uint32 CBlockListUI::GetCurrentBlockID()
+{
+	return m_uCurrentBlockID;
+}
+
+void CBlockListUI::SelectEdDefault()
+{
+	if (GetCount() > 0)
+	{
+		SelectItem(0);
+	}
+}
+
+CBlockListItemUI* CBlockListUI::GetBlockItemAt(int index)
+{
+	int size = GetCount();
+	if (size == 0 || index < 0 || index >= size)
+	{
+		return nullptr;
+	}
+
+	CControlUI* pControl = GetItemAt(index);
+	return pControl ? static_cast<CBlockListItemUI*>(pControl->GetInterface(DUI_CUSTOM_CTRL_INTERFACE_BlockListItem)) : nullptr;
+}
+
+CBlockListItemUI* CBlockListUI::GetSelectedBlockItem()
+{
+	return GetBlockItemAt(GetCurSel());
+}
+
+void CBlockListUI::OnSelectEdBlock()
+{
+	CBlockListItemUI* pItem = GetSelectedBlockItem();
+	if (pItem)
+	{
+		uint32 uBlockID = pItem->GetBlockID();
+		if (uBlockID != m_uCurrentBlockID)
+		{
+			m_uCurrentBlockID = uBlockID;
+			if (m_pManager)
+			{
+				m_pManager->SendNotify(this, BLOCK_CONTROL_EVENT_SELECTED_BLOCK, uBlockID, 0, true);
+			}
+		}
+	}
+}
 
 IMPLEMENT_DUICONTROL(CStockDataPageUI)
 
@@ -160,6 +262,7 @@ CStockDataPageUI::CStockDataPageUI()
 	m_pBlockList = nullptr;
 	m_uCurrentBlockGroupID = 0;
 	m_pStockTable = nullptr;
+	m_pStockCountUI = nullptr;
 }
 
 CStockDataPageUI::~CStockDataPageUI()
@@ -188,6 +291,7 @@ void CStockDataPageUI::InitPage()
 	m_pBlockList = static_cast<CBlockListUI*>(control_utl::FindChildByName(this, _T("stockDataPageBlocklist")));
 
 	m_pStockTable = static_cast<CListUI*>(control_utl::FindChildByName(this, _T("stockDataPageStockTable")));
+	m_pStockCountUI = static_cast<CLabelUI*>(control_utl::FindChildByName(this, _T("stockDataPageBtnLabelStockCnt")));
 
 	if (m_pGroupContainerUI)
 	{
@@ -212,10 +316,18 @@ void CStockDataPageUI::OnNotify(TNotifyUI& msg)
 		{
 			OnImport();
 		}
+		else if (name.CompareNoCase(_T("stockDataPageBtnSaveStock")) == 0)
+		{
+			OnSaveStock();
+		}
 	}
 	else if (msg.sType == DUI_MSGTYPE_SELECTCHANGED)
 	{
 		bool bGroup = OnSelectGroup(msg.pSender);
+	}
+	else if (msg.sType == BLOCK_CONTROL_EVENT_SELECTED_BLOCK)
+	{
+		OnSelectedBlock((uint32)msg.wParam);
 	}
  }
 
@@ -320,6 +432,15 @@ void CStockDataPageUI::DoNewBlock(LPCTSTR lpszName)
 
 }
 
+void CStockDataPageUI::OnSelectedBlock(uint32 blockid)
+{
+	m_aySrcStockCode.ClearStockCode();
+	stock_wrapper::BlockCacheManager::Instance()->QueryStock(blockid, m_aySrcStockCode);
+	m_ayResultCode.ClearStockCode();
+	UpdateStockList(m_aySrcStockCode);
+	
+}
+
 void CStockDataPageUI::OnImport()
 {
 	COpenFileHelp fileHelp;
@@ -352,8 +473,28 @@ void CStockDataPageUI::OnImport()
 	
 }
 
+void CStockDataPageUI::OnSaveStock()
+{
+	stock_wrapper::StockArray& ayCode = GetCurrentCodeList();
+	if (ayCode.GetStockCodeSize() == 0)
+	{
+		return;
+	}
+
+	uint32 groupid = 0;
+	uint32 blockid = GetCurrentBlock(groupid);
+	if (blockid == 0)
+	{
+		return;
+	}
+
+	stock_wrapper::BlockCacheManager::Instance()->UpdateStock(blockid, ayCode);
+}
+
 void CStockDataPageUI::UpdateStockList(const stock_wrapper::StockArray& ayCode)
 {
+	m_ayResultCode = ayCode;
+	UpdateStockCountText();
 	if (m_pStockTable == nullptr)
 	{
 		return;
@@ -379,4 +520,37 @@ void CStockDataPageUI::UpdateStockList(const stock_wrapper::StockArray& ayCode)
 		pNew->SetFixedHeight(24);
 		pNew->SetText((LPCTSTR)stock);
 	}
+}
+
+void CStockDataPageUI::UpdateStockCountText()
+{
+	int nCnt = m_ayResultCode.GetStockCodeSize();
+	CDuiString strText;
+	strText.Format(_T("¸ö¹É(%d)"), nCnt);
+	if (m_pStockCountUI)
+	{
+		m_pStockCountUI->SetText(strText);
+	}
+
+}
+
+stock_wrapper::StockArray& CStockDataPageUI::GetCurrentCodeList()
+{
+	return m_ayResultCode;
+}
+
+uint32 CStockDataPageUI::GetCurrentBlock(uint32& groupid)
+{
+	groupid = m_uCurrentBlockGroupID;
+	if (groupid == 0)
+	{
+		return 0;
+	}
+
+	if (m_pBlockList == nullptr)
+	{
+		return 0;
+	}
+
+	return m_pBlockList->GetCurrentBlockID();
 }
