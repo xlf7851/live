@@ -37,7 +37,7 @@
 #define DUI_CUSTOM_CTRL_CLASS_BlockGroupTabContainer	(_T("BlockGroupTabContainerUI"))
 #define DUI_CUSTOM_CTRL_CLASS_BlockList				(_T("BlockListUI"))
 #define DUI_CUSTOM_CTRL_CLASS_BlockListItem			(_T("BlockListItemUI"))
-#define DUI_CUSTOM_CTRL_CLASS_CodeLayout			(_T("CodeLayoutUI"))
+#define DUI_CUSTOM_CTRL_CLASS_StockPageBase			(_T("StockPageBaseUI"))
 
 
 // custom control interface
@@ -58,7 +58,7 @@
 #define DUI_CUSTOM_CTRL_INTERFACE_BlockGroupTabContainer	(_T("BlockGroupTabContainer"))
 #define DUI_CUSTOM_CTRL_INTERFACE_BlockList				(_T("BlockList"))
 #define DUI_CUSTOM_CTRL_INTERFACE_BlockListItem				(_T("BlockListItem"))
-#define DUI_CUSTOM_CTRL_INTERFACE_CodeLayout				(_T("CodeLayout"))
+#define DUI_CUSTOM_CTRL_INTERFACE_StockPageBase				(_T("StockPageBase"))
 
 ////////////////////////////////////////////////////////////////////////////////////////
 // begin function call

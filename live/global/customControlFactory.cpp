@@ -24,7 +24,7 @@ CCustomControlFactory::CCustomControlFactory()
 	REGIST_DUICONTROL(CGLPageUI);
 	REGIST_DUICONTROL(CBlockGroupTabContainerUI);
 	REGIST_DUICONTROL(CBlockListUI);
-	REGIST_DUICONTROL(CCodeLayoutUI);
+	REGIST_DUICONTROL(CStockPageBaseUI);
 	REGIST_DUICONTROL(CStockDataPageUI);
 	REGIST_DUICONTROL(CStockDataTableUI);
 	REGIST_DUICONTROL(CStockDataTableHeaderUI);

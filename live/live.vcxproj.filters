@@ -216,6 +216,15 @@
     <ClInclude Include="stock\synCode.h">
       <Filter>stock</Filter>
     </ClInclude>
+    <ClInclude Include="stock\stock.h">
+      <Filter>stock</Filter>
+    </ClInclude>
+    <ClInclude Include="stock\stockPageBase.h">
+      <Filter>stock</Filter>
+    </ClInclude>
+    <ClInclude Include="stock\stockInterface.h">
+      <Filter>stock</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -360,6 +369,12 @@
       <Filter>base</Filter>
     </ClCompile>
     <ClCompile Include="stock\synCode.cpp">
+      <Filter>stock</Filter>
+    </ClCompile>
+    <ClCompile Include="stock\stockPageBase.cpp">
+      <Filter>stock</Filter>
+    </ClCompile>
+    <ClCompile Include="stock\stockInterface.cpp">
       <Filter>stock</Filter>
     </ClCompile>
   </ItemGroup>

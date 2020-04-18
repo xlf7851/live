@@ -250,8 +250,9 @@ namespace stock_wrapper {
 		}
 
 		StockCode* AddStockCode(const StockCode& stockCode);
-		StockCode* GetStockCodeAt(int index);
-		const StockCode* GetStockCodeAt(int index) const;
+		const StockCode& GetStockCodeAt(int index) const;
+		StockCode& GetStockCodeAt(int index);
+		
 		int FindStockCodeIndex(const StockCode& stockCode) const;
 		int RemoveStockCode(const StockCode& stockCode);
 

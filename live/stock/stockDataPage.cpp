@@ -278,7 +278,7 @@ LPCTSTR CStockDataPageUI::GetClass() const
 LPVOID CStockDataPageUI::GetInterface(LPCTSTR pstrName)
 {
 	if (_tcsicmp(pstrName, DUI_CUSTOM_CTRL_INTERFACE_StockDataPage) == 0) return static_cast<CStockDataPageUI*>(this);
-	return _StockDataPageUIBase::GetInterface(pstrName);
+	return CStockPageBaseUI::GetInterface(pstrName);
 
 	
 }
@@ -290,12 +290,40 @@ void CStockDataPageUI::InitPage()
 
 	m_pBlockList = static_cast<CBlockListUI*>(control_utl::FindChildByName(this, _T("stockDataPageBlocklist")));
 
-	m_pStockTable = static_cast<CListUI*>(control_utl::FindChildByName(this, _T("stockDataPageStockTable")));
+	m_pStockTable = static_cast<CStockDataTableUI*>(control_utl::FindChildByName(this, _T("stockDataPageStockTable")));
 	m_pStockCountUI = static_cast<CLabelUI*>(control_utl::FindChildByName(this, _T("stockDataPageBtnLabelStockCnt")));
+
+	InitSynCode();
 
 	if (m_pGroupContainerUI)
 	{
 		m_pGroupContainerUI->SelectedGroup(BLOCK_GROUP_ID_SELF);
+	}
+}
+
+void CStockDataPageUI::InitSynCode()
+{
+	AddSynCode(m_uCodeList);
+	if (m_pStockTable)
+	{
+		m_pStockTable->SetCodeListID(m_uCodeList);
+	}
+}
+
+void CStockDataPageUI::OnStockChangeEvent(HSynCode hSynCode, uint32 uCodeListID, uint64 uEvent)
+{
+	if (uEvent == STOCK_CHANGE_EVENT_RESET)
+	{
+		if (m_uCodeList == uCodeListID)
+		{
+			if (m_pStockTable)
+			{
+				m_pStockTable->ReLoadCodeList();
+			}
+
+			UpdateStockCountText();
+		}
+		
 	}
 }
 
@@ -434,11 +462,11 @@ void CStockDataPageUI::DoNewBlock(LPCTSTR lpszName)
 
 void CStockDataPageUI::OnSelectedBlock(uint32 blockid)
 {
-	m_aySrcStockCode.ClearStockCode();
-	stock_wrapper::BlockCacheManager::Instance()->QueryStock(blockid, m_aySrcStockCode);
-	m_ayResultCode.ClearStockCode();
-	UpdateStockList(m_aySrcStockCode);
+	stock_wrapper::StockArray ayCode;
+	stock_wrapper::BlockCacheManager::Instance()->QueryStock(blockid, ayCode);
+	m_aySrcStockCode = ayCode;
 	
+	UpdateStockList(ayCode);
 }
 
 void CStockDataPageUI::OnImport()
@@ -475,7 +503,12 @@ void CStockDataPageUI::OnImport()
 
 void CStockDataPageUI::OnSaveStock()
 {
-	stock_wrapper::StockArray& ayCode = GetCurrentCodeList();
+	HSynCode hSynCode = FindSynCode(m_uCodeList);
+	if (nullptr == hSynCode)
+	{
+		return;
+	}
+	stock_wrapper::StockArray& ayCode = stock_wrapper::GetCodeArray(hSynCode);
 	if (ayCode.GetStockCodeSize() == 0)
 	{
 		return;
@@ -491,40 +524,34 @@ void CStockDataPageUI::OnSaveStock()
 	stock_wrapper::BlockCacheManager::Instance()->UpdateStock(blockid, ayCode);
 }
 
-void CStockDataPageUI::UpdateStockList(const stock_wrapper::StockArray& ayCode)
+void CStockDataPageUI::UpdateStockList(stock_wrapper::StockArray& ayCode)
 {
-	m_ayResultCode = ayCode;
-	UpdateStockCountText();
-	if (m_pStockTable == nullptr)
+	HSynCode hSynCode = FindSynCode(m_uCodeList);
+	if (hSynCode)
 	{
-		return;
-	}
-
-	m_pStockTable->RemoveAll();
-
-	int nSize = ayCode.GetStockCodeSize();
-	for (int i = 0; i < nSize; i++)
-	{
-		const stock_wrapper::StockCode* code = ayCode.GetStockCodeAt(i);
-		
-		if (code->Empty())
-		{
-			continue;
-		}
-
-		stock_wrapper::Stock stock = code->GetStock();
-
-		CListLabelElementUI* pNew = new CListLabelElementUI;
-		pNew->SetOwner(m_pStockTable);
-		m_pStockTable->Add(pNew);
-		pNew->SetFixedHeight(24);
-		pNew->SetText((LPCTSTR)stock);
+		stock_wrapper::SetCodeList(hSynCode, ayCode);
 	}
 }
 
+void CStockDataPageUI::GetStockList(stock_wrapper::StockArray& ayCode)
+{
+	HSynCode hSynCode = FindSynCode(m_uCodeList);
+	if (hSynCode)
+	{
+		stock_wrapper::GetCodeArray(hSynCode, ayCode);
+	}
+}
+
+
 void CStockDataPageUI::UpdateStockCountText()
 {
-	int nCnt = m_ayResultCode.GetStockCodeSize();
+	int nCnt = 0;
+	HSynCode hSynCode = FindSynCode(m_uCodeList);
+	if (hSynCode)
+	{
+		nCnt = stock_wrapper::GetCodeSize(hSynCode);
+	}
+	
 	CDuiString strText;
 	strText.Format(_T("¸ö¹É(%d)"), nCnt);
 	if (m_pStockCountUI)
@@ -534,10 +561,7 @@ void CStockDataPageUI::UpdateStockCountText()
 
 }
 
-stock_wrapper::StockArray& CStockDataPageUI::GetCurrentCodeList()
-{
-	return m_ayResultCode;
-}
+
 
 uint32 CStockDataPageUI::GetCurrentBlock(uint32& groupid)
 {

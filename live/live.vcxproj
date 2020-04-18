@@ -212,11 +212,14 @@
     <ClInclude Include="stock\blockAsk.h" />
     <ClInclude Include="stock\hqDataQuery.h" />
     <ClInclude Include="stock\market.h" />
+    <ClInclude Include="stock\stock.h" />
     <ClInclude Include="stock\stockArray.h" />
     <ClInclude Include="stock\stockdata.h" />
     <ClInclude Include="stock\stockdataFile.h" />
     <ClInclude Include="stock\stockDataPage.h" />
     <ClInclude Include="stock\stockDataTable.h" />
+    <ClInclude Include="stock\stockInterface.h" />
+    <ClInclude Include="stock\stockPageBase.h" />
     <ClInclude Include="stock\synCode.h" />
     <ClInclude Include="targetver.h" />
   </ItemGroup>
@@ -275,6 +278,8 @@
     <ClCompile Include="stock\stockdataFile.cpp" />
     <ClCompile Include="stock\stockDataPage.cpp" />
     <ClCompile Include="stock\stockDataTable.cpp" />
+    <ClCompile Include="stock\stockInterface.cpp" />
+    <ClCompile Include="stock\stockPageBase.cpp" />
     <ClCompile Include="stock\synCode.cpp" />
   </ItemGroup>
   <ItemGroup>

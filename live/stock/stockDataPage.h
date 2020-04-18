@@ -71,14 +71,14 @@ protected:
 	uint32 m_uCurrentBlockID;
 };
 
-typedef  CBasePageUI _StockDataPageUIBase;
+
 namespace stock_wrapper
 {
 	class MarketDayData;
 }
 
 class CStockDataTableUI;
-class CStockDataPageUI : public _StockDataPageUIBase
+class CStockDataPageUI : public CStockPageBaseUI
 {
 	DECLARE_DUICONTROL(CStockDataPageUI)
 public:
@@ -90,6 +90,7 @@ public:
 
 	virtual void OnNotify(TNotifyUI& msg);
 	virtual void InitPage();
+	virtual void OnStockChangeEvent(HSynCode hSynCode, uint32 uCodeListID, uint64 uEvent);
 protected:
 	void OnLoadData();
 	bool OnSelectGroup(CControlUI* pControl);
@@ -104,6 +105,7 @@ protected:
 	void OnSaveStock();
 
 protected:
+	void InitSynCode();
 	void LoadPoolData(LPCTSTR lpszFile);
 
 	// list group
@@ -114,11 +116,14 @@ protected:
 	void DoNewBlock(LPCTSTR lpszName);
 
 	// stock
-	void UpdateStockList(const stock_wrapper::StockArray& ayStock);
+	void UpdateStockList(stock_wrapper::StockArray& ayStock);
+	void GetStockList(stock_wrapper::StockArray& ayCode);
 	void UpdateStockCountText();
 
-	stock_wrapper::StockArray& GetCurrentCodeList();
+	
 	uint32 GetCurrentBlock(uint32& groupid);
+
+	
 	
 protected:
 	// block group container ctrl
@@ -128,11 +133,11 @@ protected:
 	uint32 m_uCurrentBlockGroupID;
 
 	// stocklist
-	CListUI* m_pStockTable;
+	CStockDataTableUI* m_pStockTable;
+	uint32 m_uCodeList = 0;
 
 	// 
 	stock_wrapper::StockArray m_aySrcStockCode;
-	stock_wrapper::StockArray m_ayResultCode;
 
 	CLabelUI* m_pStockCountUI;
 };

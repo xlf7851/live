@@ -34,6 +34,7 @@ using namespace DuiLib;
 #include "global/global.h"
 #include "Control/controlGlobalFunc.h"
 #include "page/basePage.h"
+#include "stock/stock.h"
 
 
 

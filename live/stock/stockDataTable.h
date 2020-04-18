@@ -1,10 +1,19 @@
 #pragma once
-#include "stockdata.h"
 
-namespace stock_wrapper
+
+class CStockDataTableUI;
+class CStockDataTableVirtualListDataProvider : public IVirtualDataProvider
 {
-	class MarketDayData;
-}
+public:
+	CStockDataTableVirtualListDataProvider(CStockDataTableUI* pTable);
+	
+	virtual CControlUI* CreateElement();
+	virtual void FillElement(CListUI* pList, CControlUI *pControl, int index);
+	virtual int GetElementCount();
+
+protected:
+	CStockDataTableUI* m_pTable = nullptr;
+};
 
 class CStockDataTableHeaderUI : public CListHeaderItemUI
 {
@@ -16,17 +25,8 @@ public:
 	virtual LPVOID GetInterface(LPCTSTR pstrName);
 };
 
-class CStockDayDataTableDataHandler : public IVirtualListDataHandler
-{
-public:
-	virtual void UpdateColumnData(CControlUI* pColumnItem, int nRow, int nColumn);
-	virtual int GetDataCount();
-
-protected:
-	stock_wrapper::DayDataArray m_dayData;
-};
-
-class CStockDataTableUI : public CVirtualListUI, public IVirtualListColumnCreater
+class CStockPageBaseUI;
+class CStockDataTableUI : public CVirtualListUI
 {
 	DECLARE_DUICONTROL(CStockDataTableUI)
 public:
@@ -35,11 +35,29 @@ public:
 
 	virtual LPCTSTR GetClass() const;
 	virtual LPVOID GetInterface(LPCTSTR pstrName);
+	virtual void SetPos(RECT rc, bool bNeedInvalidate = true);
 
-	CControlUI* CreaterColumn(int nColumn);
-//	virtual IVirtualListDataHandler* CreateDataHandler();
+	CListContainerElementUI* CreateRow();
+	virtual CControlUI* CreaterColumn(int nColumn);
+	virtual void FillRow(CListUI* pList, CControlUI *pControl, int index);
+	virtual void UpdateColumnData(CControlUI* pColumnItem, int nRow, int nColumn);
+	void ReBuildControl();
 
+	void InitTable();
+	void InvalidTable();
+	void ReLoadCodeList();
+	void UpdateCodeList(stock_wrapper::StockArray& ayCode);
+
+	CStockPageBaseUI* GetParentStockPage();
+	virtual HSynCode GetSynCode();
+	uint32 GetCodeListID();
+	void SetCodeListID(uint32 codeid);
+	
+	virtual int GetDataCount();
+	stock_wrapper::StockCode GetStockCodeAt(int Index);
 protected:
-	stock_wrapper::Stock m_stock;
-	CVirtualListContainerElementDataProvider* m_pDataProvider;
+	CStockDataTableVirtualListDataProvider* m_pDataProvider = nullptr;
+	uint32 m_uCodeList = 0;
+	int m_nStockSizeCache = 0;
+	int m_nPageRow = 1;
 };

@@ -180,8 +180,8 @@ namespace stock_wrapper
 		_tstring str;
 		for (int i = 0; i < nSize; i++)
 		{
-			StockCode* p = GetStockCodeAt(i);
-			str = p->ToString();
+			StockCode& p = GetStockCodeAt(i);
+			str = p.ToString();
 			if (!str.empty())
 			{
 				strCodes += str;
@@ -392,17 +392,16 @@ namespace stock_wrapper
 		return (StockCode*)p;
 	}
 
-
-	StockCode* StockArray::GetStockCodeAt(int index)
+	StockCode& StockArray::GetStockCodeAt(int index)
 	{
-		LPCTSTR p = GetAt(index);
-		return (StockCode*)p;
+		LPCTSTR p = GetData(index);
+		return *((StockCode*)p);
 	}
 
-	const StockCode* StockArray::GetStockCodeAt(int index) const
+	const StockCode& StockArray::GetStockCodeAt(int index) const
 	{
-		LPCTSTR p = GetAt(index);
-		return (const StockCode*)p;
+		LPCTSTR p = GetData(index);
+		return *((const StockCode*)p);
 	}
 
 	int StockArray::FindStockCodeIndex(const StockCode& stockCode) const
@@ -422,8 +421,8 @@ namespace stock_wrapper
 		int size = GetSize();
 		for (int i = 0; i < size; i++)
 		{
-			const StockCode* p = GetStockCodeAt(i);
-			if (p->Compare(stockCode) == 0)
+			const StockCode& p = GetStockCodeAt(i);
+			if (p.Compare(stockCode) == 0)
 			{
 				return i;
 			}
@@ -444,13 +443,13 @@ namespace stock_wrapper
 		while (left <= right)
 		{
 			int mid = (left + right) / 2;
-			const StockCode* pMid = GetStockCodeAt(mid);
+			const StockCode& pMid = GetStockCodeAt(mid);
 
-			if (stockCode == *pMid)
+			if (stockCode == pMid)
 			{
 				return mid;
 			}
-			if (stockCode > *pMid)
+			if (stockCode > pMid)
 			{
 				left = mid + 1;
 			}

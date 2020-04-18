@@ -2993,97 +2993,6 @@ namespace DuiLib {
 		}
 	}
 
-	CVirtualListContainerElementDataProvider::CVirtualListContainerElementDataProvider()
-	{
-		m_pDataHander = NULL;
-		m_bAutoReleaseDataHandler = false;
-
-		m_pColumnCreater = NULL;
-		m_bAutoReleaseColumnCreater = false;
-	}
-
-	CVirtualListContainerElementDataProvider::~CVirtualListContainerElementDataProvider()
-	{
-		if (m_pColumnCreater && m_bAutoReleaseColumnCreater)
-		{
-			delete m_pColumnCreater;
-			m_pColumnCreater = NULL;
-		}
-
-		if (m_bAutoReleaseDataHandler && m_pDataHander)
-		{
-			delete m_pDataHander;
-			m_pDataHander = NULL;
-		}
-	}
-
-
-	CControlUI* CVirtualListContainerElementDataProvider::CreateElement()
-	{
-		CListContainerElementUI* pItem = new CListContainerElementUI;
-		pItem->SetChildVAlign(DT_VCENTER);
-		return pItem;
-	}
-	
-	void CVirtualListContainerElementDataProvider::FillElement(CListUI* pList, CControlUI *pControl, int index)
-	{
-		CListContainerElementUI* pHor = static_cast<CListContainerElementUI*>(pControl->GetInterface(DUI_CTR_LISTCONTAINERELEMENT));
-		if (pHor)
-		{
-			int nCnt = pList->GetHeader()->GetCount();
-			for (int i = 0; i < nCnt; i++)
-			{
-				CControlUI* pItem = NULL;
-				if (m_pColumnCreater)
-				{
-					pItem = m_pColumnCreater->CreaterColumn(i);
-				}
-				if (pItem == NULL)
-				{
-					pItem = new CLabelUI;
-				}
-
-				if (m_pDataHander)
-				{
-					m_pDataHander->UpdateColumnData(pItem, index, i);
-				}
-
-				pHor->Add(pItem);
-			}
-		}
-	}
-
-	int CVirtualListContainerElementDataProvider::GetElementCount()
-	{
-		return m_pDataHander ? m_pDataHander->GetDataCount() : 0;
-	}
-
-
-	void CVirtualListContainerElementDataProvider::SetDataHander(IVirtualListDataHandler* pHandler, bool bAuto)
-	{
-		if (m_pDataHander && m_bAutoReleaseDataHandler)
-		{
-			delete m_pDataHander;
-		}
-		m_pDataHander = pHandler;
-		m_bAutoReleaseDataHandler = bAuto;
-	}
-
-	IVirtualListDataHandler* CVirtualListContainerElementDataProvider::GetDataHandler()
-	{
-		return m_pDataHander;
-	}
-
-	void CVirtualListContainerElementDataProvider::SetColumnCreater(IVirtualListColumnCreater* pCreater, bool bAuto)
-	{
-		if (m_pColumnCreater && m_bAutoReleaseColumnCreater)
-		{
-			delete m_pColumnCreater;
-		}
-		m_pColumnCreater = pCreater;
-		m_bAutoReleaseColumnCreater = bAuto;
-	}
-
 	CVirListBodyUI::CVirListBodyUI(CListUI* pOwner) : CListBodyUI(pOwner), m_pDataProvider(NULL)
 	{
 		m_pOwner = pOwner;
@@ -3148,7 +3057,6 @@ namespace DuiLib {
 
 	void CVirListBodyUI::Refresh()
 	{
-
 		int nElementCount = GetElementCount();
 		int nItemCount = GetCount();
 
@@ -4227,6 +4135,14 @@ namespace DuiLib {
 		}
 	}
 
+	void CVirtualListUI::Refresh()
+	{
+		if (m_pList)
+		{
+			m_pList->Refresh();
+		}
+	}
+
 	void CVirtualListUI::RemoveAll()
 	{
 		//__super::RemoveAll();
@@ -4241,8 +4157,6 @@ namespace DuiLib {
 		if (m_pVerticalScrollBar)
 			m_pVerticalScrollBar->SetScrollPos(0);
 
-		delete m_pDataProvider;
-		m_pDataProvider = NULL;
 		m_nOldYScrollPos = 0;
 		m_bArrangedOnce = false;
 		m_bForceArrange = false;
@@ -4304,9 +4218,12 @@ namespace DuiLib {
 
 	void CVirtualListUI::SetPos(RECT rc, bool bNeedInvalidate)
 	{
-
 		CVerticalLayoutUI::SetPos(rc, bNeedInvalidate);
+		_SetPos(bNeedInvalidate);
+	}
 
+	void CVirtualListUI::_SetPos(bool bNeedInvalidate)
+	{
 		if (m_pHeader == NULL) return;
 		// Determine general list information and the size of header columns
 		m_ListInfo.nColumns = MIN(m_pHeader->GetCount(), UILIST_MAX_COLUMNS);
@@ -4317,7 +4234,7 @@ namespace DuiLib {
 			for (int it = 0; it < m_pHeader->GetCount(); it++) {
 				static_cast<CControlUI*>(m_pHeader->GetItemAt(it))->SetInternVisible(true);
 			}
-			m_pHeader->SetPos(CDuiRect(rc.left, 0, rc.right, 0), bNeedInvalidate);
+			m_pHeader->SetPos(CDuiRect(m_rcItem.left, 0, m_rcItem.right, 0), bNeedInvalidate);
 		}
 
 		for (int i = 0; i < m_ListInfo.nColumns; i++) {

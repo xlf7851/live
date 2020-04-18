@@ -89,21 +89,6 @@ void CTestControlPageUI::OnScreenshot()
 
 void CTestControlPageUI::OnTestVirtualList()
 {
-// 	CVirtualListUI* pList = static_cast<CVirtualListUI*>(m_pManager->FindControl(_T("virListDemo")));
-// 	if (NULL != pList)
-// 	{
-// 		pList->RemoveAll();
-// 
-// 		MVirtualDataProvider* pFileListProvider = new MVirtualDataProvider(m_pManager);
-// 
-// 
-// 		//初始化之前需要清空列表和数据
-// 
-// 		pList->SetDataProvider(pFileListProvider);
-// 		pList->SetElementHeight(22);
-// 
-// 		pList->InitElement();
-// 
-// 	}
+	
 }
 

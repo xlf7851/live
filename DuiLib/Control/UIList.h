@@ -531,7 +531,7 @@ namespace DuiLib {
 		* @brief 创建一个子项
 		* @return 返回创建后的子项指针
 		*/
-		virtual CControlUI* CreateElement() abstract;
+		virtual CControlUI* CreateElement() = 0;
 
 		/**
 		* @brief 填充指定子项
@@ -539,55 +539,18 @@ namespace DuiLib {
 		* @param[in] index 索引
 		* @return 返回创建后的子项指针
 		*/
-		virtual void FillElement(CListUI* pList, CControlUI *pControl, int index) abstract;
+		virtual void FillElement(CListUI* pList, CControlUI *pControl, int index) = 0;
 
 		/**
 		* @brief 获取子项总数
 		* @return 返回子项总数
 		*/
-		virtual int GetElementCount() abstract;
+		virtual int GetElementCount() = 0;
 	};
 
 	
 
-	// 数据
-	class IVirtualListDataHandler
-	{
-	public:
-		virtual void UpdateColumnData(CControlUI* pColumnItem, int nRow, int nColumn) = 0;
-		virtual int GetDataCount() = 0;
-	};
-
-	class IVirtualListColumnCreater
-	{
-	public:
-		virtual CControlUI* CreaterColumn(int nColumn) = 0;
-	};
-
-	class UILIB_API CVirtualListContainerElementDataProvider : public IVirtualDataProvider
-	{
-	public:
-		CVirtualListContainerElementDataProvider();
-		virtual ~CVirtualListContainerElementDataProvider();
-
-
-		virtual CControlUI* CreateElement();
-		virtual void FillElement(CListUI* pList, CControlUI *pControl, int index);
-		virtual int GetElementCount();
-		
-
-		void SetDataHander(IVirtualListDataHandler* pHandler, bool bAuto = false);
-		IVirtualListDataHandler* GetDataHandler();
-
-		void SetColumnCreater(IVirtualListColumnCreater* pCreater, bool bAuto = false);
-
-	protected:
-		IVirtualListDataHandler* m_pDataHander;
-		bool m_bAutoReleaseDataHandler;
-
-		IVirtualListColumnCreater* m_pColumnCreater;
-		bool m_bAutoReleaseColumnCreater;
-	};
+	
 
 	class CVirListBodyUI : public CListBodyUI
 	{
@@ -859,9 +822,9 @@ namespace DuiLib {
 		POINT m_BoxStartPt = { 0,0 };//框选开始起点
 
 						   //OwnerData
-		IVirtualDataProvider*  m_pDataProvider;
+		IVirtualDataProvider*  m_pDataProvider =nullptr;
 
-		int m_nOwnerElementHeight = 0;	// 每个项的高度	
+		int m_nOwnerElementHeight = 20;	// 每个项的高度	
 		int m_nOwnerItemCount = 0;	// 列表真实控件数量上限  
 		int m_nOldYScrollPos = 0;
 		bool m_bArrangedOnce = false;
@@ -914,6 +877,13 @@ namespace DuiLib {
 		virtual void InitElement(int nMaxItemCount = 50);
 
 		/**
+		* @brief 刷新列表
+		* @return 无
+		*/
+		virtual void Refresh();
+
+
+		/**
 		* @brief 删除所有子项
 		* @return 无
 		*/
@@ -944,8 +914,8 @@ namespace DuiLib {
 		std::vector<int> GetSelectIndex();
 	protected:
 		/// 重写父类接口，提供个性化功能
-
 		virtual void SetPos(RECT rc, bool bNeedInvalidate = true);
+		virtual void _SetPos(bool bNeedInvalidate = true);
 
 	private:
 		enum ScrollDirection
